@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>خدمة إعدادي - الصفحة الرئيسية</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; margin: 0; padding: 10px; }
+        
+        #loginScreen { position: fixed; inset: 0; background: #0f172a; display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        .login-box { background: #1e293b; padding: 30px; border-radius: 20px; text-align: center; border: 2px solid #6366f1; width: 85%; max-width: 350px; }
+        #mainContent { display: none; }
+
+        #adminAlert { display: none; background: #b91c1c; color: white; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 2px solid #ef4444; animation: flash 2s infinite; }
+        @keyframes flash { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+
+        .main-title { text-align: center; color: #818cf8; margin-bottom: 20px; }
+        .section { background: #1e293b; padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #334155; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; }
+        
+        .card { background: #0f172a; padding: 10px; border-radius: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+        .bar-wrap { height: 60px; background: #334155; border-radius: 5px; overflow: hidden; margin: 5px 0; display: flex; align-items: flex-end; }
+        .bar { width: 100%; transition: height 1s; }
+        
+        .bg-high { background: linear-gradient(to top, #16a34a, #4ade80); }
+        .bg-mid { background: linear-gradient(to top, #ca8a04, #facc15); }
+        .bg-low { background: linear-gradient(to top, #dc2626, #f87171); }
+
+        textarea, input[type="text"], input[type="password"], select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; margin-bottom: 10px; outline: none; }
+        .btn { background: #6366f1; color: white; padding: 12px; width: 100%; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
+        
+        .chat-display { height: 180px; overflow-y: auto; background: #0f172a; padding: 10px; border-radius: 10px; margin-bottom: 10px; }
+        .chat-msg { background: #1e293b; padding: 6px 10px; border-radius: 10px; margin-bottom: 6px; font-size: 13px; border-right: 3px solid #6366f1; }
+        
+        #prayerTimer { display: none; background: #312e81; padding: 15px; border-radius: 15px; border: 2px solid #818cf8; margin-top: 15px; text-align: center; }
+        .counter { font-size: 45px; font-weight: bold; color: #fbbf24; margin: 5px 0; }
+        .prayer-text-display { font-size: 18px; font-weight: bold; color: #fef3c7; min-height: 80px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; background: rgba(0,0,0,0.2); border-radius: 10px; padding: 10px; text-align: center; }
+
+        .switch-container { display: flex; justify-content: space-between; align-items: center; background: #334155; padding: 10px 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #ec4899; }
+        .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; inset: 0; background-color: #1e293b; transition: .4s; border-radius: 34px; border: 1px solid #475569; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 4px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #ec4899; }
+        input:checked + .slider:before { transform: translateX(22px); }
+        .love-msg { background: rgba(236, 72, 153, 0.1); border-right: 4px solid #ec4899; padding: 10px; border-radius: 8px; font-size: 14px; color: #fbcfe8; margin-bottom:15px; }
+        .mood-btn { font-size: 32px; cursor: pointer; transition: 0.2s; padding: 5px; }
+    </style>
+</head>
+<body>
+
+    <div id="loginScreen">
+        <div class="login-box">
+            <h3 style="margin:0 0 10px 0; color:#818cf8;">† دخول المخدومين †</h3>
+            <input type="password" id="passInput" placeholder="كلمة السر">
+            <button class="btn" onclick="checkAccess()">دخول</button>
+        </div>
+    </div>
+
+    <div id="mainContent">
+        <div class="main-title">
+            <h2 style="margin:0;">خدمة إعدادي</h2>
+            <small>كنيسة العذراء وأبوسيفين وأبسخيرون القليني</small>
+        </div>
+
+        <div id="adminAlert">
+            <b style="display:block;">📢 تنبيه من الخدام:</b>
+            <span id="alertText"></span>
+        </div>
+
+        <div class="section">
+            <h3 style="margin-top:0; color: #fbbf24;">🏆 لوحة الشرف</h3>
+            <div id="leaderboard" class="grid"></div>
+        </div>
+
+        <div class="section">
+            <h3>📝 بياناتي</h3>
+            <input type="text" id="userName" placeholder="اكتب اسمك هنا..." oninput="localStorage.setItem('chat_user_name', this.value)">
+        </div>
+
+        <div id="chatSection" class="section" style="display:none; border-right: 5px solid #6366f1;">
+            <h3>💬 دردشة المجموعة</h3>
+            <div id="chatBox" class="chat-display"></div>
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="chatInput" placeholder="اكتب رسالة...">
+                <button onclick="sendChat()" style="background:#6366f1; border:none; padding:0 15px; border-radius:10px; color:white;">إرسال</button>
+            </div>
+        </div>
+
+        <div class="switch-container">
+            <span style="font-weight: bold;">🌱 ركن المساندة النفسية</span>
+            <label class="switch">
+                <input type="checkbox" onchange="document.getElementById('psyArea').style.display = this.checked ? 'block' : 'none'">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div id="psyArea" class="section" style="display: none; border: 2px solid #ec4899;">
+            <div class="love-msg">ماتخفش احنا جنبك كلنا بنحبك وانت غالي على قلب المسيح.. ❤️</div>
+            
+            <p style="text-align:center; font-size:13px; margin:0 0 10px 0;">كيف حالك الآن؟</p>
+            <div style="display:flex; justify-content:space-around; margin-bottom:15px;">
+                <span class="mood-btn" onclick="sendMood('😊')">😊</span>
+                <span class="mood-btn" onclick="sendMood('😌')">😌</span>
+                <span class="mood-btn" onclick="sendMood('😟')">😟</span>
+                <span class="mood-btn" onclick="sendMood('😢')">😢</span>
+                <span class="mood-btn" onclick="sendMood('😫')">😫</span>
+            </div>
+
+            <select id="psyNeed">
+                <option value="فضفضة 🗣️">مجرد فضفضة 🗣️</option>
+                <option value="صلاة 🙏">صلاة من أجلي 🙏</option>
+                <option value="إنقاذ سريع 🚨">إنقاذ سريع 🚨</option>
+                <option value="دعم 🤝">دعم وتوجيه 🤝</option>
+            </select>
+
+            <textarea id="psyMsg" placeholder="اكتب ما بقلبك هنا..." style="height: 80px;"></textarea>
+            <button class="btn" style="background:#ec4899; margin-bottom:15px;" onclick="sendPsyMsg()">إرسال بخصوصية 🕊️</button>
+
+            <button class="btn" style="background:#fbbf24; color:#000;" onclick="startPrayerSession()">✨ يلا نصلو سوا ✨</button>
+
+            <div id="prayerTimer">
+                <div class="prayer-text-display" id="activePrayer">تحميل الصلاة...</div>
+                <div class="counter" id="count">0</div>
+                <button class="btn" style="background:#818cf8; height: 80px; font-size:18px;" onclick="countPrayer()">اضغط للعد والتحويل ➔</button>
+                <textarea id="thanksMsg" placeholder="انا بشكرك من كل قلبي على..." style="height: 60px; margin-top:10px; font-size:13px;"></textarea>
+                <button class="btn" style="background:#ef4444; margin-top:5px; padding:5px;" onclick="endPrayer()">إنهاء الصلاة</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>✉️ رسالة سرية للمسؤول</h3>
+            <textarea id="secretMsg" placeholder="سؤال أو رسالة سرية..." style="height: 60px;"></textarea>
+            <button class="btn" onclick="sendSecret()">إرسال 🚀</button>
+        </div>
+    </div>
+
+<script>
+    const config = { databaseURL: "https://church-a408e-default-rtdb.firebaseio.com/" };
+    firebase.initializeApp(config);
+    const db = firebase.database();
+    let pCount = 0;
+    
+    // جمل الصلاة الـ 11 المطلوبة
+    const prayers = [
+        "بحبك ياربي يسوع وعاوز قلبي يتملا بحبك",
+        "قلبي ياربي يسوع خليه كله ملكك",
+        "ارجوك اسندي ياالهي في ضعفي",
+        "اشكرك اشكرك علي محبتك لي",
+        "اجعل فكري نقي زي مانت عاوزه طاهر من كل شر",
+        "سامحني علي ضعفي انا ابنك وانت ابويا",
+        "ارسم طريقك امامي امشي فيه",
+        "خليني احس بحضورك جوا قلبي",
+        "اشكرك لاني تسمعني انا الخاطئ",
+        "انر عيني ياربي يسوع المسيح لكي اراك",
+        "افتح ذهني علشان احب وصاياك"
+    ];
+
+    function checkAccess() {
+        if(document.getElementById('passInput').value === "jesus") {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            startApp();
+        } else { alert("كلمة السر خطأ!"); }
+    }
+
+    function startPrayerSession() {
+        if(confirm("مستعد تقضي وقت هادي مع ربنا؟")) {
+            document.getElementById('prayerTimer').style.display = 'block';
+            pCount = 0;
+            updatePrayerDisplay();
+        }
+    }
+
+    function countPrayer() {
+        pCount++;
+        updatePrayerDisplay();
+        if(window.navigator.vibrate) window.navigator.vibrate(40);
+    }
+
+    function updatePrayerDisplay() {
+        document.getElementById('count').innerText = pCount;
+        const index = pCount % prayers.length;
+        document.getElementById('activePrayer').innerText = prayers[index];
+    }
+
+    async function endPrayer() {
+        const thanks = document.getElementById('thanksMsg').value;
+        const name = document.getElementById('userName').value || "مخدوم";
+        if(pCount > 0) {
+            await db.ref("psychology/prayers").push({ sender: name, repetition: pCount, thanks: thanks, time: new Date().toLocaleString('ar-EG') });
+            alert("صلاة مقبولة.. ربنا يفرح قلبك!");
+        }
+        document.getElementById('prayerTimer').style.display = 'none';
+        document.getElementById('thanksMsg').value = "";
+    }
+
+    function startApp() {
+        if(localStorage.getItem('chat_user_name')) document.getElementById('userName').value = localStorage.getItem('chat_user_name');
+        db.ref("admin_announcement").on("value", snap => {
+            const text = snap.val();
+            document.getElementById('adminAlert').style.display = (text && text.trim() !== "") ? 'block' : 'none';
+            document.getElementById('alertText').innerText = text;
+        });
+        db.ref("points_data").on("value", snap => {
+            const list = document.getElementById('leaderboard'); list.innerHTML = "";
+            const data = snap.val(); if(!data) return;
+            Object.values(data).sort((a,b) => b.score - a.score).forEach(p => {
+                let colorClass = p.score >= 70 ? 'bg-high' : (p.score >= 40 ? 'bg-mid' : 'bg-low');
+                list.innerHTML += `<div class="card"><div class="bar-wrap"><div class="bar ${colorClass}" style="height:${Math.min(p.score, 100)}%"></div></div><div style="font-weight:bold; color:#fbbf24;">${p.score}</div><div style="font-size:11px;">${p.name}</div></div>`;
+            });
+        });
+        db.ref("settings/chatEnabled").on("value", snap => { document.getElementById('chatSection').style.display = snap.val() !== false ? "block" : "none"; });
+        db.ref("chat").limitToLast(15).on("value", snap => {
+            const box = document.getElementById('chatBox'); box.innerHTML = "";
+            snap.forEach(c => { box.innerHTML += `<div class="chat-msg"><b>${c.val().sender}:</b> ${c.val().text}</div>`; });
+            box.scrollTop = box.scrollHeight;
+        });
+    }
+
+    function sendMood(mood) {
+        const name = document.getElementById('userName').value || "مخدوم";
+        db.ref("psychology/moods").push({name, mood, time: new Date().toLocaleTimeString('ar-EG')});
+        alert("شكراً لمشاركتنا شعورك 😊");
+    }
+
+    function sendChat() {
+        const inp = document.getElementById('chatInput'); const name = document.getElementById('userName').value || "مخدوم";
+        if(inp.value.trim()) { db.ref("chat").push({sender: name, text: inp.value}); inp.value = ""; }
+    }
+    async function sendPsyMsg() {
+        const txt = document.getElementById('psyMsg').value.trim();
+        const need = document.getElementById('psyNeed').value;
+        const name = document.getElementById('userName').value || "مخدوم";
+        if(!txt) return;
+        await db.ref("psychology/confessions").push({ sender: name, need: need, text: txt, time: new Date().toLocaleString('ar-EG') });
+        alert("وصلت رسالتك.. ربنا يريح قلبك ✨"); document.getElementById('psyMsg').value = "";
+    }
+    async function sendSecret() {
+        const txt = document.getElementById('secretMsg').value.trim(); const name = document.getElementById('userName').value || "مجهول";
+        if(txt) { await db.ref("messages").push({sender: name, text: txt, time: new Date().toLocaleString('ar-EG')}); alert("تم الإرسال!"); document.getElementById('secretMsg').value = ""; }
+    }
+</script>
+</body>
+</html>
