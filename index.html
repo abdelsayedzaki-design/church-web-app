@@ -138,12 +138,12 @@
     </div>
 
 <script>
-    const config = { databaseURL: "https://church-a408e-default-rtdb.firebaseio.com/" };
+    // تم التحديث لرابط قاعدة البيانات الجديد
+    const config = { databaseURL: "https://jesus-bb0ba-default-rtdb.firebaseio.com/" };
     firebase.initializeApp(config);
     const db = firebase.database();
     let pCount = 0;
     
-    // جمل الصلاة الـ 11 المطلوبة
     const prayers = [
         "بحبك ياربي يسوع وعاوز قلبي يتملا بحبك",
         "قلبي ياربي يسوع خليه كله ملكك",
@@ -159,6 +159,7 @@
     ];
 
     function checkAccess() {
+        // استخدمنا كلمة السر المخزنة "jesus"
         if(document.getElementById('passInput').value === "jesus") {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
@@ -199,11 +200,13 @@
 
     function startApp() {
         if(localStorage.getItem('chat_user_name')) document.getElementById('userName').value = localStorage.getItem('chat_user_name');
+        
         db.ref("admin_announcement").on("value", snap => {
             const text = snap.val();
             document.getElementById('adminAlert').style.display = (text && text.trim() !== "") ? 'block' : 'none';
             document.getElementById('alertText').innerText = text;
         });
+
         db.ref("points_data").on("value", snap => {
             const list = document.getElementById('leaderboard'); list.innerHTML = "";
             const data = snap.val(); if(!data) return;
@@ -212,7 +215,11 @@
                 list.innerHTML += `<div class="card"><div class="bar-wrap"><div class="bar ${colorClass}" style="height:${Math.min(p.score, 100)}%"></div></div><div style="font-weight:bold; color:#fbbf24;">${p.score}</div><div style="font-size:11px;">${p.name}</div></div>`;
             });
         });
-        db.ref("settings/chatEnabled").on("value", snap => { document.getElementById('chatSection').style.display = snap.val() !== false ? "block" : "none"; });
+
+        db.ref("settings/chatEnabled").on("value", snap => { 
+            document.getElementById('chatSection').style.display = snap.val() !== false ? "block" : "none"; 
+        });
+
         db.ref("chat").limitToLast(15).on("value", snap => {
             const box = document.getElementById('chatBox'); box.innerHTML = "";
             snap.forEach(c => { box.innerHTML += `<div class="chat-msg"><b>${c.val().sender}:</b> ${c.val().text}</div>`; });
@@ -230,6 +237,7 @@
         const inp = document.getElementById('chatInput'); const name = document.getElementById('userName').value || "مخدوم";
         if(inp.value.trim()) { db.ref("chat").push({sender: name, text: inp.value}); inp.value = ""; }
     }
+
     async function sendPsyMsg() {
         const txt = document.getElementById('psyMsg').value.trim();
         const need = document.getElementById('psyNeed').value;
@@ -238,6 +246,7 @@
         await db.ref("psychology/confessions").push({ sender: name, need: need, text: txt, time: new Date().toLocaleString('ar-EG') });
         alert("وصلت رسالتك.. ربنا يريح قلبك ✨"); document.getElementById('psyMsg').value = "";
     }
+
     async function sendSecret() {
         const txt = document.getElementById('secretMsg').value.trim(); const name = document.getElementById('userName').value || "مجهول";
         if(txt) { await db.ref("messages").push({sender: name, text: txt, time: new Date().toLocaleString('ar-EG')}); alert("تم الإرسال!"); document.getElementById('secretMsg').value = ""; }
