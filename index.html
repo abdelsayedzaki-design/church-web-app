@@ -8,46 +8,29 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; margin: 0; padding: 10px; }
-        
-        .verse-container {
-            background: linear-gradient(135deg, #312e81 0%, #4338ca 100%);
-            padding: 20px; border-radius: 20px; margin-bottom: 20px; text-align: center;
-            border: 2px solid #6366f1; box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-            position: relative; overflow: hidden;
-        }
+        .verse-container { background: linear-gradient(135deg, #312e81 0%, #4338ca 100%); padding: 20px; border-radius: 20px; margin-bottom: 20px; text-align: center; border: 2px solid #6366f1; box-shadow: 0 10px 20px rgba(0,0,0,0.3); position: relative; overflow: hidden; }
         .verse-text { font-size: 18px; font-weight: bold; color: #fef3c7; line-height: 1.6; margin-bottom: 8px; }
         .verse-ref { font-size: 14px; color: #c7d2fe; font-style: italic; }
-
         #loginScreen { position: fixed; inset: 0; background: #0f172a; display: flex; justify-content: center; align-items: center; z-index: 9999; }
         .login-box { background: #1e293b; padding: 30px; border-radius: 20px; text-align: center; border: 2px solid #6366f1; width: 85%; max-width: 350px; }
         #mainContent { display: none; }
-
         #adminAlert { display: none; background: #b91c1c; color: white; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 2px solid #ef4444; animation: flash 2s infinite; }
         @keyframes flash { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
-
         .main-title { text-align: center; color: #818cf8; margin-bottom: 20px; }
         .section { background: #1e293b; padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #334155; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; }
-        
         .card { background: #0f172a; padding: 10px; border-radius: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
         .bar-wrap { height: 60px; background: #334155; border-radius: 5px; overflow: hidden; margin: 5px 0; display: flex; align-items: flex-end; }
         .bar { width: 100%; transition: height 1s; }
-        
         .bg-high { background: linear-gradient(to top, #16a34a, #4ade80); }
         .bg-mid { background: linear-gradient(to top, #ca8a04, #facc15); }
         .bg-low { background: linear-gradient(to top, #dc2626, #f87171); }
-
         textarea, input[type="text"], input[type="password"], select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; margin-bottom: 10px; outline: none; }
         .btn { background: #6366f1; color: white; padding: 12px; width: 100%; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
-        
-        /* استايل المكتبة */
         .lib-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
         .lib-card { background: #064e3b; border: 2px solid #10b981; padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; text-decoration: none; color: white; font-weight: bold; font-size: 14px; }
-        .lib-card:active { transform: scale(0.95); }
-
         .chat-display { height: 180px; overflow-y: auto; background: #0f172a; padding: 10px; border-radius: 10px; margin-bottom: 10px; }
-        .chat-msg { background: #1e293b; padding: 6px 10px; border-radius: 10px; margin-bottom: 6px; font-size: 13px; border-right: 3px solid #6366f1; }
-        
+        .chat-msg { background: #1e293b; padding: 8px 10px; border-radius: 10px; margin-bottom: 6px; font-size: 13px; border-right: 3px solid #6366f1; word-wrap: break-word; }
         .switch-container { display: flex; justify-content: space-between; align-items: center; background: #334155; padding: 10px 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #ec4899; }
         .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -55,11 +38,9 @@
         .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 4px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: #ec4899; }
         input:checked + .slider:before { transform: translateX(22px); }
-
         .mood-container { display: flex; justify-content: space-around; margin: 15px 0; }
         .mood-btn { font-size: 28px; cursor: pointer; transition: 0.2s; opacity: 0.5; }
         .mood-btn.active { opacity: 1; transform: scale(1.2); border-bottom: 2px solid #ec4899; }
-
         #prayerTimer { display: none; background: #312e81; padding: 15px; border-radius: 15px; border: 2px solid #818cf8; margin-top: 15px; text-align: center; }
         .prayer-counter { font-size: 45px; font-weight: bold; color: #fbbf24; margin: 5px 0; }
         .prayer-text-display { font-size: 17px; font-weight: bold; color: #fef3c7; min-height: 60px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; background: rgba(0,0,0,0.2); border-radius: 10px; padding: 10px; text-align: center; }
@@ -101,7 +82,7 @@
             <input type="text" id="userName" placeholder="اكتب اسمك هنا..." oninput="localStorage.setItem('chat_user_name', this.value)">
         </div>
 
-        <div id="chatSection" class="section" style="display:none; border-right: 5px solid #6366f1;">
+        <div id="chatSection" class="section" style="border-right: 5px solid #6366f1;">
             <h3>💬 دردشة المجموعة</h3>
             <div id="chatBox" class="chat-display"></div>
             <div style="display:flex; gap:5px;">
@@ -169,6 +150,7 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
+    // إرجاع الـ 100 آية كاملة
     const bibleVerses = [
         { t: "لاَ تَخَفْ لأَنِّي مَعَكَ. لاَ تَتَلَفَّتْ لأَنِّي إِلهُكَ. قَدْ أَيَّدْتُكَ وَأَعَنْتُكَ.", r: "إشعياء 41: 10" },
         { t: "اِسْتَطِيعُ كُلَّ شَيْءٍ فِي الْمَسِيحِ الَّذِي يُقَوِّينِي.", r: "فيلبي 4: 13" },
@@ -213,11 +195,11 @@
         { t: "اَللهُ أَمِينٌ لا يدعكم تُجربون فوق ما تستطيعون.", r: "1 كورنثوس 10: 13" },
         { t: "أَنَا هُوة نُورُ الْعَالَمِ.", r: "يوحنا 8: 12" },
         { t: "يَا رَبُّ، لِمَنْ نَذْهَبُ؟ كَلاَمُ الْحَيَاةِ الأَبَدِيَّةِ عِنْدَكَ.", r: "يوحنا 6: 68" },
-        { t: "تَوَكَّلْ عَلَى الرَّبِّ فَيَنْجُوَ نَفْسُكَ.", r: "أمثال 29: 25" },
+        { t: "تَوَكَّلْ عَلَى الرَّبِّ فَيَنْجُوا نَفْسُكَ.", r: "أمثال 29: 25" },
         { t: "آمِنْ بِالرَّبِّ يَسُوعَ الْمَسِيحِ فَتخْلُصَ أَنْتَ وَأَهْلُ بَيْتِكَ.", r: "أعمال 16: 31" },
         { t: "هأَنَذَا واقِفٌ علَى البابِ وأقرَعُ.", r: "رؤيا 3: 20" },
         { t: "أَنَا هُوة الرَّاعِي الصَّالِحُ.", r: "يوحنا 10: 11" },
-        { t: "عَيْنَا الرَّبِّ نَحْوَ الصِّدِّيقِينَ.", r: "مزمور 34: 15" },
+        { t: "عَيْنَا الرَّبِّ نَحْ نحو الصِّدِّيقِينَ.", r: "مزمور 34: 15" },
         { t: "الرَّبُّ حَنَّانٌ وَرَحِيمٌ.", r: "مزمور 103: 8" },
         { t: "لِيُضِئْ نُورُكُمْ هكَذَا قُدَّامَ النَّاسِ.", r: "متى 5: 16" },
         { t: "دُونَ الْقَدَاسَةِ لَنْ يرى أحدٌ الربَّ.", r: "عبرانيين 12: 14" },
@@ -271,6 +253,7 @@
         { t: "اَلرَّبُّ حَافِظُكَ. الرَّبُّ ظِلٌّ لَكَ.", r: "مزمور 121: 5" }
     ];
 
+    // إرجاع الـ 33 صلاة كاملة
     const prayers = [
         "يارب يسوع المسيح.. ارحمني أنا الخاطئ", "يا يسوع.. ساعدني أحبك من كل قلبي", "يارب.. خلي قلبي نضيف ومكان يليق بيك",
         "أشكرك يارب على كل حاجة بتحصل في حياتي", "يا يسوع.. أنت الراعي بتاعي، مش محتاج غيرك", "يارب.. اديني سلامك اللي بيطمن قلبي",
@@ -298,10 +281,9 @@
     }
 
     function showRandomVerse() {
-        const randomIndex = Math.floor(Math.random() * bibleVerses.length);
-        const verse = bibleVerses[randomIndex];
-        document.getElementById('dailyVerse').innerText = `"${verse.t}"`;
-        document.getElementById('verseRef').innerText = `(${verse.r})`;
+        const v = bibleVerses[Math.floor(Math.random() * bibleVerses.length)];
+        document.getElementById('dailyVerse').innerText = `"${v.t}"`;
+        document.getElementById('verseRef').innerText = `(${v.r})`;
     }
 
     function startApp() {
@@ -313,7 +295,6 @@
             document.getElementById('alertText').innerText = text;
         });
 
-        // جلب روابط المكتبة
         db.ref("media_library").on("value", snap => {
             const d = snap.val();
             if(d) {
@@ -332,13 +313,15 @@
             });
         });
 
-        db.ref("settings/chatEnabled").on("value", snap => { 
-            document.getElementById('chatSection').style.display = snap.val() !== false ? "block" : "none"; 
-        });
-
+        // الدردشة مع ميزة تمييز الخادم
         db.ref("chat").limitToLast(15).on("value", snap => {
             const box = document.getElementById('chatBox'); box.innerHTML = "";
-            snap.forEach(c => { box.innerHTML += `<div class="chat-msg"><b>${c.val().sender}:</b> ${c.val().text}</div>`; });
+            snap.forEach(c => { 
+                const msg = c.val();
+                const isServant = msg.sender.includes("أ/") || msg.sender.includes("خادم") || msg.sender.includes("أمين");
+                const style = isServant ? "background: #422006; border-right: 3px solid #fbbf24; color: #fef3c7;" : "";
+                box.innerHTML += `<div class="chat-msg" style="${style}"><b>${msg.sender}:</b> ${msg.text}</div>`; 
+            });
             box.scrollTop = box.scrollHeight;
         });
     }
@@ -354,46 +337,37 @@
         currentMood = moodEmoji;
     }
 
-    async function sendPsyMsg() {
+    function sendPsyMsg() {
         const txt = document.getElementById('psyMsg').value.trim();
-        const need = document.getElementById('psyNeed').value;
         const name = document.getElementById('userName').value || "مخدوم";
         if(!txt) return;
-        await db.ref("psychology/confessions").push({ sender: name, mood: currentMood, need: need, text: txt, time: new Date().toLocaleString('ar-EG') });
+        db.ref("psychology/confessions").push({ sender: name, mood: currentMood, need: document.getElementById('psyNeed').value, text: txt, time: new Date().toLocaleString('ar-EG') });
         alert("وصلت رسالتك.. ربنا يريح قلبك ✨"); 
         document.getElementById('psyMsg').value = "";
-        document.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('active'));
-        currentMood = "غير محدد";
-    }
-
-    async function sendQuestion() {
-        const txt = document.getElementById('quesMsg').value.trim();
-        const name = document.getElementById('userName').value || "مخدوم";
-        if(!txt) { alert("من فضلك اكتب سؤالك أو اقتراحك أولاً"); return; }
-        await db.ref("psychology/questions").push({ sender: name, text: txt, type: "question_suggestion", time: new Date().toLocaleString('ar-EG') });
-        alert("وصلت رسالتك للخادم بنجاح ✨");
-        document.getElementById('quesMsg').value = "";
     }
 
     function startPrayerSession() { 
         document.getElementById('prayerTimer').style.display = 'block'; 
-        pCount = 0; 
-        updatePrayerDisplay(); 
+        pCount = 0; updatePrayerDisplay(); 
     }
     function countPrayer() { 
-        pCount++; 
-        updatePrayerDisplay(); 
+        pCount++; updatePrayerDisplay(); 
         if(window.navigator.vibrate) window.navigator.vibrate(40); 
     }
     function updatePrayerDisplay() { 
         document.getElementById('pCountText').innerText = pCount; 
         document.getElementById('activePrayer').innerText = prayers[pCount % prayers.length]; 
     }
-    async function endPrayer() {
+    function endPrayer() {
         const name = document.getElementById('userName').value || "مخدوم";
-        if(pCount > 0) await db.ref("psychology/prayers").push({ sender: name, count: pCount, time: new Date().toLocaleString('ar-EG') });
+        if(pCount > 0) db.ref("psychology/prayers").push({ sender: name, count: pCount, time: new Date().toLocaleString('ar-EG') });
         document.getElementById('prayerTimer').style.display = 'none';
-        alert("صلاة مقبولة! تم تسجيل عداد صلاتك بنجاح.");
+        alert("صلاة مقبولة!");
+    }
+    function sendQuestion() {
+        const txt = document.getElementById('quesMsg').value.trim();
+        const name = document.getElementById('userName').value || "مخدوم";
+        if(txt) { db.ref("psychology/questions").push({ sender: name, text: txt, time: new Date().toLocaleString('ar-EG') }); alert("تم الإرسال!"); document.getElementById('quesMsg').value = ""; }
     }
 </script>
 </body>
