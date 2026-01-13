@@ -135,7 +135,7 @@
             <button class="btn" style="background:#818cf8;" onclick="sendQuestion()">إرسال 🕊️</button>
         </div>
 
-        <div class="section" style="border: 2px solid #10b981;">
+        <div id="librarySection" class="section" style="border: 2px solid #10b981;">
             <h3 style="color: #10b981; margin-top:0;">🎥 مكتبة الميديا</h3>
             <div class="lib-grid">
                 <a id="hymnLink" href="#" target="_blank" class="lib-card">🎵 لحن الأسبوع</a>
@@ -150,7 +150,6 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    // إرجاع الـ 100 آية كاملة
     const bibleVerses = [
         { t: "لاَ تَخَفْ لأَنِّي مَعَكَ. لاَ تَتَلَفَّتْ لأَنِّي إِلهُكَ. قَدْ أَيَّدْتُكَ وَأَعَنْتُكَ.", r: "إشعياء 41: 10" },
         { t: "اِسْتَطِيعُ كُلَّ شَيْءٍ فِي الْمَسِيحِ الَّذِي يُقَوِّينِي.", r: "فيلبي 4: 13" },
@@ -253,7 +252,6 @@
         { t: "اَلرَّبُّ حَافِظُكَ. الرَّبُّ ظِلٌّ لَكَ.", r: "مزمور 121: 5" }
     ];
 
-    // إرجاع الـ 33 صلاة كاملة
     const prayers = [
         "يارب يسوع المسيح.. ارحمني أنا الخاطئ", "يا يسوع.. ساعدني أحبك من كل قلبي", "يارب.. خلي قلبي نضيف ومكان يليق بيك",
         "أشكرك يارب على كل حاجة بتحصل في حياتي", "يا يسوع.. أنت الراعي بتاعي، مش محتاج غيرك", "يارب.. اديني سلامك اللي بيطمن قلبي",
@@ -295,6 +293,12 @@
             document.getElementById('alertText').innerText = text;
         });
 
+        // كود الاستماع لحالة إظهار/إخفاء المكتبة
+        db.ref("settings/libVisible").on("value", snap => {
+            const isVisible = snap.val() !== false;
+            document.getElementById('librarySection').style.display = isVisible ? "block" : "none";
+        });
+
         db.ref("media_library").on("value", snap => {
             const d = snap.val();
             if(d) {
@@ -313,7 +317,6 @@
             });
         });
 
-        // الدردشة مع ميزة تمييز الخادم
         db.ref("chat").limitToLast(15).on("value", snap => {
             const box = document.getElementById('chatBox'); box.innerHTML = "";
             snap.forEach(c => { 
