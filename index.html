@@ -6,8 +6,25 @@
     <title>خدمة إعدادي - الصفحة الرئيسية</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; margin: 0; padding: 10px; }
+        :root {
+            --bg-body: #0f172a;
+            --bg-section: #1e293b;
+            --text-main: white;
+            --border-color: #334155;
+            --input-bg: #0f172a;
+        }
+
+        [data-theme="light"] {
+            --bg-body: #f1f5f9;
+            --bg-section: #ffffff;
+            --text-main: #1e293b;
+            --border-color: #cbd5e1;
+            --input-bg: #f8fafc;
+        }
+
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-body); color: var(--text-main); margin: 0; padding: 10px; transition: 0.3s; }
         .verse-container { background: linear-gradient(135deg, #312e81 0%, #4338ca 100%); padding: 20px; border-radius: 20px; margin-bottom: 20px; text-align: center; border: 2px solid #6366f1; box-shadow: 0 10px 20px rgba(0,0,0,0.3); position: relative; overflow: hidden; }
         .verse-text { font-size: 18px; font-weight: bold; color: #fef3c7; line-height: 1.6; margin-bottom: 8px; }
         .verse-ref { font-size: 14px; color: #c7d2fe; font-style: italic; }
@@ -17,7 +34,7 @@
         #adminAlert { display: none; background: #b91c1c; color: white; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 2px solid #ef4444; animation: flash 2s infinite; }
         @keyframes flash { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
         .main-title { text-align: center; color: #818cf8; margin-bottom: 20px; }
-        .section { background: #1e293b; padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #334155; }
+        .section { background: var(--bg-section); padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 1px solid var(--border-color); }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; }
         .card { background: #0f172a; padding: 10px; border-radius: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
         .bar-wrap { height: 60px; background: #334155; border-radius: 5px; overflow: hidden; margin: 5px 0; display: flex; align-items: flex-end; }
@@ -25,13 +42,13 @@
         .bg-high { background: linear-gradient(to top, #16a34a, #4ade80); }
         .bg-mid { background: linear-gradient(to top, #ca8a04, #facc15); }
         .bg-low { background: linear-gradient(to top, #dc2626, #f87171); }
-        textarea, input[type="text"], input[type="password"], select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; margin-bottom: 10px; outline: none; }
+        textarea, input[type="text"], input[type="password"], select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-main); box-sizing: border-box; margin-bottom: 10px; outline: none; }
         .btn { background: #6366f1; color: white; padding: 12px; width: 100%; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
         .lib-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
         .lib-card { background: #064e3b; border: 2px solid #10b981; padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; text-decoration: none; color: white; font-weight: bold; font-size: 14px; }
-        .chat-display { height: 180px; overflow-y: auto; background: #0f172a; padding: 10px; border-radius: 10px; margin-bottom: 10px; }
-        .chat-msg { background: #1e293b; padding: 8px 10px; border-radius: 10px; margin-bottom: 6px; font-size: 13px; border-right: 3px solid #6366f1; word-wrap: break-word; }
-        .switch-container { display: flex; justify-content: space-between; align-items: center; background: #334155; padding: 10px 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #ec4899; }
+        .chat-display { height: 180px; overflow-y: auto; background: var(--input-bg); padding: 10px; border-radius: 10px; margin-bottom: 10px; }
+        .chat-msg { background: var(--bg-section); padding: 8px 10px; border-radius: 10px; margin-bottom: 6px; font-size: 13px; border-right: 3px solid #6366f1; word-wrap: break-word; color: var(--text-main); }
+        .switch-container { display: flex; justify-content: space-between; align-items: center; background: #334155; padding: 10px 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #ec4899; color: white; }
         .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; inset: 0; background-color: #1e293b; transition: .4s; border-radius: 34px; border: 1px solid #475569; }
@@ -44,6 +61,12 @@
         #prayerTimer { display: none; background: #312e81; padding: 15px; border-radius: 15px; border: 2px solid #818cf8; margin-top: 15px; text-align: center; }
         .prayer-counter { font-size: 45px; font-weight: bold; color: #fbbf24; margin: 5px 0; }
         .prayer-text-display { font-size: 17px; font-weight: bold; color: #fef3c7; min-height: 60px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; background: rgba(0,0,0,0.2); border-radius: 10px; padding: 10px; text-align: center; }
+        
+        .theme-toggle-btn {
+            position: absolute; top: 10px; left: 10px; background: rgba(99, 102, 241, 0.2); 
+            border: 1px solid #6366f1; color: var(--text-main); padding: 5px 10px; border-radius: 10px; 
+            font-size: 12px; cursor: pointer; z-index: 10;
+        }
     </style>
 </head>
 <body>
@@ -57,6 +80,8 @@
     </div>
 
     <div id="mainContent">
+        <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">☀️ الوضع الفاتح</button>
+
         <div class="main-title">
             <h2 style="margin:0;">خدمة إعدادي</h2>
             <small>كنيسة العذراء وأبوسيفين والشهيد أبسخيرون</small>
@@ -150,6 +175,7 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
+    // نصوص الكتاب المقدس تركتها كما هي
     const bibleVerses = [
         { t: "لاَ تَخَفْ لأَنِّي مَعَكَ. لاَ تَتَلَفَّتْ لأَنِّي إِلهُكَ. قَدْ أَيَّدْتُكَ وَأَعَنْتُكَ.", r: "إشعياء 41: 10" },
         { t: "اِسْتَطِيعُ كُلَّ شَيْءٍ فِي الْمَسِيحِ الَّذِي يُقَوِّينِي.", r: "فيلبي 4: 13" },
@@ -189,7 +215,7 @@
         { t: "أَنَا هُوة الطَّرِيقُ وَالْحَقُّ وَالْحَيَاةُ.", r: "يوحنا 14: 6" },
         { t: "فِي كُلِّ شَيْءٍ أَشْكُرُ إِلهِي.", r: "فيلبي 1: 3" },
         { t: "كُونُوا لُطَفَاءَ بَعْضُكُمْ نَحْوَ بَعْضٍ.", r: "أفسس 4: 32" },
-        { t: "صَلُّوا بِلاَ انْقِطَاعٍ.", r: "1 تسالونيكي 5: 17" },
+        { t: "صَلُّوا بِلاَ انقِطَاعٍ.", r: "1 تسالونيكي 5: 17" },
         { t: "اشْكُرُوا فِي كُلِّ شَيْءٍ.", r: "1 تسالونيكي 5: 18" },
         { t: "اَللهُ أَمِينٌ لا يدعكم تُجربون فوق ما تستطيعون.", r: "1 كورنثوس 10: 13" },
         { t: "أَنَا هُوة نُورُ الْعَالَمِ.", r: "يوحنا 8: 12" },
@@ -230,7 +256,7 @@
         { t: "ثثباتُ قَلْبِكَ هُوة فِي الرَّبِّ.", r: "مزمور 112: 7" },
         { t: "يُعْطِي الْمُعْيِيَ قُوَّةً، وَلِعَدِيمِ الْمَقْدِرَةِ يُكَثِّرُ شِدَّةً.", r: "إشعياء 40: 29" },
         { t: "الرَّبُّ قَرِيبٌ لِمُنْكَسِرِي الْقُلُوبِ.", r: "مزمور 34: 18" },
-        { t: "تَمِّمُوا خَلاَصَكُمْ بِخَوْفٍ وَرِعْدَةٍ.", r: "فيلبي 2: 12" },
+        { t: "تَمّمُوا خَلاَصَكُمْ بِخَوْفٍ وَرِعْدَةٍ.", r: "فيلبي 2: 12" },
         { t: "أَمَّا شَهَوَاتُ الشَّبَابِ فَاهْرُبْ مِنْهَا.", r: "2 تيموثاوس 2: 22" },
         { t: "نَحْنُ نُحِبُّهُ لأَنَّهُ هُوة أَحْبَبَنَا أَوَّلاً.", r: "1 يوحنا 4: 19" },
         { t: "لأَنَّكَ أنتَ جَعَلْتَ نَصيبي هُوة الرَّبُّ.", r: "مزمور 16: 5" },
@@ -269,12 +295,40 @@
     let currentMood = "غير محدد";
     let pCount = 0;
 
+    function toggleTheme() {
+        const body = document.body;
+        const btn = document.getElementById('themeBtn');
+        if (body.getAttribute('data-theme') === 'light') {
+            body.setAttribute('data-theme', 'dark');
+            btn.innerText = "☀️ الوضع الفاتح";
+            localStorage.setItem('church_theme', 'dark');
+        } else {
+            body.setAttribute('data-theme', 'light');
+            btn.innerText = "🌙 الوضع الداكن";
+            localStorage.setItem('church_theme', 'light');
+        }
+    }
+
     function checkAccess() {
         if(document.getElementById('passInput').value === "jesus") {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
             startApp();
             showRandomVerse();
+            
+            // --- قنبلة الاحتفال عند الدخول ---
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#6366f1', '#fbbf24', '#ec4899']
+            });
+            // --------------------------------
+
+            if(localStorage.getItem('church_theme') === 'light') {
+                document.body.setAttribute('data-theme', 'light');
+                document.getElementById('themeBtn').innerText = "🌙 الوضع الداكن";
+            }
         } else { alert("كلمة السر خطأ!"); }
     }
 
@@ -293,7 +347,6 @@
             document.getElementById('alertText').innerText = text;
         });
 
-        // كود الاستماع لحالة إظهار/إخفاء المكتبة
         db.ref("settings/libVisible").on("value", snap => {
             const isVisible = snap.val() !== false;
             document.getElementById('librarySection').style.display = isVisible ? "block" : "none";
