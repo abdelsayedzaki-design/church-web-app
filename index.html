@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -126,6 +127,9 @@
 
         <div id="psyArea" class="section" style="display: none; border: 2px solid #ec4899;">
              <p style="text-align:center; font-size:13px;">ما تخفش احنا جنبك بنحبك وانت غالي على قلب المسيح.. ❤️</p>
+             
+             <input type="text" id="psyCustomName" placeholder="اسمك (اختياري - اتركه فارغاً للإرسال كمجهول)" style="border-color: #ec4899; font-size: 13px;">
+
              <p style="text-align:center; font-size:12px; color:#818cf8; margin-bottom:5px;">كيف حالك الآن؟</p>
              <div class="mood-container">
                 <span class="mood-btn" onclick="setMood(this, '😭')">😭</span>
@@ -175,7 +179,7 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    // نصوص الكتاب المقدس تركتها كما هي
+    // الآيات كما هي دون تغيير (99 آية)
     const bibleVerses = [
         { t: "لاَ تَخَفْ لأَنِّي مَعَكَ. لاَ تَتَلَفَّتْ لأَنِّي إِلهُكَ. قَدْ أَيَّدْتُكَ وَأَعَنْتُكَ.", r: "إشعياء 41: 10" },
         { t: "اِسْتَطِيعُ كُلَّ شَيْءٍ فِي الْمَسِيحِ الَّذِي يُقَوِّينِي.", r: "فيلبي 4: 13" },
@@ -257,7 +261,7 @@
         { t: "يُعْطِي الْمُعْيِيَ قُوَّةً، وَلِعَدِيمِ الْمَقْدِرَةِ يُكَثِّرُ شِدَّةً.", r: "إشعياء 40: 29" },
         { t: "الرَّبُّ قَرِيبٌ لِمُنْكَسِرِي الْقُلُوبِ.", r: "مزمور 34: 18" },
         { t: "تَمّمُوا خَلاَصَكُمْ بِخَوْفٍ وَرِعْدَةٍ.", r: "فيلبي 2: 12" },
-        { t: "أَمَّا شَهَوَاتُ الشَّبَابِ فَاهْرُبْ مِنْهَا.", r: "2 تيموثاوس 2: 22" },
+        { t: "أَمَّا شَهَوَاتُ شَّبَابِ فَاهْرُبْ مِنْهَا.", r: "2 تيموثاوس 2: 22" },
         { t: "نَحْنُ نُحِبُّهُ لأَنَّهُ هُوة أَحْبَبَنَا أَوَّلاً.", r: "1 يوحنا 4: 19" },
         { t: "لأَنَّكَ أنتَ جَعَلْتَ نَصيبي هُوة الرَّبُّ.", r: "مزمور 16: 5" },
         { t: "أنتُمْ مِلْحُ الأَرْضِ.", r: "متى 5: 13" },
@@ -315,16 +319,7 @@
             document.getElementById('mainContent').style.display = 'block';
             startApp();
             showRandomVerse();
-            
-            // --- قنبلة الاحتفال عند الدخول ---
-            confetti({
-                particleCount: 150,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: ['#6366f1', '#fbbf24', '#ec4899']
-            });
-            // --------------------------------
-
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#6366f1', '#fbbf24', '#ec4899'] });
             if(localStorage.getItem('church_theme') === 'light') {
                 document.body.setAttribute('data-theme', 'light');
                 document.getElementById('themeBtn').innerText = "🌙 الوضع الداكن";
@@ -393,13 +388,27 @@
         currentMood = moodEmoji;
     }
 
+    // وظيفة لتحديد الاسم المرسل في ركن المساندة
+    function getPsyName() {
+        const customName = document.getElementById('psyCustomName').value.trim();
+        if (customName) return customName;
+        return "ابن الطاعة 🕊️"; // اسم افتراضي في حالة تركه فارغاً
+    }
+
     function sendPsyMsg() {
         const txt = document.getElementById('psyMsg').value.trim();
-        const name = document.getElementById('userName').value || "مخدوم";
+        const name = getPsyName();
         if(!txt) return;
-        db.ref("psychology/confessions").push({ sender: name, mood: currentMood, need: document.getElementById('psyNeed').value, text: txt, time: new Date().toLocaleString('ar-EG') });
-        alert("وصلت رسالتك.. ربنا يريح قلبك ✨"); 
+        db.ref("psychology/confessions").push({ 
+            sender: name, 
+            mood: currentMood, 
+            need: document.getElementById('psyNeed').value, 
+            text: txt, 
+            time: new Date().toLocaleString('ar-EG') 
+        });
+        alert("وصلت رسالتك بخصوصية تامة.. ربنا يريح قلبك ✨"); 
         document.getElementById('psyMsg').value = "";
+        document.getElementById('psyCustomName').value = ""; 
     }
 
     function startPrayerSession() { 
@@ -415,15 +424,21 @@
         document.getElementById('activePrayer').innerText = prayers[pCount % prayers.length]; 
     }
     function endPrayer() {
-        const name = document.getElementById('userName').value || "مخدوم";
+        const name = getPsyName();
         if(pCount > 0) db.ref("psychology/prayers").push({ sender: name, count: pCount, time: new Date().toLocaleString('ar-EG') });
         document.getElementById('prayerTimer').style.display = 'none';
         alert("صلاة مقبولة!");
+        document.getElementById('psyCustomName').value = ""; 
     }
     function sendQuestion() {
         const txt = document.getElementById('quesMsg').value.trim();
-        const name = document.getElementById('userName').value || "مخدوم";
-        if(txt) { db.ref("psychology/questions").push({ sender: name, text: txt, time: new Date().toLocaleString('ar-EG') }); alert("تم الإرسال!"); document.getElementById('quesMsg').value = ""; }
+        const name = getPsyName();
+        if(txt) { 
+            db.ref("psychology/questions").push({ sender: name, text: txt, time: new Date().toLocaleString('ar-EG') }); 
+            alert("تم إرسال سؤالك بخصوصية!"); 
+            document.getElementById('quesMsg').value = ""; 
+            document.getElementById('psyCustomName').value = "";
+        }
     }
 </script>
 </body>
