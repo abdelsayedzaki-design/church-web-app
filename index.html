@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -75,7 +74,7 @@
     <div id="loginScreen">
         <div class="login-box">
             <h3 style="margin:0 0 10px 0; color:#818cf8;">† دخول المخدومين †</h3>
-            <input type="password" id="passInput" placeholder="كلمة السر">
+            <input type="password" id="passInputUser" placeholder="كلمة السر">
             <button class="btn" onclick="checkAccess()">دخول</button>
         </div>
     </div>
@@ -128,7 +127,7 @@
         <div id="psyArea" class="section" style="display: none; border: 2px solid #ec4899;">
              <p style="text-align:center; font-size:13px;">ما تخفش احنا جنبك بنحبك وانت غالي على قلب المسيح.. ❤️</p>
              
-             <input type="text" id="psyCustomName" placeholder="اسمك (اختياري - اتركه فارغاً للإرسال كمجهول)" style="border-color: #ec4899; font-size: 13px;">
+             <input type="text" id="psyNameInput" placeholder="اسمك (اختياري - اتركه فارغاً للمجهول)" style="border: 1px dashed #ec4899; font-size: 13px;">
 
              <p style="text-align:center; font-size:12px; color:#818cf8; margin-bottom:5px;">كيف حالك الآن؟</p>
              <div class="mood-container">
@@ -146,7 +145,16 @@
                 <option value="دعم وتوجيه 🤝">🤝 دعم وتوجيه</option>
             </select>
             <textarea id="psyMsg" placeholder="اكتب ما بقلبك هنا..." style="height: 80px;"></textarea>
-            <button class="btn" style="background:#ec4899; margin-bottom:15px;" onclick="sendPsyMsg()">إرسال بخصوصية 🕊️</button>
+            <button class="btn" style="background:#ec4899; margin-bottom:15px;" onclick="sendPsyMsg()">إرسال 🕊️</button>
+
+            <div id="psyChatContainer" style="margin-top: 5px; border-top: 1px dashed #ec4899; padding-top: 10px; margin-bottom: 15px;">
+                <small style="color: #94a3b8; display: block; margin-bottom: 5px;">محادثة مجهولة مع الخادم (تختفي بمجرد التحديث):</small>
+                <div id="psyLocalChat" style="height: 100px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 8px; font-size: 12px; margin-bottom: 8px;"></div>
+                <div style="display: flex; gap: 5px;">
+                    <input type="text" id="psyChatInput" placeholder="اكتب رسالة سرية..." style="margin-bottom:0; font-size:12px; height: 35px;">
+                    <button onclick="sendPsyChat()" style="background:#ec4899; border:none; padding:0 15px; border-radius:8px; color:white; font-size: 12px;">إرسال</button>
+                </div>
+            </div>
 
             <button class="btn" style="background:#fbbf24; color:#000;" onclick="startPrayerSession()">✨ يلا نصلو سوا (33 صلاة) ✨</button>
 
@@ -175,11 +183,11 @@
     </div>
 
 <script>
+    // تم تحديث رابط قاعدة البيانات بناءً على طلبك
     const config = { databaseURL: "https://jesus-bb0ba-default-rtdb.firebaseio.com/" };
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    // الآيات كما هي دون تغيير (99 آية)
     const bibleVerses = [
         { t: "لاَ تَخَفْ لأَنِّي مَعَكَ. لاَ تَتَلَفَّتْ لأَنِّي إِلهُكَ. قَدْ أَيَّدْتُكَ وَأَعَنْتُكَ.", r: "إشعياء 41: 10" },
         { t: "اِسْتَطِيعُ كُلَّ شَيْءٍ فِي الْمَسِيحِ الَّذِي يُقَوِّينِي.", r: "فيلبي 4: 13" },
@@ -230,7 +238,7 @@
         { t: "أَنَا هُوة الرَّاعِي الصَّالِحُ.", r: "يوحنا 10: 11" },
         { t: "عَيْنَا الرَّبِّ نَحْ نحو الصِّدِّيقِينَ.", r: "مزمور 34: 15" },
         { t: "الرَّبُّ حَنَّانٌ وَرَحِيمٌ.", r: "مزمور 103: 8" },
-        { t: "لِيُضِئْ نُورُكُمْ هكَذَا قُدَّامَ النَّاسِ.", r: "متى 5: 16" },
+        { t: "لِيُضِئْ نُورُكُمْ هكَذَا قُدَّامَ النَّاسِ.", r: "metty 5: 16" },
         { t: "دُونَ الْقَدَاسَةِ لَنْ يرى أحدٌ الربَّ.", r: "عبرانيين 12: 14" },
         { t: "اُطْلُبُوا أَوَّلاً مَلَكُوتَ اللهِ وَبِرَّهُ.", r: "متى 6: 33" },
         { t: "أَنَا هُوة الْقِيَامَةُ وَالْحَيَاةُ.", r: "يوحنا 11: 25" },
@@ -261,7 +269,7 @@
         { t: "يُعْطِي الْمُعْيِيَ قُوَّةً، وَلِعَدِيمِ الْمَقْدِرَةِ يُكَثِّرُ شِدَّةً.", r: "إشعياء 40: 29" },
         { t: "الرَّبُّ قَرِيبٌ لِمُنْكَسِرِي الْقُلُوبِ.", r: "مزمور 34: 18" },
         { t: "تَمّمُوا خَلاَصَكُمْ بِخَوْفٍ وَرِعْدَةٍ.", r: "فيلبي 2: 12" },
-        { t: "أَمَّا شَهَوَاتُ شَّبَابِ فَاهْرُبْ مِنْهَا.", r: "2 تيموثاوس 2: 22" },
+        { t: "أَمَّا شَهَوَاتُ الشَّبَابِ فَاهْرُبْ مِنْهَا.", r: "2 تيموثاوس 2: 22" },
         { t: "نَحْنُ نُحِبُّهُ لأَنَّهُ هُوة أَحْبَبَنَا أَوَّلاً.", r: "1 يوحنا 4: 19" },
         { t: "لأَنَّكَ أنتَ جَعَلْتَ نَصيبي هُوة الرَّبُّ.", r: "مزمور 16: 5" },
         { t: "أنتُمْ مِلْحُ الأَرْضِ.", r: "متى 5: 13" },
@@ -298,6 +306,7 @@
 
     let currentMood = "غير محدد";
     let pCount = 0;
+    let psySessionID = Date.now();
 
     function toggleTheme() {
         const body = document.body;
@@ -314,7 +323,7 @@
     }
 
     function checkAccess() {
-        if(document.getElementById('passInput').value === "jesus") {
+        if(document.getElementById('passInputUser').value === "jesus") {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
             startApp();
@@ -375,6 +384,18 @@
             });
             box.scrollTop = box.scrollHeight;
         });
+
+        db.ref("psychology/private_chats/" + psySessionID).on("value", snap => {
+            const box = document.getElementById('psyLocalChat');
+            box.innerHTML = "";
+            snap.forEach(m => {
+                const msg = m.val();
+                const isMe = msg.sender === "أنا";
+                const color = isMe ? "#ec4899" : "#fbbf24";
+                box.innerHTML += `<div style="margin-bottom:4px; color:${color};"><b>${msg.sender}:</b> ${msg.text}</div>`;
+            });
+            box.scrollTop = box.scrollHeight;
+        });
     }
 
     function sendChat() {
@@ -388,27 +409,35 @@
         currentMood = moodEmoji;
     }
 
-    // وظيفة لتحديد الاسم المرسل في ركن المساندة
-    function getPsyName() {
-        const customName = document.getElementById('psyCustomName').value.trim();
-        if (customName) return customName;
-        return "ابن الطاعة 🕊️"; // اسم افتراضي في حالة تركه فارغاً
+    function getPsySenderName() {
+        const customName = document.getElementById('psyNameInput').value.trim();
+        return customName ? customName : "ابن الطاعة 🕊️";
     }
 
     function sendPsyMsg() {
         const txt = document.getElementById('psyMsg').value.trim();
-        const name = getPsyName();
         if(!txt) return;
         db.ref("psychology/confessions").push({ 
-            sender: name, 
+            sender: getPsySenderName(), 
             mood: currentMood, 
             need: document.getElementById('psyNeed').value, 
             text: txt, 
             time: new Date().toLocaleString('ar-EG') 
         });
-        alert("وصلت رسالتك بخصوصية تامة.. ربنا يريح قلبك ✨"); 
+        alert("وصلت رسالتك بخصوصية.. ربنا يريح قلبك ✨"); 
         document.getElementById('psyMsg').value = "";
-        document.getElementById('psyCustomName').value = ""; 
+        document.getElementById('psyNameInput').value = "";
+    }
+
+    function sendPsyChat() {
+        const inp = document.getElementById('psyChatInput');
+        if(inp.value.trim()) {
+            db.ref("psychology/private_chats/" + psySessionID).push({
+                sender: "أنا",
+                text: inp.value.trim()
+            });
+            inp.value = "";
+        }
     }
 
     function startPrayerSession() { 
@@ -424,20 +453,26 @@
         document.getElementById('activePrayer').innerText = prayers[pCount % prayers.length]; 
     }
     function endPrayer() {
-        const name = getPsyName();
-        if(pCount > 0) db.ref("psychology/prayers").push({ sender: name, count: pCount, time: new Date().toLocaleString('ar-EG') });
+        if(pCount > 0) {
+            db.ref("psychology/prayers").push({ 
+                sender: getPsySenderName(), 
+                count: pCount, 
+                time: new Date().toLocaleString('ar-EG') 
+            });
+        }
         document.getElementById('prayerTimer').style.display = 'none';
         alert("صلاة مقبولة!");
-        document.getElementById('psyCustomName').value = ""; 
     }
     function sendQuestion() {
         const txt = document.getElementById('quesMsg').value.trim();
-        const name = getPsyName();
         if(txt) { 
-            db.ref("psychology/questions").push({ sender: name, text: txt, time: new Date().toLocaleString('ar-EG') }); 
-            alert("تم إرسال سؤالك بخصوصية!"); 
+            db.ref("psychology/questions").push({ 
+                sender: getPsySenderName(), 
+                text: txt, 
+                time: new Date().toLocaleString('ar-EG') 
+            }); 
+            alert("تم الإرسال بخصوصية!"); 
             document.getElementById('quesMsg').value = ""; 
-            document.getElementById('psyCustomName').value = "";
         }
     }
 </script>
