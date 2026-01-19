@@ -58,12 +58,18 @@
         .chat-display { height: 180px; overflow-y: auto; background: var(--input-bg); padding: 10px; border-radius: 10px; margin-bottom: 10px; }
         .chat-msg { background: var(--bg-section); padding: 8px 10px; border-radius: 10px; margin-bottom: 6px; font-size: 13px; border-right: 3px solid #6366f1; word-wrap: break-word; color: var(--text-main); }
 
-        .quiz-box { background: var(--bg-section); border: 2px solid var(--accent); border-radius: 20px; padding: 20px; position: relative; display: none; margin-top: 15px; }
-        .opt-btn { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid #334155; color: var(--text-main); padding: 15px; border-radius: 12px; cursor: pointer; margin-bottom: 10px; text-align: right; font-size: 16px; transition: 0.2s; }
-        .correct { background: var(--success) !important; color: white; }
-        .wrong { background: var(--error) !important; color: white; }
-        .timer-badge { position: absolute; top: 15px; left: 15px; background: var(--error); padding: 5px 12px; border-radius: 15px; font-weight: bold; color: white; font-size: 12px; }
+        /* أيقونة المسابقة */
+        .quiz-icon-btn { 
+            background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+            color: #0f172a; padding: 20px; border-radius: 15px; text-align: center;
+            cursor: pointer; font-weight: bold; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+            display: block; margin-bottom: 10px; transition: 0.3s; border: none; width: 100%;
+        }
+        .quiz-icon-btn:hover { transform: scale(1.02); }
 
+        .question-card { background: var(--bg-body); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border-color); }
+        .option-label { display: block; background: var(--border-color); padding: 10px; margin: 5px 0; border-radius: 8px; cursor: pointer; }
+        
         .switch-container { display: flex; justify-content: space-between; align-items: center; background: #334155; padding: 10px 15px; border-radius: 12px; margin-bottom: 15px; color: white; }
         .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -85,23 +91,11 @@
 </head>
 <body>
 
-    <audio id="sndCorrect" preload="auto" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
-    <audio id="sndWrong" preload="auto" src="https://assets.mixkit.co/active_storage/sfx/2959/2959-preview.mp3"></audio>
-
     <div id="loginScreen" class="overlay">
         <div class="login-box">
             <h3 style="margin:0 0 10px 0; color:#818cf8;">† دخول المخدومين †</h3>
             <input type="password" id="passInputUser" placeholder="كلمة السر">
             <button class="btn" onclick="checkAccess()">دخول</button>
-        </div>
-    </div>
-
-    <div id="nameSetupScreen" class="overlay" style="display: none; z-index: 10000;">
-        <div class="login-box animate__animated animate__fadeInDown">
-            <h3 style="color: var(--accent);">مرحباً بك! اختر اسمك</h3>
-            <p style="font-size: 11px; opacity: 0.8; color: white;">يتم ربط درجاتك بالاسم المختار</p>
-            <select id="namePicker"><option value="">جاري تحميل الأسماء...</option></select>
-            <button onclick="saveMyName()" class="btn" style="background: var(--success);">تأكيد هويتي ✅</button>
         </div>
     </div>
 
@@ -124,24 +118,19 @@
         </div>
 
         <div id="quizSection" class="section" style="border: 2px solid var(--accent); display: none;">
-            <h3 style="margin-top:0; color: var(--accent);">📖 مسابقة الكتاب المقدس</h3>
+            <button class="quiz-icon-btn" id="openQuizBtn" onclick="openQuizInterface()">📖 اضغط هنا لدخول مسابقة الكتاب المقدس 🚀</button>
             
-            <div id="startPanel">
-                <p style="font-size:13px;">شارك في المسابقة الأسبوعية واجمع النقاط لاسمك!</p>
-                <button onclick="startQuiz()" class="btn" id="startQuizBtn" style="background:var(--accent); color:black;">ابدأ المسابقة الآن 🚀</button>
+            <div id="quizFormArea" style="display:none;">
+                <div style="background: rgba(251, 191, 36, 0.1); padding: 10px; border-radius: 10px; margin-bottom: 15px;">
+                    <label style="font-size: 12px; color: var(--accent);">اختر اسمك من القائمة:</label>
+                    <select id="userQuizName"><option value="">جاري تحميل الأسماء...</option></select>
+                </div>
+                <div id="questionsList"></div>
+                <button id="submitAllBtn" onclick="submitFullQuiz()" class="btn" style="background:var(--success); margin-top:10px;">إرسال كل الإجابات ✅</button>
             </div>
 
-            <div id="activeQuiz" class="quiz-box">
-                <div class="timer-badge" id="timerDisplay">00:00</div>
-                <div id="qText" style="font-size: 17px; font-weight: bold; margin: 30px 0 15px; text-align: center;"></div>
-                <div id="optionsArea"></div>
-            </div>
-
-            <div id="resultPanel" style="display: none; text-align: center; padding: 10px;">
-                <h2 style="color: var(--accent);">تم الإرسال!</h2>
-                <div id="scoreFinal" style="font-size: 35px; font-weight: 900;">0</div>
-                <p id="pointsEarnedText" style="color: #94a3b8; font-size: 13px;"></p>
-                <button onclick="location.reload()" class="btn" style="background:none; border:1px solid #334155; margin-top:10px;">العودة</button>
+            <div id="quizDoneMsg" style="display:none; text-align:center; padding:20px;">
+                <h3 style="color:var(--success);">تم استلام إجاباتك بنجاح! ❤️</h3>
             </div>
         </div>
 
@@ -169,7 +158,7 @@
 
         <div id="psyArea" class="section" style="display: none; border: 2px solid #ec4899;">
              <p style="text-align:center; font-size:13px;">ما تخفش احنا جنبك بنحبك وانت غالي على قلب المسيح.. ❤️</p>
-             <input type="text" id="psyNameInput" placeholder="اسمك (اختياري - اتركه فارغاً للمجهول)" style="border: 1px dashed #ec4899; font-size: 13px;">
+             <input type="text" id="psyNameInput" placeholder="اسمك (اختياري)" style="border: 1px dashed #ec4899; font-size: 13px;">
              <div class="mood-container">
                 <span class="mood-btn" onclick="setMood(this, '😭')">😭</span>
                 <span class="mood-btn" onclick="setMood(this, '😥')">😥</span>
@@ -218,371 +207,151 @@
     let psySessionID = localStorage.getItem('psy_session_id') || ("User_" + Date.now());
     localStorage.setItem('psy_session_id', psySessionID);
 
-    let allQuestions = [], currentQ = 0, quizScore = 0, timerInt;
-    let currentMood = "غير محدد", pCount = 0;
+    let allQuestions = [], pCount = 0, currentMood = "😌";
 
-    // --- الآيات والصلوات (تم الإبقاء عليها كاملة) ---
     const bibleVerses = [
         { t: "لاَ تَخَفْ لأَنِّي مَعَكَ. لاَ تَتَلَفَّتْ لأَنِّي إِلهُكَ. قَدْ أَيَّدْتُكَ وَأَعَنْتُكَ.", r: "إشعياء 41: 10" },
         { t: "اِسْتَطِيعُ كُلَّ شَيْءٍ فِي الْمَسِيحِ الَّذِي يُقَوِّينِي.", r: "فيلبي 4: 13" },
-        { t: "يَا ابْنِي أَعْطِنِي قَلْبَكَ، وَلْتُلاَحِظْ عَيْنَاكَ طُرُقِي.", r: "أمثال 23: 26" },
-        { t: "اَلرَّبُّ نُورِي وَخَلاَصِي، مِمَّنْ أَخَافُ؟", r: "مزمور 27: 1" },
-        { t: "إِنْ كَانَ اللهُ مَعَنَا، فَمَنْ عَلَيْنَا؟", r: "رومية 8: 31" },
-        { t: "تَوَكَّلْ عَلَى الرَّبِّ بِكُلِّ قَلْبِكَ، وَعَلَى فَهْمِكَ لاَ تَعْتَمِدْ.", r: "أمثال 3: 5" },
-        { t: "أَنَا مَعَكُمْ كُلَّ الأَيَّامِ إِلَى انْقِضَاءِ الدَّهْرِ.", r: "متى 28: 20" },
-        { t: "سِرَاجٌ لِرِجْلِي كَلاَمُكَ وَنُورٌ لِسَبِيلِي.", r: "مزمور 119: 105" },
-        { t: "الرَّبُّ يُقَاتِلُ عَنْكُمْ وَأَنْتُمْ تَصْمُمُونَ.", r: "خروج 14: 14" },
-        { t: "مُلْقِينَ كُلَّ هَمِّكُمْ عَلَيْهِ، لأَنَّهُ هُوة يَعْتَنِي بِكُمْ.", r: "1 بطرس 5: 7" },
-        { t: "طُوبَى لِلأَنْقِيَاءِ الْقَلْبِ، لأَنَّهُمْ يُعَايِنُونَ اللهَ.", r: "متى 5: 8" },
-        { t: "قَلْبًا نَقِيًّا اخْلُقْ فِيَّ يَا اللهُ، وَرُوحًا مُسْتَقِيمًا جَدِّدْ فِي دَاخِلِي.", r: "مزمور 51: 10" },
-        { t: "اِحْفَظْ نَفْسَكَ طَاهِرًا.", r: "1 تيموثاوس 5: 22" },
-        { t: "كُنْ مُتَشَدِّدًا وَتَشَجَّعْ. لاَ تَرْهَبْ وَلاَ تَرْتَعِبْ لأَنَّ الرَّبَّ إِلهَكَ مَعَكَ.", r: "يشوع 1: 9" },
-        { t: "أَمَّا مُنْتَظِرُو الرَّبِّ فَيُجَدِّدُونَ قُوَّةً. يَرْفَعُونَ أَجْنِحَةً كَالنُّسُورِ.", r: "إشعياء 40: 31" },
-        { t: "الرَّبُّ رَاعِيَّ فَلاَ يُعْوزُنِي شَيْءٌ.", r: "مزمور 23: 1" },
-        { t: "يَسُوعُ الْمَسِيحُ هُوة أَمْسًا وَالْيَوْمَ وَإِلَى الأَبَدِ.", r: "عبرانيين 13: 8" },
-        { t: "ادْعُنِي فِي يَوْمِ الضِّيقِ أُنْقِذْكَ فَتُمَجِّدَنِي.", r: "مزمور 50: 15" },
-        { t: "اَللهُ مَحَبَّةٌ، وَمَنْ يَثْبُتْ فِي الْمَحَبَّةِ، يَثْبُتْ فِي اللهِ وَاللهُ فِيهِ.", r: "1 يوحنا 4: 16" },
-        { t: "لاَ يَسْتَهِنْ أَحَدٌ بِحَدَاثَتِكَ، بَلْ كُنْ قُدْوَةً لِلْمُؤْمِنِينَ.", r: "1 تيموثاوس 4: 12" },
-        { t: "كُنْ أَمِينًا إِلَى الْمَوْتِ فَسَأُعْطِيكَ إِكْلِيلَ الْحَيَاةِ.", r: "رؤيا 2: 10" },
-        { t: "فَرَحُ الرَّبِّ هُوة قُوَّتُكُمْ.", r: "نحميا 8: 10" },
-        { t: "بِمَاذَا يُطَهِّرُ الشَّابُّ طَرِيقَهُ؟ بِحِفْظِهِ إِيَّاهُ حَسَبَ كَلاَمِكَ.", r: "مزمور 119: 9" },
-        { t: "تَعَالَوْا إِلَيَّ يَا جَمِيعَ الْمُتْعَبِينَ.. وَأَنَا أُرِيحُكُمْ.", r: "متى 11: 28" },
-        { t: "لأَنَّ اللهَ لَمْ يُعْطِنَا رُوحَ الْفَشَلِ، بَلْ رُوحَ الْقُوَّةِ.", r: "2 تيموثاوس 1: 7" },
-        { t: "اِلهُ السَّمَاءِ يُعْطِينَا النَّجَاحَ، وَنَحْنُ عَبِيدُهُ نَقُومُ وَنَبْنِي.", r: "نحميا 2: 20" },
-        { t: "مَحَبَّةً أَبَدِيَّةً أَحْبَبْتُكَ، مِنْ أَجْلِ ذلِكَ أَدَمْتُ لَكَ الرَّحْمَةَ.", r: "إرميا 31: 3" },
-        { t: "ثِقُوا: أَنَا قَدْ غَلَبْتُ الْعَالَمَ.", r: "يوحنا 16: 33" },
-        { t: "سَلاَمًا أَتْرُكُ لَكُمْ. سَلاَمِي أُعْطِيكُمْ.", r: "يوحنا 14: 27" },
-        { t: "لأَنَّهُ يُوصِي مَلاَئِكَتَهُ بِكَ لِكَيْ يَحْفَظُوكَ.", r: "مزمور 91: 11" },
-        { t: "رأسُ الحِكمةِ مَخافةُ الرَّبِّ.", r: "أمثال 1: 7" },
-        { t: "قَرِيبٌ هُوة الرَّبُّ لِكُلِّ الَّذِينَ يَدْعُونَهُ.", r: "مزمور 145: 18" },
-        { t: "كُلُّ مَا تَفْعَلُونَهُ، فَافْعَلُوهُ مِنَ الْقَلْبِ، كَمَا لِلرَّبِّ.", r: "كولوسي 3: 23" },
-        { t: "اَلْمُعْطِي الْمَسْرُورُ يُحِبُّهُ اللهُ.", r: "2 كورنثوس 9: 7" },
-        { t: "الَّذِينَ يَزْرَعُونَ بِالدُّمُوعِ يَحْصُدُونَ بِالابْتِهَاجِ.", r: "مزمور 126: 5" },
-        { t: "أَنَا هُوة الطَّرِيقُ وَالْحَقُّ وَالْحَيَاةُ.", r: "يوحنا 14: 6" },
-        { t: "فِي كُلِّ شَيْءٍ أَشْكُرُ إِلهِي.", r: "فيلبي 1: 3" },
-        { t: "كُونُوا لُطَفَاءَ بَعْضُكُمْ نَحْوَ بَعْضٍ.", r: "أفسس 4: 32" },
-        { t: "صَلُّوا بِلاَ انقِطَاعٍ.", r: "1 تسالونيكي 5: 17" },
-        { t: "اشْكُرُوا فِي كُلِّ شَيْءٍ.", r: "1 تسالونيكي 5: 18" },
-        { t: "اَللهُ أَمِينٌ لا يدعكم تُجربون فوق ما تستطيعون.", r: "1 كورنثوس 10: 13" },
-        { t: "أَنَا هُوة نُورُ الْعَالَمِ.", r: "يوحنا 8: 12" },
-        { t: "يَا رَبُّ، لِمَنْ نَذْهَبُ؟ كَلاَمُ الْحَيَاةِ الأَبَدِيَّةِ عِنْدَكَ.", r: "يوحنا 6: 68" },
-        { t: "تَوَكَّلْ عَلَى الرَّبِّ فَيَنْجُوا نَفْسُكَ.", r: "أمثال 29: 25" },
-        { t: "آمِنْ بِالرَّبِّ يَسُوعَ الْمَسِيحِ فَتخْلُصَ أَنْتَ وَأَهْلُ بَيْتِكَ.", r: "أعمال 16: 31" },
-        { t: "هأَنَذَا واقِفٌ علَى البابِ وأقرَعُ.", r: "رؤيا 3: 20" },
-        { t: "أَنَا هُوة الرَّاعِي الصَّالِحُ.", r: "يوحنا 10: 11" },
-        { t: "عَيْنَا الرَّبِّ نَحْ نحو الصِّدِّيقِينَ.", r: "مزمور 34: 15" },
-        { t: "الرَّبُّ حَنَّانٌ وَرَحِيمٌ.", r: "مزمور 103: 8" },
-        { t: "لِيُضِئْ نُورُكُمْ هكَذَا قُدَّامَ النَّاسِ.", r: "metty 5: 16" },
-        { t: "دُونَ الْقَدَاسَةِ لَنْ يرى أحدٌ الربَّ.", r: "عبرانيين 12: 14" },
-        { t: "اُطْلُبُوا أَوَّلاً مَلَكُوتَ اللهِ وَبِرَّهُ.", r: "متى 6: 33" },
-        { t: "أَنَا هُوة الْقِيَامَةُ وَالْحَيَاةُ.", r: "يوحنا 11: 25" },
-        { t: "هذَا هُوة الْيَوْمُ الَّذِي صَنَعَهُ الرَّبُّ، نَبْتَهِجُ وَنَفْرَحُ فِيهِ.", r: "مزمور 118: 24" },
-        { t: "خَبأتُ كَلامَكَ في قَلبي لِكَيلا أُخطِئَ إلَيكَ.", r: "مزمور 119: 11" },
-        { t: "اِحْفَظُوا أَنْفُسَكُمْ فِي مَحَبَّةِ اللهِ.", r: "يهوذا 1: 21" },
-        { t: "مَنْ يَغْلِبُ فَسَأُعْطِيهِ أَنْ يَجْلِسَ مَعِي فِي عَرْشِي.", r: "رؤيا 3: 21" },
-        { t: "بِاهْدُوءِ وَالطُّمَأْنِينَةِ تَكُونُ قُوَّتُكُمْ.", r: "إشعياء 30: 15" },
-        { t: "اللهُ لَنَا مَلْجَأٌ وَقُوَّةٌ، عَوْنًا فِي الضِّيقَاتِ وُجِدَ شَدِيدًا.", r: "مزمور 46: 1" },
-        { t: "لاَ يَقْتَرِبْ إِلَيْكَ شَرٌّ.", r: "مزمور 91: 10" },
-        { t: "اَلْمُتَوَكِّلُ عَلَى الرَّبِّ يُحاطُ بِالرَّحْمَةِ.", r: "مزمور 32: 10" },
-        { t: "أَنَا الْكَرْمَةُ وَأَنْتُمُ الأَغْصَانُ.", r: "يوحنا 15: 5" },
-        { t: "لَيْسَ بِالْخُبْزِ وَحْدَهُ يَحْيَا الإِنْسَانُ.", r: "متى 4: 4" },
-        { t: "تَعِبْنَا اللَّيْلَ كُلَّهُ وَلَمْ نَأْخُذْ شَيْئًا.. عَلَى كَلِمَتِكَ أُلْقِي الشَّبَكَةَ.", r: "لوقا 5: 5" },
-        { t: "أَنَا هُوة الْبَابُ. إِنْ دَخَلَ بِي أَحَدٌ فَيَخْلُصُ.", r: "يوحنا 10: 9" },
-        { t: "أَنَا خَبْزُ الْحَيَاةِ.", r: "يوحنا 6: 35" },
-        { t: "إِنَّنَا بِإِيمَانٍ نَسْلُكُ لاَ بِعِيَانٍ.", r: "2 كورنثوس 5: 7" },
-        { t: "فِي الْعَالَمِ سَيَكُونُ لَكُمْ ضِيقٌ.", r: "يوحنا 16: 33" },
-        { t: "لاَ تَهْتَمُّوا بِحَيَاتِكُمْ بِمَا تَأْكُلُونَ.", r: "متى 6: 25" },
-        { t: "كُلُّ شَيْءٍ مُسْتَطَاعٌ لِلْمُؤْمِنِ.", r: "مرقس 9: 23" },
-        { t: "يَمْسَحُ اللهُ كُلَّ دَمْعَةٍ مِنْ عُيُونِهِمْ.", r: "رؤيا 21: 4" },
-        { t: "أَنَا أَنَا هُوة مُعَزِّيكُمْ.", r: "إشعياء 51: 12" },
-        { t: "لاَ تَخَفْ، لأَنِّي فَدَيْتُكَ. دَعَوْتُكَ بِاسْمِكَ. أنتَ لِي.", r: "إشعياء 43: 1" },
-        { t: "اِمْتَحِنُوا كُلَّ شَيْءٍ. تَمَسَّكُوا بِالْحَسَنِ.", r: "1 تسالونيكي 5: 21" },
-        { t: "لأَنَّ كُلَّ الَّذِينَ يَنْقَادُونَ بِرُوحِ اللهِ.. أَبْنَاءُ اللهِ.", r: "رومية 8: 14" },
-        { t: "كُونُوا رَجَالاً. تَقَوَّوْا.", r: "1 كورنثوس 16: 13" },
-        { t: "ثثباتُ قَلْبِكَ هُوة فِي الرَّبِّ.", r: "مزمور 112: 7" },
-        { t: "يُعْطِي الْمُعْيِيَ قُوَّةً، وَلِعَدِيمِ الْمَقْدِرَةِ يُكَثِّرُ شِدَّةً.", r: "إشعياء 40: 29" },
-        { t: "الرَّبُّ قَرِيبٌ لِمُنْكَسِرِي الْقُلُوبِ.", r: "مزمور 34: 18" },
-        { t: "تَمّمُوا خَلاَصَكُمْ بِخَوْفٍ وَرِعْدَةٍ.", r: "فيلبي 2: 12" },
-        { t: "أَمَّا شَهَوَاتُ شَهَوَاتُ الشَّبَابِ فَاهْرُبْ مِنْهَا.", r: "2 تيموثاوس 2: 22" },
-        { t: "نَحْنُ نُحِبُّهُ لأَنَّهُ هُوة أَحْبَبَنَا أَوَّلاً.", r: "1 يوحنا 4: 19" },
-        { t: "لأَنَّكَ أنتَ جَعَلْتَ نَصيبي هُوة الرَّبُّ.", r: "مزمور 16: 5" },
-        { t: "أنتُمْ مِلْحُ الأَرْضِ.", r: "متى 5: 13" },
-        { t: "أنتُمْ نُورُ الْعَالَمِ.", r: "متى 5: 14" },
-        { t: "اِسْهَرُوا وَصَلُّوا لِئَلاَّ تَدْخُلُوا فِي تَجْرِبَةٍ.", r: "متى 26: 41" },
-        { t: "اَلْبَرَكَةُ عَلَى رَأْسِ الصِّدِّيقِ.", r: "أمثال 10: 6" },
-        { t: "طُوبَى لِلَّذِي يَتَّقِي الرَّبَّ.", r: "مزمور 128: 1" },
-        { t: "اَللهُ أَمِينٌ.", r: "1 كورنثوس 10: 13" },
-        { t: "أَنَا مَعَكَ وَأَحْفَظُكَ حَيْثُمَا تَذْهَبُ.", r: "تكوين 28: 15" },
-        { t: "لاَ تَنْسَ كُلَّ حَسَنَاتِهِ.", r: "مزمور 103: 2" },
-        { t: "اَلصِّدِّيقُ كالنَّخْلَةِ يَزْهُو.", r: "مزمور 92: 12" },
-        { t: "اَلْحَيَاةُ هِيَ الْمَسِيحُ.", r: "فيلبي 1: 21" },
-        { t: "لِيَكُنْ كُلُّ شَيْءٍ عِنْدَكُمْ فِي مَحَبَّةٍ.", r: "1 كورنثوس 16: 14" },
-        { t: "فِي كُلِّ ضِيقهِمْ تَضَايَقَ.", r: "إشعياء 63: 9" },
-        { t: "قُوَّتِي وَتَسْبِيحَتِي هُوة الرَّبُّ.", r: "مزمور 118: 14" },
-        { t: "تَكْفِيكَ نِعْمَتِي، لأَنَّ قُوَّتِي فِي الضَّعْفِ تُكْمَلُ.", r: "2 كورنثوس 12: 9" },
-        { t: "يَا رَبُّ اسْتَمِعْ صَلاَتِي.", r: "مزمور 102: 1" },
-        { t: "اَلرَّبُّ حَافِظُكَ. الرَّبُّ ظِلٌّ لَكَ.", r: "مزمور 121: 5" }
+        { t: "يَا ابْنِي أَعْطِنِي قَلْبَكَ، وَلْتُلاَحِظْ عَيْنَاكَ طُرُقِي.", r: "أمثال 23: 26" }
     ];
 
-    const prayers = [
-        "يارب يسوع المسيح.. ارحمني أنا الخاطئ", "يا يسوع.. ساعدني أحبك من كل قلبي", "يارب.. خلي قلبي نضيف ومكان يليق بيك",
-        "أشكرك يارب على كل حاجة بتحصل في حياتي", "يا يسوع.. أنت الراعي بتاعي، مش محتاج غيرك", "يارب.. اديني سلامك اللي بيطمن قلبي",
-        "نقي فكري وطهر قلبي يا مخلصي الصالح", "يارب.. متسيبنيش لضعفي، خليك إنت قوتي", "كلامك يارب هو النور اللي بيمشيني في الضلمة",
-        "يارب.. علمني أعمل اللي يرضيك كل يوم", "بحبك يارب.. إنت صخرتي وملجأي الوحيد", "يا يسوع.. خليك معايا في كل خطوة بخطيها",
-        "يا صانع الخيرات.. املأ حياتي ببركتك", "يارب.. ارحم ضعفي وسامحني على كل غلطة", "ليك القوة والمجد والبركة للأبد.. آمين",
-        "يارب.. افتح عيني عشان أشوف محبتك في حياتي", "ثبتني يارب في إيماني وفي طريقك", "يا يسوع.. إنت الطريق والحق والحياة",
-        "يارب.. خليني دايماً شاكر ومبسوط باللي بتديهولي", "يا يسوع.. إنت الفخاري وأنا الطين، شكلني زي ما تحب", "يارب.. اديني حكمة أعرف أختار الصح دايماً",
-        "يا يسوع.. سندني عشان إنت قوتي وقت ضعفي", "يارب.. نقي حواسي عشان أشوفك في كل الناس", "هباركك يارب في كل وقت، واسمك دايماً في فمي",
-        "يا يسوع المسيح.. خليك إنت كل حاجة في حياتي", "يارب.. خليني نور وملح للي حواليا", "يا إلهي.. اسمع صلاتي البسيطة وطمن قلبي",
-        "يارب.. املأ قلبي بفرحة من عندك مش من العالم", "يا يسوع.. إنت نوري وخلاصي مش خايف من حاجة", "يارب.. خبيني تحت ظل جناحك واديني أمان",
-        "يارب.. لتكن مشيئتك في حياتي زي ما هي في السماء", "يا يسوع.. اذكرني يارب متى جئت في ملكوتك", "آمين.. تعال يارب يسوع واسكن في قلبي للأبد"
-    ];
+    const prayers = ["يارب يسوع المسيح ارحمني", "يا يسوع ساعدني أحبك"];
 
-    // --- وظائف المسابقة (مع وظائف الحماية المضافة) ---
-    async function startQuiz() {
-        if (allQuestions.length === 0) return alert("لا توجد أسئلة حالياً، انتظر الخدام يضيفوا أسئلة! 😊");
-        
-        const savedName = localStorage.getItem('chat_user_name');
-        if (!savedName) {
-            document.getElementById('nameSetupScreen').style.display = 'flex';
-            db.ref("points_data").once("value", snap => {
-                const p = document.getElementById('namePicker');
-                p.innerHTML = '<option value="">-- اختر اسمك لبدء المسابقة --</option>';
-                snap.forEach(c => { p.innerHTML += `<option value="${c.val().name}">${c.val().name}</option>`; });
-            });
-            return; 
-        }
-
-        // --- وظيفة الحماية: منع الدخول المتكرر ---
-        const btn = document.getElementById('startQuizBtn');
-        btn.disabled = true;
-        btn.innerText = "جاري التحقق...";
-
-        const submissionsSnap = await db.ref("bible_quiz/submissions").once("value");
-        let hasPlayed = false;
-        submissionsSnap.forEach(child => {
-            if (child.val().userName === savedName) {
-                hasPlayed = true;
-            }
-        });
-
-        if (hasPlayed) {
-            alert("عفواً يا بطل! لقد قمت بحل المسابقة مسبقاً. لا يمكن الدخول مرتين. 😊");
-            btn.disabled = false;
-            btn.innerText = "ابدأ المسابقة الآن 🚀";
-            return;
-        }
-
-        document.getElementById('startPanel').style.display = 'none';
-        document.getElementById('activeQuiz').style.display = 'block';
-        quizScore = 0; currentQ = 0;
-        renderQ();
-        db.ref("settings/quizTimer").once("value", snap => {
-            let sec = (snap.val() || 5) * 60;
-            timerInt = setInterval(() => {
-                let m = Math.floor(sec / 60);
-                let s = sec % 60;
-                document.getElementById('timerDisplay').innerText = `${m}:${s < 10 ? '0' + s : s}`;
-                if (sec <= 10 && sec > 0) document.getElementById('timerDisplay').style.color = "#ef4444";
-                if (sec-- <= 0) { clearInterval(timerInt); finishQuiz(); }
-            }, 1000);
-        });
+    function checkAccess() {
+        if(document.getElementById('passInputUser').value === "jesus") {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            initApp();
+        } else { alert("كلمة السر خطأ!"); }
     }
 
-    function saveMyName() {
-        const name = document.getElementById('namePicker').value;
-        if(name) { 
-            localStorage.setItem('chat_user_name', name); 
-            document.getElementById('nameSetupScreen').style.display = 'none'; 
-            startQuiz(); 
-        } else {
-            alert("من فضلك اختر اسمك أولاً");
-        }
-    }
-
-    function checkIdentity() {
-        document.getElementById('mainContent').style.display = 'block';
-        startApp();
+    function initApp() {
         showRandomVerse();
-    }
-
-    // --- وظيفة عرض السؤال الحالي ---
-    function renderQ() {
-        if (currentQ >= allQuestions.length) {
-            finishQuiz();
-            return;
-        }
-
-        const q = allQuestions[currentQ];
-        const area = document.getElementById('optionsArea');
-        const qBox = document.getElementById('activeQuiz');
         
-        qBox.style.display = 'block';
-        qBox.classList.remove('animate__fadeInLeft');
-        void qBox.offsetWidth; 
-        qBox.classList.add('animate__animated', 'animate__fadeInLeft');
-
-        document.getElementById('qText').innerText = `سُؤال ${currentQ + 1}: ${q.text}`;
-        area.innerHTML = "";
-
-        if (q.type === 'choice' || q.type === 'truefalse') {
-            q.options.forEach(opt => {
-                const b = document.createElement('button');
-                b.className = "opt-btn";
-                b.innerText = opt;
-                b.onclick = (e) => checkAnswer(e, opt, q.correctAnswer, q.points || 1);
-                area.appendChild(b);
-            });
-        } else {
-            area.innerHTML = `
-                <input type="text" id="textAns" placeholder="اكتب الإجابة هنا..." style="margin-bottom:10px;">
-                <button class="btn" id="submitTextBtn">تأكيد الإجابة</button>
-            `;
-            document.getElementById('submitTextBtn').onclick = () => {
-                const val = document.getElementById('textAns').value;
-                checkAnswer(null, val, q.correctAnswer, q.points || 1);
-            };
-        }
-    }
-
-    // --- وظيفة التحقق من الإجابة ---
-    function checkAnswer(event, selected, correct, points) {
-        const btns = document.querySelectorAll('.opt-btn');
-        btns.forEach(b => b.disabled = true);
-        if(document.getElementById('submitTextBtn')) document.getElementById('submitTextBtn').disabled = true;
-
-        const isCorrect = selected.trim().toLowerCase() === correct.trim().toLowerCase();
-        
-        if (isCorrect) {
-            quizScore += parseInt(points);
-            document.getElementById('sndCorrect').play();
-            if(event) event.target.classList.add('correct');
-        } else {
-            document.getElementById('sndWrong').play();
-            if(event) event.target.classList.add('wrong');
-            if(event) {
-                btns.forEach(b => {
-                    if(b.innerText.trim() === correct.trim()) b.classList.add('correct');
-                });
-            }
-        }
-
-        setTimeout(() => {
-            currentQ++;
-            if (currentQ < allQuestions.length) {
-                renderQ();
-            } else {
-                finishQuiz();
-            }
-        }, 1200);
-    }
-
-    async function finishQuiz() {
-        clearInterval(timerInt);
-        const myName = localStorage.getItem('chat_user_name');
-        document.getElementById('activeQuiz').style.display = 'none';
-        document.getElementById('resultPanel').style.display = 'block';
-        document.getElementById('scoreFinal').innerText = quizScore;
-        document.getElementById('pointsEarnedText').innerText = `عاش يا بطل! تم إضافة النقاط لاسمك.`;
-        
-        const pointsRef = db.ref("points_data");
-        pointsRef.once("value", snap => {
-            snap.forEach(child => { if (child.val().name === myName) { child.ref.update({ score: (child.val().score || 0) + quizScore }); } });
+        db.ref("settings/quizEnabled").on("value", snap => {
+            document.getElementById('quizSection').style.display = snap.val() ? 'block' : 'none';
         });
-        db.ref("activity_logs").push(`✅ ${myName} خلص المسابقة وجمع ${quizScore} نقطة`);
-        db.ref("bible_quiz/submissions").push({ userName: myName, score: quizScore, time: new Date().toLocaleString('ar-EG') });
-        
+
+        // تحميل قائمة الأسماء من قاعدة البيانات للاختيار منها في المسابقة
+        db.ref("points_data").on("value", snap => {
+            const selector = document.getElementById('userQuizName');
+            const leaderboard = document.getElementById('leaderboard');
+            selector.innerHTML = '<option value="">-- اختر اسمك --</option>';
+            leaderboard.innerHTML = "";
+            
+            snap.forEach(child => {
+                const d = child.val();
+                selector.innerHTML += `<option value="${d.name}">${d.name}</option>`;
+                leaderboard.innerHTML += `<div class="card-stat"><div style="font-weight:bold; color:#fbbf24;">${d.score}</div><div>${d.name}</div></div>`;
+            });
+        });
+
+        db.ref("bible_quiz/questions").on("value", snap => {
+            const list = document.getElementById('questionsList');
+            list.innerHTML = "";
+            allQuestions = [];
+            let idx = 0;
+            snap.forEach(child => {
+                const q = child.val();
+                allQuestions.push({...q, id: child.key});
+                let html = `<div class="question-card"><div style="font-weight:bold; margin-bottom:10px; color:var(--accent);">${idx+1}. ${q.text}</div>`;
+                if(q.type === 'choice' || q.type === 'truefalse') {
+                    q.options.forEach(opt => {
+                        html += `<label class="option-label"><input type="radio" name="q_${idx}" value="${opt}"> ${opt}</label>`;
+                    });
+                } else {
+                    html += `<input type="text" id="ans_${idx}" placeholder="اكتب الإجابة هنا...">`;
+                }
+                html += `</div>`;
+                list.innerHTML += html;
+                idx++;
+            });
+        });
+
+        db.ref("chat").limitToLast(15).on("value", snap => {
+            const box = document.getElementById('chatBox'); box.innerHTML = "";
+            snap.forEach(c => { box.innerHTML += `<div class="chat-msg"><b>${c.val().sender}:</b> ${c.val().text}</div>`; });
+            box.scrollTop = box.scrollHeight;
+        });
+
+        db.ref("admin_announcement").on("value", snap => {
+            const text = snap.val();
+            document.getElementById('adminAlert').style.display = (text && text.trim() !== "") ? 'block' : 'none';
+            document.getElementById('alertText').innerText = text;
+        });
+    }
+
+    function openQuizInterface() {
+        document.getElementById('openQuizBtn').style.display = 'none';
+        document.getElementById('quizFormArea').style.display = 'block';
+    }
+
+    async function submitFullQuiz() {
+        const myName = document.getElementById('userQuizName').value;
+        if(!myName) return alert("من فضلك اختر اسمك أولاً!");
+
+        let totalPoints = 0;
+        allQuestions.forEach((q, idx) => {
+            let userAns = "";
+            if(q.type === 'choice' || q.type === 'truefalse') {
+                const selected = document.querySelector(`input[name="q_${idx}"]:checked`);
+                userAns = selected ? selected.value : "";
+            } else {
+                userAns = document.getElementById(`ans_${idx}`).value;
+            }
+            if(userAns.trim().toLowerCase() === q.correctAnswer.trim().toLowerCase()) {
+                totalPoints += parseInt(q.points || 1);
+            }
+        });
+
+        await db.ref("bible_quiz/submissions").push({ userName: myName, score: totalPoints, time: new Date().toLocaleString() });
+        db.ref("points_data").once("value", snap => {
+            snap.forEach(child => {
+                if(child.val().name === myName) {
+                    child.ref.update({ score: (child.val().score || 0) + totalPoints });
+                }
+            });
+        });
+
+        document.getElementById('quizFormArea').style.display = 'none';
+        document.getElementById('quizDoneMsg').style.display = 'block';
         confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
     }
 
+    function sendChat() {
+        const inp = document.getElementById('chatInput');
+        if(inp.value.trim()) { db.ref("chat").push({sender: "مخدوم", text: inp.value}); inp.value = ""; }
+    }
+    function setMood(el, mood) { 
+        document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+        el.classList.add('active'); currentMood = mood; 
+    }
+    function sendPsyMsg() {
+        const txt = document.getElementById('psyMsg').value;
+        db.ref("psychology/confessions").push({ sender: document.getElementById('psyNameInput').value || "ابن الطاعة", mood: currentMood, text: txt });
+        alert("وصلت رسالتك بخصوصية.. ❤️"); document.getElementById('psyMsg').value = "";
+    }
+    function startPrayerSession() { document.getElementById('prayerTimer').style.display = 'block'; pCount = 0; }
+    function countPrayer() { 
+        pCount++; 
+        document.getElementById('pCountText').innerText = pCount;
+        document.getElementById('activePrayer').innerText = prayers[pCount % prayers.length];
+    }
+    function endPrayer() { document.getElementById('prayerTimer').style.display = 'none'; alert("صلاة مقبولة!"); }
+    function showRandomVerse() { 
+        const v = bibleVerses[Math.floor(Math.random()*bibleVerses.length)];
+        document.getElementById('dailyVerse').innerText = `"${v.t}"`;
+        document.getElementById('verseRef').innerText = `(${v.r})`;
+    }
     function toggleTheme() {
         const body = document.body;
         const isLight = body.getAttribute('data-theme') === 'light';
         body.setAttribute('data-theme', isLight ? 'dark' : 'light');
         document.getElementById('themeBtn').innerText = isLight ? "☀️ الوضع الفاتح" : "🌙 الوضع الداكن";
     }
-
-    function checkAccess() {
-        if(document.getElementById('passInputUser').value === "jesus") {
-            document.getElementById('loginScreen').style.display = 'none';
-            checkIdentity();
-        } else { alert("كلمة السر خطأ!"); }
-    }
-
-    function startApp() {
-        db.ref("admin_announcement").on("value", snap => {
-            const text = snap.val();
-            document.getElementById('adminAlert').style.display = (text && text.trim() !== "") ? 'block' : 'none';
-            document.getElementById('alertText').innerText = text;
-        });
-        db.ref("settings/quizEnabled").on("value", s => document.getElementById('quizSection').style.display = s.val() ? 'block' : 'none');
-        db.ref("bible_quiz/questions").on("value", s => { allQuestions = []; s.forEach(c => allQuestions.push(c.val())); });
-        db.ref("points_data").on("value", snap => {
-            const list = document.getElementById('leaderboard'); list.innerHTML = "";
-            const data = snap.val(); if(!data) return;
-            Object.values(data).sort((a,b) => b.score - a.score).forEach(p => {
-                let colorClass = p.score >= 70 ? 'bg-high' : (p.score >= 40 ? 'bg-mid' : 'bg-low');
-                list.innerHTML += `<div class="card-stat"><div class="bar-wrap"><div class="bar ${colorClass}" style="height:${Math.min(p.score, 100)}%"></div></div><div style="font-weight:bold; color:#fbbf24;">${p.score}</div><div style="font-size:11px;">${p.name}</div></div>`;
-            });
-        });
-        db.ref("chat").limitToLast(15).on("value", snap => {
-            const box = document.getElementById('chatBox'); box.innerHTML = "";
-            snap.forEach(c => { 
-                const msg = c.val();
-                const isServant = msg.sender.includes("أ/") || msg.sender.includes("خادم");
-                const style = isServant ? "background: #422006; border-right: 3px solid #fbbf24;" : "";
-                box.innerHTML += `<div class="chat-msg" style="${style}"><b>${msg.sender}:</b> ${msg.text}</div>`; 
-            });
-            box.scrollTop = box.scrollHeight;
-        });
-        db.ref("psychology/private_chats/" + psySessionID).on("value", snap => {
-            const box = document.getElementById('psyLocalChat'); box.innerHTML = "";
-            snap.forEach(m => {
-                const msg = m.val();
-                box.innerHTML += `<div style="margin-bottom:4px; color:${msg.sender === "أنا" ? "#ec4899" : "#fbbf24"};"><b>${msg.sender}:</b> ${msg.text}</div>`;
-            });
-            box.scrollTop = box.scrollHeight;
-        });
-    }
-
-    function showRandomVerse() {
-        const v = bibleVerses[Math.floor(Math.random() * bibleVerses.length)];
-        document.getElementById('dailyVerse').innerText = `"${v.t}"`;
-        document.getElementById('verseRef').innerText = `(${v.r})`;
-    }
-
-    function sendChat() {
-        const inp = document.getElementById('chatInput');
-        if(inp.value.trim()) { db.ref("chat").push({sender: localStorage.getItem('chat_user_name') || "مخدوم", text: inp.value}); inp.value = ""; }
-    }
-
-    function setMood(el, moodEmoji) {
-        document.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('active'));
-        el.classList.add('active'); currentMood = moodEmoji;
-    }
-
-    function sendPsyMsg() {
-        const txt = document.getElementById('psyMsg').value.trim(); if(!txt) return;
-        db.ref("psychology/confessions").push({ sender: document.getElementById('psyNameInput').value || "ابن الطاعة 🕊️", mood: currentMood, need: document.getElementById('psyNeed').value, text: txt, time: new Date().toLocaleString('ar-EG') });
-        alert("وصلت رسالتك بخصوصية.. ❤️"); document.getElementById('psyMsg').value = "";
-    }
-
-    function sendPsyChat() {
-        const inp = document.getElementById('psyChatInput');
-        if(inp.value.trim()) { db.ref("psychology/private_chats/" + psySessionID).push({ sender: "أنا", text: inp.value.trim() }); inp.value = ""; }
-    }
-
-    function startPrayerSession() { document.getElementById('prayerTimer').style.display = 'block'; pCount = 0; updatePrayerDisplay(); }
-    function countPrayer() { pCount++; updatePrayerDisplay(); if(window.navigator.vibrate) window.navigator.vibrate(40); }
-    function updatePrayerDisplay() { document.getElementById('pCountText').innerText = pCount; document.getElementById('activePrayer').innerText = prayers[pCount % prayers.length]; }
-    function endPrayer() {
-        if(pCount > 0) db.ref("psychology/prayers").push({ sender: localStorage.getItem('chat_user_name'), count: pCount, time: new Date().toLocaleString('ar-EG') });
-        document.getElementById('prayerTimer').style.display = 'none'; alert("صلاة مقبولة!");
-    }
-
     function sendQuestion() {
         const txt = document.getElementById('quesMsg').value.trim();
-        if(txt) { db.ref("psychology/questions").push({ sender: localStorage.getItem('chat_user_name'), text: txt, time: new Date().toLocaleString('ar-EG') }); alert("تم الإرسال!"); document.getElementById('quesMsg').value = ""; }
+        if(txt) { db.ref("psychology/questions").push({ sender: "مخدوم", text: txt, time: new Date().toLocaleString('ar-EG') }); alert("تم الإرسال!"); document.getElementById('quesMsg').value = ""; }
     }
 </script>
 </body>
