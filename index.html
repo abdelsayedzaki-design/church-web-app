@@ -221,6 +221,7 @@
     let allQuestions = [], currentQ = 0, quizScore = 0, timerInt;
     let currentMood = "غير محدد", pCount = 0;
 
+    // --- الآيات والصلوات (تم الإبقاء عليها كاملة) ---
     const bibleVerses = [
         { t: "لاَ تَخَفْ لأَنِّي مَعَكَ. لاَ تَتَلَفَّتْ لأَنِّي إِلهُكَ. قَدْ أَيَّدْتُكَ وَأَعَنْتُكَ.", r: "إشعياء 41: 10" },
         { t: "اِسْتَطِيعُ كُلَّ شَيْءٍ فِي الْمَسِيحِ الَّذِي يُقَوِّينِي.", r: "فيلبي 4: 13" },
@@ -337,7 +338,7 @@
         "يارب.. لتكن مشيئتك في حياتي زي ما هي في السماء", "يا يسوع.. اذكرني يارب متى جئت في ملكوتك", "آمين.. تعال يارب يسوع واسكن في قلبي للأبد"
     ];
 
-    // --- وظائف المسابقة ---
+    // --- وظائف المسابقة (مع وظائف الحماية المضافة) ---
     async function startQuiz() {
         if (allQuestions.length === 0) return alert("لا توجد أسئلة حالياً، انتظر الخدام يضيفوا أسئلة! 😊");
         
@@ -352,7 +353,7 @@
             return; 
         }
 
-        // --- تعديل: منع الدخول المتكرر ---
+        // --- وظيفة الحماية: منع الدخول المتكرر ---
         const btn = document.getElementById('startQuizBtn');
         btn.disabled = true;
         btn.innerText = "جاري التحقق...";
@@ -371,7 +372,6 @@
             btn.innerText = "ابدأ المسابقة الآن 🚀";
             return;
         }
-        // --------------------------------
 
         document.getElementById('startPanel').style.display = 'none';
         document.getElementById('activeQuiz').style.display = 'block';
@@ -406,15 +406,25 @@
         showRandomVerse();
     }
 
+    // --- وظيفة عرض السؤال الحالي ---
     function renderQ() {
+        if (currentQ >= allQuestions.length) {
+            finishQuiz();
+            return;
+        }
+
         const q = allQuestions[currentQ];
         const area = document.getElementById('optionsArea');
         const qBox = document.getElementById('activeQuiz');
+        
+        qBox.style.display = 'block';
         qBox.classList.remove('animate__fadeInLeft');
         void qBox.offsetWidth; 
         qBox.classList.add('animate__animated', 'animate__fadeInLeft');
+
         document.getElementById('qText').innerText = `سُؤال ${currentQ + 1}: ${q.text}`;
         area.innerHTML = "";
+
         if (q.type === 'choice' || q.type === 'truefalse') {
             q.options.forEach(opt => {
                 const b = document.createElement('button');
@@ -424,14 +434,25 @@
                 area.appendChild(b);
             });
         } else {
-            area.innerHTML = `<input type="text" id="textAns" placeholder="اكتب الإجابة هنا..." style="margin-bottom:10px;"><button class="btn" onclick="checkAnswer(null, document.getElementById('textAns').value, '${q.correctAnswer}', ${q.points || 1})">تأكيد الإجابة</button>`;
+            area.innerHTML = `
+                <input type="text" id="textAns" placeholder="اكتب الإجابة هنا..." style="margin-bottom:10px;">
+                <button class="btn" id="submitTextBtn">تأكيد الإجابة</button>
+            `;
+            document.getElementById('submitTextBtn').onclick = () => {
+                const val = document.getElementById('textAns').value;
+                checkAnswer(null, val, q.correctAnswer, q.points || 1);
+            };
         }
     }
 
+    // --- وظيفة التحقق من الإجابة ---
     function checkAnswer(event, selected, correct, points) {
         const btns = document.querySelectorAll('.opt-btn');
         btns.forEach(b => b.disabled = true);
+        if(document.getElementById('submitTextBtn')) document.getElementById('submitTextBtn').disabled = true;
+
         const isCorrect = selected.trim().toLowerCase() === correct.trim().toLowerCase();
+        
         if (isCorrect) {
             quizScore += parseInt(points);
             document.getElementById('sndCorrect').play();
@@ -439,8 +460,21 @@
         } else {
             document.getElementById('sndWrong').play();
             if(event) event.target.classList.add('wrong');
+            if(event) {
+                btns.forEach(b => {
+                    if(b.innerText.trim() === correct.trim()) b.classList.add('correct');
+                });
+            }
         }
-        setTimeout(() => { if (currentQ < allQuestions.length - 1) { currentQ++; renderQ(); } else { finishQuiz(); } }, 1000);
+
+        setTimeout(() => {
+            currentQ++;
+            if (currentQ < allQuestions.length) {
+                renderQ();
+            } else {
+                finishQuiz();
+            }
+        }, 1200);
     }
 
     async function finishQuiz() {
@@ -451,7 +485,6 @@
         document.getElementById('scoreFinal').innerText = quizScore;
         document.getElementById('pointsEarnedText').innerText = `عاش يا بطل! تم إضافة النقاط لاسمك.`;
         
-        // إرسال النتيجة فوراً
         const pointsRef = db.ref("points_data");
         pointsRef.once("value", snap => {
             snap.forEach(child => { if (child.val().name === myName) { child.ref.update({ score: (child.val().score || 0) + quizScore }); } });
