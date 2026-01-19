@@ -128,7 +128,7 @@
             
             <div id="startPanel">
                 <p style="font-size:13px;">شارك في المسابقة الأسبوعية واجمع النقاط لاسمك!</p>
-                <button onclick="startQuiz()" class="btn" style="background:var(--accent); color:black;">ابدأ المسابقة الآن 🚀</button>
+                <button onclick="startQuiz()" class="btn" id="startQuizBtn" style="background:var(--accent); color:black;">ابدأ المسابقة الآن 🚀</button>
             </div>
 
             <div id="activeQuiz" class="quiz-box">
@@ -338,10 +338,9 @@
     ];
 
     // --- وظائف المسابقة ---
-    function startQuiz() {
+    async function startQuiz() {
         if (allQuestions.length === 0) return alert("لا توجد أسئلة حالياً، انتظر الخدام يضيفوا أسئلة! 😊");
         
-        // تعديل: التحقق من وجود اسم قبل بدء المسابقة
         const savedName = localStorage.getItem('chat_user_name');
         if (!savedName) {
             document.getElementById('nameSetupScreen').style.display = 'flex';
@@ -352,6 +351,27 @@
             });
             return; 
         }
+
+        // --- تعديل: منع الدخول المتكرر ---
+        const btn = document.getElementById('startQuizBtn');
+        btn.disabled = true;
+        btn.innerText = "جاري التحقق...";
+
+        const submissionsSnap = await db.ref("bible_quiz/submissions").once("value");
+        let hasPlayed = false;
+        submissionsSnap.forEach(child => {
+            if (child.val().userName === savedName) {
+                hasPlayed = true;
+            }
+        });
+
+        if (hasPlayed) {
+            alert("عفواً يا بطل! لقد قمت بحل المسابقة مسبقاً. لا يمكن الدخول مرتين. 😊");
+            btn.disabled = false;
+            btn.innerText = "ابدأ المسابقة الآن 🚀";
+            return;
+        }
+        // --------------------------------
 
         document.getElementById('startPanel').style.display = 'none';
         document.getElementById('activeQuiz').style.display = 'block';
@@ -374,20 +394,18 @@
         if(name) { 
             localStorage.setItem('chat_user_name', name); 
             document.getElementById('nameSetupScreen').style.display = 'none'; 
-            startQuiz(); // تشغيل المسابقة فوراً بعد اختيار الاسم
+            startQuiz(); 
         } else {
             alert("من فضلك اختر اسمك أولاً");
         }
     }
 
     function checkIdentity() {
-        // تعديل: الدخول مباشرة للمحتوى الرئيسي
         document.getElementById('mainContent').style.display = 'block';
         startApp();
         showRandomVerse();
     }
 
-    // --- بقية وظائف الكود كما هي تماماً ---
     function renderQ() {
         const q = allQuestions[currentQ];
         const area = document.getElementById('optionsArea');
@@ -432,14 +450,15 @@
         document.getElementById('resultPanel').style.display = 'block';
         document.getElementById('scoreFinal').innerText = quizScore;
         document.getElementById('pointsEarnedText').innerText = `عاش يا بطل! تم إضافة النقاط لاسمك.`;
-        if (quizScore > 0) {
-            const pointsRef = db.ref("points_data");
-            pointsRef.once("value", snap => {
-                snap.forEach(child => { if (child.val().name === myName) { child.ref.update({ score: (child.val().score || 0) + quizScore }); } });
-            });
-            db.ref("activity_logs").push(`✅ ${myName} خلص المسابقة وجمع ${quizScore} نقطة`);
-            db.ref("bible_quiz/submissions").push({ userName: myName, score: quizScore, time: new Date().toLocaleString('ar-EG') });
-        }
+        
+        // إرسال النتيجة فوراً
+        const pointsRef = db.ref("points_data");
+        pointsRef.once("value", snap => {
+            snap.forEach(child => { if (child.val().name === myName) { child.ref.update({ score: (child.val().score || 0) + quizScore }); } });
+        });
+        db.ref("activity_logs").push(`✅ ${myName} خلص المسابقة وجمع ${quizScore} نقطة`);
+        db.ref("bible_quiz/submissions").push({ userName: myName, score: quizScore, time: new Date().toLocaleString('ar-EG') });
+        
         confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
     }
 
