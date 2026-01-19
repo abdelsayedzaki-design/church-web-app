@@ -2,11 +2,12 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>خدمة إعدادي - الصفحة الرئيسية</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>خدمة إعدادي - الصفحة الشاملة</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <style>
         :root {
             --bg-body: #0f172a;
@@ -14,6 +15,10 @@
             --text-main: white;
             --border-color: #334155;
             --input-bg: #0f172a;
+            --primary: #6366f1;
+            --accent: #fbbf24;
+            --success: #10b981;
+            --error: #ef4444;
         }
 
         [data-theme="light"] {
@@ -24,54 +29,74 @@
             --input-bg: #f8fafc;
         }
 
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-body); color: var(--text-main); margin: 0; padding: 10px; transition: 0.3s; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-body); color: var(--text-main); margin: 0; padding: 10px; transition: 0.3s; user-select: none; }
+        
+        /* تصميم الآية */
         .verse-container { background: linear-gradient(135deg, #312e81 0%, #4338ca 100%); padding: 20px; border-radius: 20px; margin-bottom: 20px; text-align: center; border: 2px solid #6366f1; box-shadow: 0 10px 20px rgba(0,0,0,0.3); position: relative; overflow: hidden; }
         .verse-text { font-size: 18px; font-weight: bold; color: #fef3c7; line-height: 1.6; margin-bottom: 8px; }
         .verse-ref { font-size: 14px; color: #c7d2fe; font-style: italic; }
-        #loginScreen { position: fixed; inset: 0; background: #0f172a; display: flex; justify-content: center; align-items: center; z-index: 9999; }
+
+        /* الشاشات المؤقتة */
+        .overlay { position: fixed; inset: 0; background: #0f172a; display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
         .login-box { background: #1e293b; padding: 30px; border-radius: 20px; text-align: center; border: 2px solid #6366f1; width: 85%; max-width: 350px; }
+        
         #mainContent { display: none; }
+        
+        /* التنبيهات */
         #adminAlert { display: none; background: #b91c1c; color: white; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 2px solid #ef4444; animation: flash 2s infinite; }
         @keyframes flash { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
-        .main-title { text-align: center; color: #818cf8; margin-bottom: 20px; }
+
+        /* العناصر العامة */
         .section { background: var(--bg-section); padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 1px solid var(--border-color); }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; }
-        .card { background: #0f172a; padding: 10px; border-radius: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+        .card-stat { background: #0f172a; padding: 10px; border-radius: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
         .bar-wrap { height: 60px; background: #334155; border-radius: 5px; overflow: hidden; margin: 5px 0; display: flex; align-items: flex-end; }
         .bar { width: 100%; transition: height 1s; }
         .bg-high { background: linear-gradient(to top, #16a34a, #4ade80); }
         .bg-mid { background: linear-gradient(to top, #ca8a04, #facc15); }
         .bg-low { background: linear-gradient(to top, #dc2626, #f87171); }
+
+        /* أزرار ومدخلات */
         textarea, input[type="text"], input[type="password"], select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-main); box-sizing: border-box; margin-bottom: 10px; outline: none; }
         .btn { background: #6366f1; color: white; padding: 12px; width: 100%; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
-        .lib-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .lib-card { background: #064e3b; border: 2px solid #10b981; padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; text-decoration: none; color: white; font-weight: bold; font-size: 14px; }
+        
+        /* قسم الدردشة */
         .chat-display { height: 180px; overflow-y: auto; background: var(--input-bg); padding: 10px; border-radius: 10px; margin-bottom: 10px; }
         .chat-msg { background: var(--bg-section); padding: 8px 10px; border-radius: 10px; margin-bottom: 6px; font-size: 13px; border-right: 3px solid #6366f1; word-wrap: break-word; color: var(--text-main); }
-        .switch-container { display: flex; justify-content: space-between; align-items: center; background: #334155; padding: 10px 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #ec4899; color: white; }
+
+        /* مسابقة الكتاب المقدس */
+        .quiz-box { background: var(--bg-section); border: 2px solid var(--accent); border-radius: 20px; padding: 20px; position: relative; display: none; margin-top: 15px; }
+        .opt-btn { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid #334155; color: var(--text-main); padding: 15px; border-radius: 12px; cursor: pointer; margin-bottom: 10px; text-align: right; font-size: 16px; transition: 0.2s; }
+        .correct { background: var(--success) !important; color: white; }
+        .wrong { background: var(--error) !important; color: white; }
+        .timer-badge { position: absolute; top: 15px; left: 15px; background: var(--error); padding: 5px 12px; border-radius: 15px; font-weight: bold; color: white; font-size: 12px; }
+
+        /* Switch UI */
+        .switch-container { display: flex; justify-content: space-between; align-items: center; background: #334155; padding: 10px 15px; border-radius: 12px; margin-bottom: 15px; color: white; }
         .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; inset: 0; background-color: #1e293b; transition: .4s; border-radius: 34px; border: 1px solid #475569; }
         .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 4px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: #ec4899; }
         input:checked + .slider:before { transform: translateX(22px); }
+
         .mood-container { display: flex; justify-content: space-around; margin: 15px 0; }
         .mood-btn { font-size: 28px; cursor: pointer; transition: 0.2s; opacity: 0.5; }
         .mood-btn.active { opacity: 1; transform: scale(1.2); border-bottom: 2px solid #ec4899; }
+
         #prayerTimer { display: none; background: #312e81; padding: 15px; border-radius: 15px; border: 2px solid #818cf8; margin-top: 15px; text-align: center; }
         .prayer-counter { font-size: 45px; font-weight: bold; color: #fbbf24; margin: 5px 0; }
         .prayer-text-display { font-size: 17px; font-weight: bold; color: #fef3c7; min-height: 60px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; background: rgba(0,0,0,0.2); border-radius: 10px; padding: 10px; text-align: center; }
         
-        .theme-toggle-btn {
-            position: absolute; top: 10px; left: 10px; background: rgba(99, 102, 241, 0.2); 
-            border: 1px solid #6366f1; color: var(--text-main); padding: 5px 10px; border-radius: 10px; 
-            font-size: 12px; cursor: pointer; z-index: 10;
-        }
+        .theme-toggle-btn { position: absolute; top: 10px; left: 10px; background: rgba(99, 102, 241, 0.2); border: 1px solid #6366f1; color: var(--text-main); padding: 5px 10px; border-radius: 10px; font-size: 12px; cursor: pointer; z-index: 10; }
     </style>
 </head>
 <body>
 
-    <div id="loginScreen">
+    <audio id="sndCorrect" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
+    <audio id="sndWrong" src="https://assets.mixkit.co/active_storage/sfx/2959/2959-preview.mp3"></audio>
+
+    <div id="loginScreen" class="overlay">
         <div class="login-box">
             <h3 style="margin:0 0 10px 0; color:#818cf8;">† دخول المخدومين †</h3>
             <input type="password" id="passInputUser" placeholder="كلمة السر">
@@ -79,11 +104,20 @@
         </div>
     </div>
 
+    <div id="nameSetupScreen" class="overlay" style="display: none; z-index: 10000;">
+        <div class="login-box animate__animated animate__fadeInDown">
+            <h3 style="color: var(--accent);">مرحباً بك! اختر اسمك</h3>
+            <p style="font-size: 11px; opacity: 0.8; color: white;">يتم ربط درجاتك بالاسم المختار</p>
+            <select id="namePicker"><option value="">جاري تحميل الأسماء...</option></select>
+            <button onclick="saveMyName()" class="btn" style="background: var(--success);">تأكيد هويتي ✅</button>
+        </div>
+    </div>
+
     <div id="mainContent">
         <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">☀️ الوضع الفاتح</button>
 
-        <div class="main-title">
-            <h2 style="margin:0;">خدمة إعدادي</h2>
+        <div class="main-title" style="text-align: center; margin-bottom: 15px;">
+            <h2 style="margin:0; color: #818cf8;">خدمة إعدادي</h2>
             <small>كنيسة العذراء وأبوسيفين والشهيد أبسخيرون</small>
         </div>
 
@@ -97,14 +131,31 @@
             <span id="alertText"></span>
         </div>
 
-        <div class="section">
-            <h3 style="margin-top:0; color: #fbbf24;">🏆 لوحة الشرف</h3>
-            <div id="leaderboard" class="grid"></div>
+        <div id="quizSection" class="section" style="border: 2px solid var(--accent); display: none;">
+            <h3 style="margin-top:0; color: var(--accent);">📖 مسابقة الكتاب المقدس</h3>
+            
+            <div id="startPanel">
+                <p style="font-size:13px;">شارك في المسابقة الأسبوعية واجمع النقاط لاسمك!</p>
+                <button onclick="startQuiz()" class="btn" style="background:var(--accent); color:black;">ابدأ المسابقة الآن 🚀</button>
+            </div>
+
+            <div id="activeQuiz" class="quiz-box">
+                <div class="timer-badge" id="timerDisplay">00:00</div>
+                <div id="qText" style="font-size: 17px; font-weight: bold; margin: 30px 0 15px; text-align: center;"></div>
+                <div id="optionsArea"></div>
+            </div>
+
+            <div id="resultPanel" style="display: none; text-align: center; padding: 10px;">
+                <h2 style="color: var(--accent);">تم الإرسال!</h2>
+                <div id="scoreFinal" style="font-size: 35px; font-weight: 900;">0%</div>
+                <p id="pointsEarnedText" style="color: #94a3b8; font-size: 13px;"></p>
+                <button onclick="location.reload()" class="btn" style="background:none; border:1px solid #334155; margin-top:10px;">العودة</button>
+            </div>
         </div>
 
         <div class="section">
-            <h3>📝 بياناتي</h3>
-            <input type="text" id="userName" placeholder="اكتب اسمك هنا..." oninput="localStorage.setItem('chat_user_name', this.value)">
+            <h3 style="margin-top:0; color: #fbbf24;">🏆 لوحة الشرف</h3>
+            <div id="leaderboard" class="grid"></div>
         </div>
 
         <div id="chatSection" class="section" style="border-right: 5px solid #6366f1;">
@@ -126,10 +177,7 @@
 
         <div id="psyArea" class="section" style="display: none; border: 2px solid #ec4899;">
              <p style="text-align:center; font-size:13px;">ما تخفش احنا جنبك بنحبك وانت غالي على قلب المسيح.. ❤️</p>
-             
              <input type="text" id="psyNameInput" placeholder="اسمك (اختياري - اتركه فارغاً للمجهول)" style="border: 1px dashed #ec4899; font-size: 13px;">
-
-             <p style="text-align:center; font-size:12px; color:#818cf8; margin-bottom:5px;">كيف حالك الآن؟</p>
              <div class="mood-container">
                 <span class="mood-btn" onclick="setMood(this, '😭')">😭</span>
                 <span class="mood-btn" onclick="setMood(this, '😥')">😥</span>
@@ -137,7 +185,6 @@
                 <span class="mood-btn" onclick="setMood(this, '😌')">😌</span>
                 <span class="mood-btn" onclick="setMood(this, '😊')">😊</span>
              </div>
-
              <select id="psyNeed">
                 <option value="مجرد فضفضة 🗣️">🗣️ مجرد فضفضة</option>
                 <option value="صلاة من أجلي 🙏">🙏 صلاة من أجلي</option>
@@ -148,10 +195,6 @@
             <button class="btn" style="background:#ec4899; margin-bottom:15px;" onclick="sendPsyMsg()">إرسال 🕊️</button>
 
             <div id="psyChatContainer" style="margin-top: 5px; border-top: 1px dashed #ec4899; padding-top: 10px; margin-bottom: 15px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                    <small style="color: #94a3b8;">محادثة مجهولة مع الخادم:</small>
-                    <button onclick="clearMyPrivateChat()" style="background: none; border: none; color: #ef4444; font-size: 11px; cursor: pointer;">🗑️ حذف المحادثة</button>
-                </div>
                 <div id="psyLocalChat" style="height: 100px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 8px; font-size: 12px; margin-bottom: 8px;"></div>
                 <div style="display: flex; gap: 5px;">
                     <input type="text" id="psyChatInput" placeholder="اكتب رسالة سرية..." style="margin-bottom:0; font-size:12px; height: 35px;">
@@ -160,7 +203,6 @@
             </div>
 
             <button class="btn" style="background:#fbbf24; color:#000;" onclick="startPrayerSession()">✨ يلا نصلو سوا (33 صلاة) ✨</button>
-
             <div id="prayerTimer">
                 <div class="prayer-text-display" id="activePrayer">اضغط للبدء...</div>
                 <div class="prayer-counter" id="pCountText">0</div>
@@ -174,15 +216,6 @@
             <textarea id="quesMsg" placeholder="اكتب سؤالك أو اقتراحك هنا..." style="height: 60px;"></textarea>
             <button class="btn" style="background:#818cf8;" onclick="sendQuestion()">إرسال 🕊️</button>
         </div>
-
-        <div id="librarySection" class="section" style="border: 2px solid #10b981;">
-            <h3 style="color: #10b981; margin-top:0;">🎥 مكتبة الميديا</h3>
-            <div class="lib-grid">
-                <a id="hymnLink" href="#" target="_blank" class="lib-card">🎵 لحن الأسبوع</a>
-                <a id="pdfLink" href="#" target="_blank" class="lib-card">📖 المنهج (PDF)</a>
-                <a id="videoLink" href="#" target="_blank" class="lib-card" style="grid-column: span 2;">🎬 شاهد فيديو الدرس</a>
-            </div>
-        </div>
     </div>
 
 <script>
@@ -190,13 +223,11 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    // --- الجزء المعدل 1: المعرف الثابت ---
-    let psySessionID = localStorage.getItem('psy_session_id');
-    if (!psySessionID) {
-        psySessionID = "User_" + Date.now() + Math.floor(Math.random() * 1000);
-        localStorage.setItem('psy_session_id', psySessionID);
-    }
-    // ----------------------------------
+    let psySessionID = localStorage.getItem('psy_session_id') || ("User_" + Date.now());
+    localStorage.setItem('psy_session_id', psySessionID);
+
+    let allQuestions = [], currentQ = 0, quizScore = 0, timerInt;
+    let currentMood = "غير محدد", pCount = 0;
 
     const bibleVerses = [
         { t: "لاَ تَخَفْ لأَنِّي مَعَكَ. لاَ تَتَلَفَّتْ لأَنِّي إِلهُكَ. قَدْ أَيَّدْتُكَ وَأَعَنْتُكَ.", r: "إشعياء 41: 10" },
@@ -314,45 +345,46 @@
         "يارب.. لتكن مشيئتك في حياتي زي ما هي في السماء", "يا يسوع.. اذكرني يارب متى جئت في ملكوتك", "آمين.. تعال يارب يسوع واسكن في قلبي للأبد"
     ];
 
-    let currentMood = "غير محدد";
-    let pCount = 0;
-
     function toggleTheme() {
         const body = document.body;
         const btn = document.getElementById('themeBtn');
-        if (body.getAttribute('data-theme') === 'light') {
-            body.setAttribute('data-theme', 'dark');
-            btn.innerText = "☀️ الوضع الفاتح";
-            localStorage.setItem('church_theme', 'dark');
-        } else {
-            body.setAttribute('data-theme', 'light');
-            btn.innerText = "🌙 الوضع الداكن";
-            localStorage.setItem('church_theme', 'light');
-        }
+        const isLight = body.getAttribute('data-theme') === 'light';
+        body.setAttribute('data-theme', isLight ? 'dark' : 'light');
+        btn.innerText = isLight ? "☀️ الوضع الفاتح" : "🌙 الوضع الداكن";
+        localStorage.setItem('church_theme', isLight ? 'dark' : 'light');
     }
 
     function checkAccess() {
         if(document.getElementById('passInputUser').value === "jesus") {
             document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('mainContent').style.display = 'block';
-            startApp();
-            showRandomVerse();
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#6366f1', '#fbbf24', '#ec4899'] });
-            if(localStorage.getItem('church_theme') === 'light') {
-                document.body.setAttribute('data-theme', 'light');
-                document.getElementById('themeBtn').innerText = "🌙 الوضع الداكن";
-            }
+            checkIdentity();
         } else { alert("كلمة السر خطأ!"); }
     }
 
-    function showRandomVerse() {
-        const v = bibleVerses[Math.floor(Math.random() * bibleVerses.length)];
-        document.getElementById('dailyVerse').innerText = `"${v.t}"`;
-        document.getElementById('verseRef').innerText = `(${v.r})`;
+    function checkIdentity() {
+        const savedName = localStorage.getItem('chat_user_name');
+        if (!savedName) {
+            document.getElementById('nameSetupScreen').style.display = 'flex';
+            db.ref("points_data").once("value", snap => {
+                const p = document.getElementById('namePicker');
+                p.innerHTML = '<option value="">-- اختر اسمك --</option>';
+                snap.forEach(c => { p.innerHTML += `<option value="${c.val().name}">${c.val().name}</option>`; });
+            });
+        } else {
+            document.getElementById('mainContent').style.display = 'block';
+            startApp();
+            showRandomVerse();
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+        }
+    }
+
+    function saveMyName() {
+        const name = document.getElementById('namePicker').value;
+        if(name) { localStorage.setItem('chat_user_name', name); location.reload(); }
     }
 
     function startApp() {
-        if(localStorage.getItem('chat_user_name')) document.getElementById('userName').value = localStorage.getItem('chat_user_name');
+        const myName = localStorage.getItem('chat_user_name');
         
         db.ref("admin_announcement").on("value", snap => {
             const text = snap.val();
@@ -360,26 +392,15 @@
             document.getElementById('alertText').innerText = text;
         });
 
-        db.ref("settings/libVisible").on("value", snap => {
-            const isVisible = snap.val() !== false;
-            document.getElementById('librarySection').style.display = isVisible ? "block" : "none";
-        });
-
-        db.ref("media_library").on("value", snap => {
-            const d = snap.val();
-            if(d) {
-                document.getElementById('hymnLink').href = d.hymn || "#";
-                document.getElementById('pdfLink').href = d.pdf || "#";
-                document.getElementById('videoLink').href = d.video || "#";
-            }
-        });
+        db.ref("settings/quizEnabled").on("value", s => document.getElementById('quizSection').style.display = s.val() ? 'block' : 'none');
+        db.ref("bible_quiz/questions").on("value", s => { allQuestions = []; s.forEach(c => allQuestions.push(c.val())); });
 
         db.ref("points_data").on("value", snap => {
             const list = document.getElementById('leaderboard'); list.innerHTML = "";
             const data = snap.val(); if(!data) return;
             Object.values(data).sort((a,b) => b.score - a.score).forEach(p => {
                 let colorClass = p.score >= 70 ? 'bg-high' : (p.score >= 40 ? 'bg-mid' : 'bg-low');
-                list.innerHTML += `<div class="card"><div class="bar-wrap"><div class="bar ${colorClass}" style="height:${Math.min(p.score, 100)}%"></div></div><div style="font-weight:bold; color:#fbbf24;">${p.score}</div><div style="font-size:11px;">${p.name}</div></div>`;
+                list.innerHTML += `<div class="card-stat"><div class="bar-wrap"><div class="bar ${colorClass}" style="height:${Math.min(p.score, 100)}%"></div></div><div style="font-weight:bold; color:#fbbf24;">${p.score}</div><div style="font-size:11px;">${p.name}</div></div>`;
             });
         });
 
@@ -387,113 +408,116 @@
             const box = document.getElementById('chatBox'); box.innerHTML = "";
             snap.forEach(c => { 
                 const msg = c.val();
-                const isServant = msg.sender.includes("أ/") || msg.sender.includes("خادم") || msg.sender.includes("أمين");
-                const style = isServant ? "background: #422006; border-right: 3px solid #fbbf24; color: #fef3c7;" : "";
+                const isServant = msg.sender.includes("أ/") || msg.sender.includes("خادم");
+                const style = isServant ? "background: #422006; border-right: 3px solid #fbbf24;" : "";
                 box.innerHTML += `<div class="chat-msg" style="${style}"><b>${msg.sender}:</b> ${msg.text}</div>`; 
             });
             box.scrollTop = box.scrollHeight;
         });
 
-        // مراقبة ردود الخادم في المحادثة المجهولة (بالمعرف الثابت)
         db.ref("psychology/private_chats/" + psySessionID).on("value", snap => {
-            const box = document.getElementById('psyLocalChat');
-            box.innerHTML = "";
+            const box = document.getElementById('psyLocalChat'); box.innerHTML = "";
             snap.forEach(m => {
                 const msg = m.val();
-                const isMe = msg.sender === "أنا";
-                const color = isMe ? "#ec4899" : "#fbbf24";
-                box.innerHTML += `<div style="margin-bottom:4px; color:${color};"><b>${msg.sender}:</b> ${msg.text}</div>`;
+                box.innerHTML += `<div style="margin-bottom:4px; color:${msg.sender === "أنا" ? "#ec4899" : "#fbbf24"};"><b>${msg.sender}:</b> ${msg.text}</div>`;
             });
             box.scrollTop = box.scrollHeight;
         });
     }
 
+    // وظائف المسابقة
+    function startQuiz() {
+        if(allQuestions.length === 0) return alert("لا توجد أسئلة حالياً!");
+        document.getElementById('startPanel').style.display = 'none';
+        document.getElementById('activeQuiz').style.display = 'block';
+        quizScore = 0; currentQ = 0;
+        renderQ();
+        db.ref("settings/quizTimer").once("value", snap => {
+            let sec = (snap.val() || 5) * 60;
+            timerInt = setInterval(() => {
+                let m = Math.floor(sec/60), s = sec%60;
+                document.getElementById('timerDisplay').innerText = `${m}:${s < 10 ? '0'+s : s}`;
+                if(sec-- <= 0) finishQuiz();
+            }, 1000);
+        });
+    }
+
+    function renderQ() {
+        const q = allQuestions[currentQ];
+        document.getElementById('qText').innerText = q.text;
+        const area = document.getElementById('optionsArea'); area.innerHTML = "";
+        q.options.forEach(opt => {
+            const b = document.createElement('button'); b.className = "opt-btn"; b.innerText = opt;
+            b.onclick = () => {
+                document.querySelectorAll('.opt-btn').forEach(btn => btn.disabled = true);
+                if(opt === q.correctAnswer) { quizScore++; b.classList.add('correct'); document.getElementById('sndCorrect').play(); }
+                else { b.classList.add('wrong'); document.getElementById('sndWrong').play(); }
+                setTimeout(() => { (currentQ < allQuestions.length - 1) ? (currentQ++, renderQ()) : finishQuiz(); }, 1000);
+            };
+            area.appendChild(b);
+        });
+    }
+
+    async function finishQuiz() {
+        clearInterval(timerInt);
+        const myName = localStorage.getItem('chat_user_name');
+        const percent = Math.round((quizScore / allQuestions.length) * 100);
+        const pointsSnap = await db.ref("settings/pointsPerQuestion").once("value");
+        const totalPoints = quizScore * (pointsSnap.val() || 0);
+
+        if (totalPoints > 0) {
+            db.ref("points_data").once("value", snap => {
+                snap.forEach(child => { if (child.val().name === myName) child.ref.update({ score: (child.val().score || 0) + totalPoints }); });
+            });
+            db.ref("activity_logs").push(`[${new Date().toLocaleTimeString()}] ${myName} حصل على +${totalPoints} من المسابقة`);
+        }
+
+        document.getElementById('scoreFinal').innerText = percent + "%";
+        document.getElementById('pointsEarnedText').innerText = `ربحت ${totalPoints} نقطة!`;
+        document.getElementById('activeQuiz').style.display = 'none';
+        document.getElementById('resultPanel').style.display = 'block';
+        if (percent >= 50) confetti({ particleCount: 150, spread: 70 });
+    }
+
+    // وظائف أخرى
+    function showRandomVerse() {
+        const v = bibleVerses[Math.floor(Math.random() * bibleVerses.length)];
+        document.getElementById('dailyVerse').innerText = `"${v.t}"`;
+        document.getElementById('verseRef').innerText = `(${v.r})`;
+    }
+
     function sendChat() {
-        const inp = document.getElementById('chatInput'); const name = document.getElementById('userName').value || "مخدوم";
+        const inp = document.getElementById('chatInput'); const name = localStorage.getItem('chat_user_name') || "مخدوم";
         if(inp.value.trim()) { db.ref("chat").push({sender: name, text: inp.value}); inp.value = ""; }
     }
 
     function setMood(el, moodEmoji) {
         document.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('active'));
-        el.classList.add('active');
-        currentMood = moodEmoji;
-    }
-
-    function getPsySenderName() {
-        const customName = document.getElementById('psyNameInput').value.trim();
-        return customName ? customName : "ابن الطاعة 🕊️";
+        el.classList.add('active'); currentMood = moodEmoji;
     }
 
     function sendPsyMsg() {
-        const txt = document.getElementById('psyMsg').value.trim();
-        if(!txt) return;
-        db.ref("psychology/confessions").push({ 
-            sender: getPsySenderName(), 
-            mood: currentMood, 
-            need: document.getElementById('psyNeed').value, 
-            text: txt, 
-            time: new Date().toLocaleString('ar-EG') 
-        });
-        alert("وصلت رسالتك بخصوصية.. ربنا يريح قلبك ✨"); 
-        document.getElementById('psyMsg').value = "";
-        document.getElementById('psyNameInput').value = "";
+        const txt = document.getElementById('psyMsg').value.trim(); if(!txt) return;
+        db.ref("psychology/confessions").push({ sender: document.getElementById('psyNameInput').value || "ابن الطاعة 🕊️", mood: currentMood, need: document.getElementById('psyNeed').value, text: txt, time: new Date().toLocaleString('ar-EG') });
+        alert("وصلت رسالتك بخصوصية.. ❤️"); document.getElementById('psyMsg').value = "";
     }
 
-    // وظيفة إرسال الدردشة المجهولة
     function sendPsyChat() {
         const inp = document.getElementById('psyChatInput');
-        if(inp.value.trim()) {
-            db.ref("psychology/private_chats/" + psySessionID).push({
-                sender: "أنا",
-                text: inp.value.trim()
-            });
-            inp.value = "";
-        }
+        if(inp.value.trim()) { db.ref("psychology/private_chats/" + psySessionID).push({ sender: "أنا", text: inp.value.trim() }); inp.value = ""; }
     }
 
-    // --- الجزء المعدل 3: دالة حذف الشات ---
-    function clearMyPrivateChat() {
-        if(confirm("هل أنت متأكد من حذف محادثتك الخاصة نهائياً من قاعدة البيانات؟")) {
-            db.ref("psychology/private_chats/" + psySessionID).remove();
-            alert("تم حذف المحادثة.");
-        }
-    }
-    // -----------------------------------
-
-    function startPrayerSession() { 
-        document.getElementById('prayerTimer').style.display = 'block'; 
-        pCount = 0; updatePrayerDisplay(); 
-    }
-    function countPrayer() { 
-        pCount++; updatePrayerDisplay(); 
-        if(window.navigator.vibrate) window.navigator.vibrate(40); 
-    }
-    function updatePrayerDisplay() { 
-        document.getElementById('pCountText').innerText = pCount; 
-        document.getElementById('activePrayer').innerText = prayers[pCount % prayers.length]; 
-    }
+    function startPrayerSession() { document.getElementById('prayerTimer').style.display = 'block'; pCount = 0; updatePrayerDisplay(); }
+    function countPrayer() { pCount++; updatePrayerDisplay(); if(window.navigator.vibrate) window.navigator.vibrate(40); }
+    function updatePrayerDisplay() { document.getElementById('pCountText').innerText = pCount; document.getElementById('activePrayer').innerText = prayers[pCount % prayers.length]; }
     function endPrayer() {
-        if(pCount > 0) {
-            db.ref("psychology/prayers").push({ 
-                sender: getPsySenderName(), 
-                count: pCount, 
-                time: new Date().toLocaleString('ar-EG') 
-            });
-        }
-        document.getElementById('prayerTimer').style.display = 'none';
-        alert("صلاة مقبولة!");
+        if(pCount > 0) db.ref("psychology/prayers").push({ sender: localStorage.getItem('chat_user_name'), count: pCount, time: new Date().toLocaleString('ar-EG') });
+        document.getElementById('prayerTimer').style.display = 'none'; alert("صلاة مقبولة!");
     }
+
     function sendQuestion() {
         const txt = document.getElementById('quesMsg').value.trim();
-        if(txt) { 
-            db.ref("psychology/questions").push({ 
-                sender: getPsySenderName(), 
-                text: txt, 
-                time: new Date().toLocaleString('ar-EG') 
-            }); 
-            alert("تم الإرسال بخصوصية!"); 
-            document.getElementById('quesMsg').value = ""; 
-        }
+        if(txt) { db.ref("psychology/questions").push({ sender: localStorage.getItem('chat_user_name'), text: txt, time: new Date().toLocaleString('ar-EG') }); alert("تم الإرسال!"); document.getElementById('quesMsg').value = ""; }
     }
 </script>
 </body>
