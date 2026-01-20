@@ -49,7 +49,6 @@
         textarea, input[type="text"], input[type="password"], select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-main); box-sizing: border-box; margin-bottom: 10px; outline: none; }
         .btn { background: #6366f1; color: white; padding: 12px; width: 100%; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
         
-        /* Quiz Specific Styles */
         .quiz-card { border: 2px solid var(--accent); position: relative; }
         .question-card { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; margin-bottom: 15px; border-right: 4px solid var(--primary); }
         .option-label { display: block; background: var(--bg-body); padding: 10px; margin: 5px 0; border-radius: 8px; cursor: pointer; border: 1px solid var(--border-color); font-size: 14px; }
@@ -160,7 +159,6 @@
         <div id="psyArea" class="section" style="display: none; border: 2px solid #ec4899;">
              <p style="text-align:center; font-size:13px;">ما تخفش احنا جنبك بنحبك وانت غالي على قلب المسيح.. ❤️</p>
              <input type="text" id="psyNameInput" placeholder="اسمك (اختياري - اتركه فارغاً للمجهول)" style="border: 1px dashed #ec4899; font-size: 13px;">
-             <p style="text-align:center; font-size:12px; color:#818cf8; margin-bottom:5px;">كيف حالك الآن؟</p>
              <div class="mood-container">
                 <span class="mood-btn" onclick="setMood(this, '😭')">😭</span>
                 <span class="mood-btn" onclick="setMood(this, '😥')">😥</span>
@@ -177,8 +175,8 @@
             <textarea id="psyMsg" placeholder="اكتب ما بقلبك هنا..." style="height: 80px;"></textarea>
             <button class="btn" style="background:#ec4899; margin-bottom:15px;" onclick="sendPsyMsg()">إرسال 🕊️</button>
 
-            <div id="psyChatContainer" style="margin-top: 5px; border-top: 1px dashed #ec4899; padding-top: 10px; margin-bottom: 15px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+            <div id="psyChatContainer">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
                     <small style="color: #94a3b8;">محادثة مجهولة مع الخادم:</small>
                     <button onclick="clearMyPrivateChat()" style="background: none; border: none; color: #ef4444; font-size: 11px; cursor: pointer;">🗑️ حذف المحادثة</button>
                 </div>
@@ -189,7 +187,7 @@
                 </div>
             </div>
 
-            <button class="btn" style="background:#fbbf24; color:#000;" onclick="startPrayerSession()">✨ يلا نصلو سوا (33 صلاة) ✨</button>
+            <button class="btn" style="background:#fbbf24; color:#000; margin-top:15px;" onclick="startPrayerSession()">✨ يلا نصلو سوا (33 صلاة) ✨</button>
             <div id="prayerTimer">
                 <div class="prayer-text-display" id="activePrayer">اضغط للبدء...</div>
                 <div class="prayer-counter" id="pCountText">0</div>
@@ -414,25 +412,29 @@
         });
     }
 
-    // --- نظام منع الدخول المتكرر للمسابقة ---
+    // --- نظام المسابقة المحدث لمنع الحل للغير ---
     function startQuiz() {
-        selectedQuizStudentName = document.getElementById('userNameListQuiz').value;
+        const nameSelect = document.getElementById('userNameListQuiz');
+        selectedQuizStudentName = nameSelect.value;
+
         if (!selectedQuizStudentName) return alert("من فضلك اختر اسمك أولاً");
 
-        // 1. فحص محلي
-        if (localStorage.getItem('quiz_done_' + selectedQuizStudentName) === 'true') {
-            alert("عفواً، لقد قمت بحل هذه المسابقة مسبقاً.");
-            showFinishedStatus();
+        // 1. التحقق: هل هذا الجهاز مسجل باسم مخدوم آخر؟
+        const savedNameOnDevice = localStorage.getItem('quiz_bound_name');
+        if (savedNameOnDevice && savedNameOnDevice !== selectedQuizStudentName) {
+            alert(`هذا الجهاز مسجل باسم (${savedNameOnDevice}). لا يمكنك الحل لزميل آخر!`);
             return;
         }
 
-        // 2. فحص سحابي لمنع التلاعب
+        // 2. التحقق السحابي
         db.ref("bible_quiz/submissions").orderByChild("userName").equalTo(selectedQuizStudentName).once("value", snap => {
             if (snap.exists()) {
-                alert("سجلت قاعدة البيانات أنك قمت بالحل مسبقاً!");
+                alert("عفواً، لقد قمت بحل هذه المسابقة مسبقاً!");
                 localStorage.setItem('quiz_done_' + selectedQuizStudentName, 'true');
+                localStorage.setItem('quiz_bound_name', selectedQuizStudentName); 
                 showFinishedStatus();
             } else {
+                localStorage.setItem('quiz_bound_name', selectedQuizStudentName);
                 loadQuiz();
             }
         });
@@ -466,7 +468,14 @@
             if (ans.trim().toLowerCase() === q.correctAnswer.trim().toLowerCase()) total += parseInt(q.points || 1);
         });
 
-        await db.ref("bible_quiz/submissions").push({ userName: selectedQuizStudentName, score: total, max: max, time: new Date().toLocaleString('ar-EG') });
+        await db.ref("bible_quiz/submissions").push({ 
+            userName: selectedQuizStudentName, 
+            score: total, 
+            max: max, 
+            time: new Date().toLocaleString('ar-EG'),
+            deviceId: psySessionID 
+        });
+
         db.ref("points_data").once("value", snap => {
             snap.forEach(child => { if (child.val().name === selectedQuizStudentName) child.ref.update({ score: (child.val().score || 0) + total }); });
         });
@@ -483,7 +492,7 @@
         if (score !== undefined) document.getElementById('finalQuizScore').innerText = `حصلت على ${score} من ${max}`;
     }
 
-    // --- وظائف الدردشة والمساندة (بدون تغيير) ---
+    // --- وظائف الدردشة والمساندة ---
     function sendChat() {
         const inp = document.getElementById('chatInput'); const name = document.getElementById('userName').value || "مخدوم";
         if(inp.value.trim()) { db.ref("chat").push({sender: name, text: inp.value}); inp.value = ""; }
