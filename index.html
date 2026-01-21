@@ -73,6 +73,20 @@
         .theme-toggle-btn { position: absolute; top: 10px; left: 10px; background: rgba(99, 102, 241, 0.2); border: 1px solid #6366f1; color: var(--text-main); padding: 5px 10px; border-radius: 10px; font-size: 12px; cursor: pointer; z-index: 10; }
         .lib-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
         .lib-card { background: #064e3b; border: 2px solid #10b981; padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; text-decoration: none; color: white; font-weight: bold; font-size: 14px; }
+
+        /* الكود المضاف: تنسيق زر مسح الدردشة */
+        .clear-chat-btn {
+            background: #dc2626; 
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 4px 10px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-bottom: 5px;
+        }
+        .clear-chat-btn:hover { background: #b91c1c; }
     </style>
 </head>
 <body>
@@ -173,6 +187,8 @@
             <button class="btn" style="background:#ec4899; margin-bottom:15px;" onclick="sendMoodOnly()">تحديث الحالة 🕊️</button>
 
             <div id="psyChatContainer">
+                <button class="clear-chat-btn" onclick="clearPsyChat()">مسح الدردشة 🗑️</button>
+                <br>
                 <small style="color: #94a3b8;">محادثة مجهولة مع الخادم:</small>
                 <div id="psyLocalChat" style="height: 100px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 8px; font-size: 12px; margin: 5px 0;"></div>
                 <div style="display: flex; gap: 5px;">
@@ -234,7 +250,6 @@
         {t: "اِتَّكِلْ عَلَى الرَّبِّ بِكُلِّ قَلْبِكَ، وَعَلَى فَهْمِكَ لاَ تَعْتَمِدْ.", r: "أمثال 3: 5"},
         {t: "هأَنَذَا قَدْ نَقَشْتُكَ عَلَى كَفَّيَّ. أَسْوَارُكَ أَمَامِي دَائِمًا.", r: "إشعياء 49: 16"},
         {t: "سِرَاجٌ لِرِجْلِي كَلاَمُكَ وَنُورٌ لِسَبِيلِي.", r: "مزمور 119: 105"}
-        // ... (باقي الـ 100 آية مفترضة هنا)
     ];
 
     const prayers = [
@@ -243,7 +258,6 @@
         "يا ربي يسوع المسيح.. استر عليّ",
         "يا ربي يسوع المسيح.. أنقذني",
         "يا ربي يسوع المسيح.. املأ قلبي بحبك"
-        // ... (باقي الـ 15 صلاة)
     ];
 
     let currentMood = "😌";
@@ -324,7 +338,6 @@
             box.scrollTop = box.scrollHeight;
         });
 
-        // قفل الجهاز عند الفتح
         const boundName = localStorage.getItem('quiz_bound_name');
         if (boundName) {
             setTimeout(() => { document.getElementById('userNameListQuiz').value = boundName; }, 1500);
@@ -334,15 +347,11 @@
     function startQuiz() {
         selectedQuizStudentName = document.getElementById('userNameListQuiz').value;
         if(!selectedQuizStudentName) return alert("اختر اسمك أولاً");
-
-        // 1. قفل الجهاز (الجزء الجديد)
         const boundName = localStorage.getItem('quiz_bound_name');
         if (boundName && boundName !== selectedQuizStudentName) {
             alert(`هذا الجهاز مسجل باسم (${boundName}). لا يمكنك الحل لزميل آخر!`);
             return;
         }
-
-        // 2. التحقق من قاعدة البيانات
         db.ref("bible_quiz/submissions").orderByChild("userName").equalTo(selectedQuizStudentName).once("value", snap => {
             if(snap.exists()) {
                 alert("لقد قمت بحل المسابقة مسبقاً!");
@@ -359,7 +368,6 @@
         db.ref("settings/quizTimerMinutes").once("value", snapTime => {
             let timerMinutes = snapTime.val() || 5;
             let durationInSeconds = timerMinutes * 60;
-
             db.ref("bible_quiz/questions").once("value", snapQ => {
                 const container = document.getElementById('questionsContainer');
                 container.innerHTML = ""; allQuizQuestions = []; let i = 0;
@@ -371,7 +379,6 @@
                     } else { html += `<input type="text" id="quiz_ans_${i}" placeholder="اكتب الإجابة...">`; }
                     container.innerHTML += html + `</div>`; i++;
                 });
-
                 document.getElementById('quizSetup').style.display = 'none';
                 document.getElementById('quizArea').style.display = 'block';
                 startCountdown(durationInSeconds);
@@ -406,7 +413,6 @@
             } else { ans = document.getElementById(`quiz_ans_${idx}`).value; }
             if (ans.trim().toLowerCase() === q.correctAnswer.trim().toLowerCase()) total += parseInt(q.points || 1);
         });
-        
         await db.ref("bible_quiz/submissions").push({ 
             userName: selectedQuizStudentName, 
             score: total, 
@@ -414,11 +420,9 @@
             time: new Date().toLocaleString('ar-EG'),
             deviceId: psySessionID 
         });
-        
         db.ref("points_data").once("value", snap => {
             snap.forEach(child => { if (child.val().name === selectedQuizStudentName) child.ref.update({ score: (child.val().score || 0) + total }); });
         });
-
         showFinishedStatus(total, max);
         confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
     }
@@ -454,6 +458,19 @@
         if(inp.value.trim()) {
             db.ref("psychology/private_chats/" + psySessionID).push({ sender: "أنا", text: inp.value.trim() });
             inp.value = "";
+        }
+    }
+
+    // الكود المضاف: وظيفة مسح الدردشة
+    function clearPsyChat() {
+        if(confirm("هل أنت متأكد من مسح سجل محادثتك الخاصة بالكامل؟")) {
+            db.ref("psychology/private_chats/" + psySessionID).remove()
+            .then(() => {
+                alert("تم مسح المحادثة بنجاح ✅");
+            })
+            .catch((error) => {
+                console.error("خطأ في المسح: ", error);
+            });
         }
     }
 
