@@ -74,7 +74,6 @@
         .lib-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
         .lib-card { background: #064e3b; border: 2px solid #10b981; padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; text-decoration: none; color: white; font-weight: bold; font-size: 14px; }
 
-        /* الكود المضاف: تنسيق زر مسح الدردشة */
         .clear-chat-btn {
             background: #dc2626; 
             color: white;
@@ -307,12 +306,28 @@
             document.getElementById('quizSection').style.display = snap.val() === true ? "block" : "none";
         });
 
+        // مراقبة المكتبة والروابط من لوحة الخادم
+        db.ref("settings/libVisible").on("value", snap => {
+            document.getElementById('librarySection').style.display = snap.val() !== false ? "block" : "none";
+        });
+        db.ref("media_library").on("value", snap => {
+            const d = snap.val();
+            if(d) {
+                document.getElementById('hymnLink').href = d.hymn || "#";
+                document.getElementById('pdfLink').href = d.pdf || "#";
+                document.getElementById('videoLink').href = d.video || "#";
+            }
+        });
+
         db.ref("points_data").on("value", snap => {
             const select = document.getElementById('userNameListQuiz');
+            const list = document.getElementById('leaderboard'); 
+            const currentSel = select.value;
             select.innerHTML = '<option value="">-- اختر اسمك --</option>';
-            const list = document.getElementById('leaderboard'); list.innerHTML = "";
+            list.innerHTML = "";
             const data = snap.val(); if(!data) return;
             Object.values(data).forEach(p => { select.innerHTML += `<option value="${p.name}">${p.name}</option>`; });
+            if(currentSel) select.value = currentSel;
             Object.values(data).sort((a,b) => b.score - a.score).forEach(p => {
                 let clr = p.score >= 70 ? 'bg-high' : (p.score >= 40 ? 'bg-mid' : 'bg-low');
                 list.innerHTML += `<div class="card"><div class="bar-wrap"><div class="bar ${clr}" style="height:${Math.min(p.score, 100)}%"></div></div><div style="font-weight:bold; color:#fbbf24;">${p.score}</div><div style="font-size:11px;">${p.name}</div></div>`;
@@ -323,7 +338,7 @@
             const box = document.getElementById('chatBox'); box.innerHTML = "";
             snap.forEach(c => { 
                 const msg = c.val();
-                const style = (msg.sender.includes("أ/") || msg.sender.includes("خادم")) ? "background: #422006; border-right: 3px solid #fbbf24;" : "";
+                const style = (msg.sender.includes("أ/") || msg.sender.includes("أمين")) ? "background: #422006; border-right: 3px solid #fbbf24;" : "";
                 box.innerHTML += `<div class="chat-msg" style="${style}"><b>${msg.sender}:</b> ${msg.text}</div>`; 
             });
             box.scrollTop = box.scrollHeight;
@@ -365,17 +380,20 @@
     }
 
     function loadQuiz() {
-        db.ref("settings/quizTimerMinutes").once("value", snapTime => {
+        // الربط مع توقيت لوحة الخادم
+        db.ref("settings/quizTimer").once("value", snapTime => {
             let timerMinutes = snapTime.val() || 5;
             let durationInSeconds = timerMinutes * 60;
             db.ref("bible_quiz/questions").once("value", snapQ => {
                 const container = document.getElementById('questionsContainer');
                 container.innerHTML = ""; allQuizQuestions = []; let i = 0;
+                if(!snapQ.exists()) { alert("لا توجد أسئلة حالياً!"); return; }
                 snapQ.forEach(child => {
                     const q = child.val(); allQuizQuestions.push({...q, id: child.key});
-                    let html = `<div class="question-card"><p><b>س${i+1}: ${q.text}</b></p>`;
+                    let html = `<div class="question-card"><p><b>س${i+1}: ${q.text}</b> <small>(${q.points||1} درجة)</small></p>`;
                     if (q.type === 'choice' || q.type === 'truefalse') {
-                        q.options.forEach(opt => { html += `<label class="option-label"><input type="radio" name="quiz_q_${i}" value="${opt}"> ${opt}</label>`; });
+                        let opts = q.options || [];
+                        opts.forEach(opt => { if(opt) html += `<label class="option-label"><input type="radio" name="quiz_q_${i}" value="${opt}"> ${opt}</label>`; });
                     } else { html += `<input type="text" id="quiz_ans_${i}" placeholder="اكتب الإجابة...">`; }
                     container.innerHTML += html + `</div>`; i++;
                 });
@@ -461,16 +479,11 @@
         }
     }
 
-    // الكود المضاف: وظيفة مسح الدردشة
     function clearPsyChat() {
         if(confirm("هل أنت متأكد من مسح سجل محادثتك الخاصة بالكامل؟")) {
             db.ref("psychology/private_chats/" + psySessionID).remove()
-            .then(() => {
-                alert("تم مسح المحادثة بنجاح ✅");
-            })
-            .catch((error) => {
-                console.error("خطأ في المسح: ", error);
-            });
+            .then(() => { alert("تم مسح المحادثة بنجاح ✅"); })
+            .catch((error) => { console.error("خطأ في المسح: ", error); });
         }
     }
 
