@@ -74,7 +74,22 @@
         .lib-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
         .lib-card { background: #064e3b; border: 2px solid #10b981; padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; text-decoration: none; color: white; font-weight: bold; font-size: 14px; }
 
-        .clear-chat-btn { background: #dc2626; color: white; border: none; border-radius: 5px; padding: 4px 10px; font-size: 11px; cursor: pointer; transition: 0.3s; margin-bottom: 5px; }
+        .clear-chat-btn {
+            background: #dc2626; 
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 4px 10px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-bottom: 5px;
+        }
+        .clear-chat-btn:hover { background: #b91c1c; }
+
+        /* ستايل إضافي لمذبح الصلاة المدمج */
+        .prayer-altar-switch { border: 1px solid #fbbf24 !important; }
+        .prayer-altar-switch input:checked + .slider { background-color: #fbbf24 !important; }
     </style>
 </head>
 <body>
@@ -105,69 +120,23 @@
             <span id="alertText"></span>
         </div>
 
-        <div class="switch-container" style="display: flex; justify-content: space-between; align-items: center; background: #334155; padding: 10px 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #fbbf24; color: white;">
-            <span style="font-weight: bold; color: #fbbf24;">🙏 فتح مذبح الصلاة اليومي</span>
-            <label class="switch">
-                <input type="checkbox" onchange="document.getElementById('mutualPrayerSection').style.display = this.checked ? 'block' : 'none'">
-                <span class="slider" style="border-color: #fbbf24;"></span>
-            </label>
-        </div>
-
-        <div id="mutualPrayerSection" class="section" style="display: none; background: linear-gradient(180deg, #1e293b 0%, #2d2a5a 100%); padding: 15px; border-radius: 15px; border: 2px solid #fbbf24; margin-bottom: 20px;">
-            <h3 style="color: #fbbf24; margin-top:0; text-align:center; border-bottom: 1px solid rgba(251,191,36,0.3); padding-bottom: 10px;">✨ مَذْبَح الصَّلَاة اليَوْمِي ✨</h3>
-            <div style="margin-bottom: 20px;">
-                <label style="color: #fbbf24; font-weight: bold; display: block; margin-bottom: 5px;">📖 ١. صلاة من الأجبية:</label>
-                <div id="admin_agpeya_hint" style="color: #4ade80; font-size: 13px; font-style: italic; margin-bottom: 8px; background: rgba(74, 222, 128, 0.1); padding: 5px; border-radius: 5px;">جاري تحميل توجيه الخادم...</div>
-                <textarea id="agpeyaText" placeholder="اكتب ما صليته هنا..." style="width: 100%; height: 60px; background: #0f172a; color: white; border: 1px solid #475569; border-radius: 10px; padding: 10px; resize: none;"></textarea>
-            </div>
-            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">
-            <div style="margin-bottom: 20px;">
-                <label style="color: #fbbf24; font-weight: bold; display: block; margin-bottom: 12px;">🕊️ ٢. صلاتي الخاصة:</label>
-                <div style="margin-bottom: 12px;">
-                    <small style="color: #c7d2fe; display: block; margin-bottom: 3px;">• شكراً لربنا يسوع:</small>
-                    <div id="admin_thanks_hint" style="color: #4ade80; font-size: 12px; margin-bottom: 5px;"></div>
-                    <textarea id="prayThank" placeholder="اكتب شكرك هنا..." style="width: 100%; height: 50px; background: #0f172a; color: white; border: 1px solid #475569; border-radius: 10px; padding: 8px; resize: none;"></textarea>
-                </div>
-                <div style="margin-bottom: 12px;">
-                    <small style="color: #c7d2fe; display: block; margin-bottom: 3px;">• خضوع وطلب مغفرة:</small>
-                    <div id="admin_forgive_hint" style="color: #4ade80; font-size: 12px; margin-bottom: 5px;"></div>
-                    <textarea id="prayForgive" placeholder="اكتب صلاتك هنا..." style="width: 100%; height: 50px; background: #0f172a; color: white; border: 1px solid #475569; border-radius: 10px; padding: 8px; resize: none;"></textarea>
-                </div>
-                <div style="margin-bottom: 12px;">
-                    <small style="color: #c7d2fe; display: block; margin-bottom: 3px;">• قلبي ملتهب لربنا:</small>
-                    <div id="admin_heart_hint" style="color: #4ade80; font-size: 12px; margin-bottom: 5px;"></div>
-                    <textarea id="prayHeart" placeholder="اكتب صلاتك هنا..." style="width: 100%; height: 50px; background: #0f172a; color: white; border: 1px solid #475569; border-radius: 10px; padding: 8px; resize: none;"></textarea>
-                </div>
-                <div style="margin-bottom: 12px;">
-                    <small style="color: #c7d2fe; display: block; margin-bottom: 3px;">• طلبة اتحاد في ربنا:</small>
-                    <div id="admin_union_hint" style="color: #4ade80; font-size: 12px; margin-bottom: 5px;"></div>
-                    <textarea id="prayUnion" placeholder="اكتب صلاتك هنا..." style="width: 100%; height: 50px; background: #0f172a; color: white; border: 1px solid #475569; border-radius: 10px; padding: 8px; resize: none;"></textarea>
-                </div>
-            </div>
-            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">
-            <div style="margin-bottom: 20px;">
-                <label style="color: #fbbf24; font-weight: bold; display: block; margin-bottom: 5px;">📜 ٣. أكثر آية من الكتاب المقدس:</label>
-                <div id="admin_verse_hint" style="color: #4ade80; font-size: 12px; margin-bottom: 5px;"></div>
-                <textarea id="bibleVerseText" placeholder="اكتب الآية هنا..." style="width: 100%; height: 50px; background: #0f172a; color: white; border: 1px solid #475569; border-radius: 10px; padding: 8px; resize: none;"></textarea>
-            </div>
-            <div style="text-align:center;">
-                <input type="text" id="prayerUserName" placeholder="اسمك الثلاثي" style="width: 100%; text-align: center; margin-bottom: 10px; border: 1px solid #fbbf24; background: #0f172a; color: white; padding: 12px; border-radius: 10px; box-sizing: border-box;">
-                <button class="btn" style="background: #fbbf24; color: #0f172a; width: 100%; padding: 15px; font-weight: bold; border-radius: 10px;" onclick="sendMutualPrayer()">إرسال المذبح ✅</button>
-            </div>
-        </div>
-
         <div id="quizSection" class="section quiz-card" style="display: none;">
             <h3 style="margin-top:0; color: var(--accent);">📖 مسابقة الكتاب المقدس</h3>
+            
             <div id="quizSetup">
                 <p style="font-size: 13px;">اختر اسمك من القائمة للبدء:</p>
-                <select id="userNameListQuiz"><option value="">جاري تحميل الأسماء...</option></select>
+                <select id="userNameListQuiz">
+                    <option value="">جاري تحميل الأسماء...</option>
+                </select>
                 <button class="btn" style="background: var(--accent); color: #000;" onclick="startQuiz()">ابدأ المسابقة الآن 🚀</button>
             </div>
+
             <div id="quizArea" style="display: none;">
                 <div id="quizTimerDisplay">الوقت المتبقي: <span id="timeLeft">00:00</span></div>
                 <div id="questionsContainer"></div>
                 <button class="btn" style="background: var(--success);" onclick="submitQuiz()">إرسال الإجابات ✅</button>
             </div>
+
             <div id="quizDone" style="display: none; text-align: center; padding: 10px;">
                 <h3 id="quizStatusTitle" style="color: var(--success);">تم التسجيل!</h3>
                 <div id="finalQuizScore" style="font-size: 20px; font-weight: bold; color: var(--accent); margin: 10px 0;"></div>
@@ -219,27 +188,24 @@
                 <option value="دعم وتوجيه 🤝">🤝 دعم وتوجيه</option>
             </select>
             <button class="btn" style="background:#ec4899; margin-bottom:15px;" onclick="sendMoodOnly()">تحديث الحالة 🕊️</button>
+
             <div id="psyChatContainer">
                 <button class="clear-chat-btn" onclick="clearPsyChat()">مسح الدردشة 🗑️</button>
-                <br><small style="color: #94a3b8;">محادثة مجهولة مع الخادم:</small>
+                <br>
+                <small style="color: #94a3b8;">محادثة مجهولة مع الخادم:</small>
                 <div id="psyLocalChat" style="height: 100px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 8px; font-size: 12px; margin: 5px 0;"></div>
                 <div style="display: flex; gap: 5px;">
                     <input type="text" id="psyChatInput" placeholder="رسالة سرية..." style="margin-bottom:0; font-size:12px;">
                     <button onclick="sendPsyChat()" style="background:#ec4899; border:none; padding:0 10px; border-radius:8px; color:white;">إرسال</button>
                 </div>
             </div>
+
             <button class="btn" style="background:#fbbf24; color:#000; margin-top:15px;" onclick="startPrayerSession()">✨ يلا نصلو سوا (33 صلاة) ✨</button>
             <div id="prayerTimer">
                 <div class="prayer-text-display" id="activePrayer"></div>
                 <div class="prayer-counter" id="pCountText">0</div>
                 <button class="btn" style="background:#818cf8; height: 70px;" onclick="countPrayer()">اضغط للعد ➔</button>
             </div>
-        </div>
-
-        <div class="section" style="border: 2px solid #818cf8;">
-            <h3 style="color: #818cf8; margin-top:0;">❓ سؤال أو اقتراح</h3>
-            <textarea id="quesMsg" placeholder="اكتب سؤالك هنا..." style="height: 60px;"></textarea>
-            <button class="btn" style="background:#818cf8;" onclick="sendQuestion()">إرسال</button>
         </div>
 
         <div id="librarySection" class="section" style="border: 2px solid #10b981;">
@@ -249,6 +215,72 @@
                 <a id="pdfLink" href="#" target="_blank" class="lib-card">📖 المنهج (PDF)</a>
                 <a id="videoLink" href="#" target="_blank" class="lib-card" style="grid-column: span 2;">🎬 شاهد فيديو الدرس</a>
             </div>
+        </div>
+
+        <div class="switch-container prayer-altar-switch" style="background: #334155; padding: 10px 15px; border-radius: 12px; margin-bottom: 15px; color: white;">
+            <span style="font-weight: bold; color: #fbbf24;">🙏 فتح مذبح الصلاة اليومي</span>
+            <label class="switch">
+                <input type="checkbox" onchange="document.getElementById('mutualPrayerSection').style.display = this.checked ? 'block' : 'none'">
+                <span class="slider" style="border-color: #fbbf24;"></span>
+            </label>
+        </div>
+
+        <div id="mutualPrayerSection" class="section" style="display: none; background: linear-gradient(180deg, #1e293b 0%, #2d2a5a 100%); padding: 15px; border-radius: 15px; border: 2px solid #fbbf24; margin-bottom: 20px;">
+            <h3 style="color: #fbbf24; margin-top:0; text-align:center; border-bottom: 1px solid rgba(251,191,36,0.3); padding-bottom: 10px;">✨ مَذْبَح الصَّلَاة اليَوْمِي ✨</h3>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="color: #fbbf24; font-weight: bold; display: block; margin-bottom: 5px;">📖 ١. صلاة من الأجبية:</label>
+                <div id="admin_agpeya_hint" style="color: #4ade80; font-size: 13px; font-style: italic; margin-bottom: 8px; background: rgba(74, 222, 128, 0.1); padding: 5px; border-radius: 5px;">جاري تحميل توجيه الخادم...</div>
+                <textarea id="agpeyaText" placeholder="اكتب ما صليته هنا..." style="width: 100%; height: 60px; background: #0f172a; color: white; border: 1px solid #475569; border-radius: 10px; padding: 10px; resize: none;"></textarea>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">
+
+            <div style="margin-bottom: 20px;">
+                <label style="color: #fbbf24; font-weight: bold; display: block; margin-bottom: 12px;">🕊️ ٢. صلاتي الخاصة:</label>
+                
+                <div style="margin-bottom: 12px;">
+                    <small style="color: #c7d2fe; display: block; margin-bottom: 3px;">• شكراً لربنا يسوع:</small>
+                    <div id="admin_thanks_hint" style="color: #4ade80; font-size: 12px; margin-bottom: 5px;"></div>
+                    <textarea id="prayThank" placeholder="اكتب شكرك هنا..." style="width: 100%; height: 50px; background: #0f172a; color: white; border: 1px solid #475569; border-radius: 10px; padding: 8px; resize: none;"></textarea>
+                </div>
+
+                <div style="margin-bottom: 12px;">
+                    <small style="color: #c7d2fe; display: block; margin-bottom: 3px;">• خضوع وطلب مغفرة:</small>
+                    <div id="admin_forgive_hint" style="color: #4ade80; font-size: 12px; margin-bottom: 5px;"></div>
+                    <textarea id="prayForgive" placeholder="اكتب صلاتك هنا..." style="width: 100%; height: 50px; background: #0f172a; color: white; border: 1px solid #475569; border-radius: 10px; padding: 8px; resize: none;"></textarea>
+                </div>
+
+                <div style="margin-bottom: 12px;">
+                    <small style="color: #c7d2fe; display: block; margin-bottom: 3px;">• قلبي ملتهب لربنا:</small>
+                    <div id="admin_heart_hint" style="color: #4ade80; font-size: 12px; margin-bottom: 5px;"></div>
+                    <textarea id="prayHeart" placeholder="اكتب صلاتك هنا..." style="width: 100%; height: 50px; background: #0f172a; color: white; border: 1px solid #475569; border-radius: 10px; padding: 8px; resize: none;"></textarea>
+                </div>
+
+                <div style="margin-bottom: 12px;">
+                    <small style="color: #c7d2fe; display: block; margin-bottom: 3px;">• طلبة اتحاد في ربنا:</small>
+                    <div id="admin_union_hint" style="color: #4ade80; font-size: 12px; margin-bottom: 5px;"></div>
+                    <textarea id="prayUnion" placeholder="اكتب صلاتك هنا..." style="width: 100%; height: 50px; background: #0f172a; color: white; border: 1px solid #475569; border-radius: 10px; padding: 8px; resize: none;"></textarea>
+                </div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">
+
+            <div style="margin-bottom: 20px;">
+                <label style="color: #fbbf24; font-weight: bold; display: block; margin-bottom: 5px;">📜 ٣. أكثر آية من الكتاب المقدس:</label>
+                <div id="admin_verse_hint" style="color: #4ade80; font-size: 12px; margin-bottom: 5px;"></div>
+                <textarea id="bibleVerseText" placeholder="اكتب الآية هنا..." style="width: 100%; height: 50px; background: #0f172a; color: white; border: 1px solid #475569; border-radius: 10px; padding: 8px; resize: none;"></textarea>
+            </div>
+
+            <div style="text-align:center;">
+                <input type="text" id="prayerUserName" placeholder="اسمك الثلاثي" style="width: 100%; text-align: center; margin-bottom: 10px; border: 1px solid #fbbf24; background: #0f172a; color: white; padding: 12px; border-radius: 10px; box-sizing: border-box;">
+                <button class="btn" style="background: #fbbf24; color: #0f172a; width: 100%; padding: 15px; font-weight: bold; border-radius: 10px;" onclick="sendMutualPrayer()">إرسال المذبح ✅</button>
+            </div>
+        </div>
+        <div class="section" style="border: 2px solid #818cf8;">
+            <h3 style="color: #818cf8; margin-top:0;">❓ سؤال أو اقتراح</h3>
+            <textarea id="quesMsg" placeholder="اكتب سؤالك هنا..." style="height: 60px;"></textarea>
+            <button class="btn" style="background:#818cf8;" onclick="sendQuestion()">إرسال</button>
         </div>
     </div>
 
@@ -260,24 +292,62 @@
     let psySessionID = localStorage.getItem('psy_session_id') || ("User_" + Date.now());
     localStorage.setItem('psy_session_id', psySessionID);
 
-    const bibleVerses = [{t: "لاَ تَخَفْ لأَنِّي مَعَكَ.", r: "إشعياء 41: 10"}, {t: "أَنَا مَعَكُمْ كُلَّ الأَيَّامِ.", r: "متى 28: 20"}];
-    const prayers = ["يارب يسوع المسيح.. ارحمني أنا الخاطئ", "يا ربي يسوع المسيح.. أعنّي", "يا ربي يسوع المسيح.. استر عليّ", "يا ربي يسوع المسيح.. أنقذني", "يا ربي يسوع المسيح.. املأ قلبي بحبك"];
+    const bibleVerses = [
+        {t: "لاَ تَخَفْ لأَنِّي مَعَكَ. لاَ تَتَلَفَّتْ لأَنِّي إِلهُكَ. قَدْ أَيَّدْتُكَ وَأَعَنْتُكَ وَعَضَدْتُكَ بِيَمِينِ بِرِّي.", r: "إشعياء 41: 10"},
+        {t: "أَنَا مَعَكُمْ كُلَّ الأَيَّامِ إِلَى انْقِضَاءِ الدَّهْرِ.", r: "متى 28: 20"},
+        {t: "اَلرَّبُّ رَاعِيَّ فَلاَ يُعْوِزُنِي شَيْءٌ.", r: "مزمور 23: 1"},
+        {t: "تَعَالَوْا إِلَيَّ يَا جَمِيعَ الْمُتْعَبِينَ وَالثَّقِيلِي الأَحْمَالِ، وَأَنَا أُرِيحُكُمْ.", r: "متى 11: 28"},
+        {t: "كُلُّ شَيْءٍ مُسْتَطَاعٌ لِلْمُؤْمِنِ.", r: "مرقس 9: 23"},
+        {t: "أَسْتَطِيعُ كُلَّ شَيْءٍ فِي الْمَسِيحِ الَّذِي يُقَوِّينِي.", r: "فيلبي 4: 13"},
+        {t: "سَلاَمًا أَتْرُكُ لَكُمْ. سَلاَمِي أُعْطِيكُمْ. لَيْسَ كَمَا يُعْطِي الْعَالَمُ أُعْطِيكُمْ أَنَا.", r: "يوحنا 14: 27"},
+        {t: "مُلْقِينَ كُلَّ هَمِّكُمْ عَلَيْهِ، لأَنَّهُ هُوَ يَعْتَنِي بِكُمْ.", r: "1 بطرس 5: 7"},
+        {t: "إِنْ كَانَ اللهُ مَعَنَا، فَمَنْ عَلَيْنَا؟", r: "رومية 8: 31"},
+        {t: "يُعْطِي الْمُعْيِيَ قُدْرَةً، وَلِعَدِيمِ الْقُوَّةِ يُكَثِّرُ شِدَّةً.", r: "إشعياء 40: 29"},
+        {t: "اَلرَّبُّ نُورِي وَخَلاَصِي، مِمَّنْ أَخَافُ؟ اَلرَّبُّ حِصْنُ حَيَاتِي، مِمَّنْ أَرْتَعِبُ؟", r: "مزمور 27: 1"},
+        {t: "لأَنَّ مَلاَئِكَتَهُ يُوصِيهِ بِكَ لِكَيْ يَحْفَظُوكَ فِي كُلِّ طُرُقِكَ.", r: "مزمور 91: 11"},
+        {t: "الرَّبُّ يُحَارِبُ عَنْكُمْ وَأَنْتُمْ تَصْمُتُونَ.", r: "خروج 14: 14"},
+        {t: "مَحَبَّةً أَبَدِيَّةً أَحْبَبْتُكَ، مِنْ أَجْلِ ذلِكَ أَدَمْتُ لَكَ الرَّحْمَةَ.", r: "إرميا 31: 3"},
+        {t: "فِي الْعَالَمِ سَيَكُونُ لَكُمْ ضِيقٌ، وَلكِنْ ثِقُوا: أَنَا قَدْ غَلَبْتُ الْعَالَمَ.", r: "يوحنا 16: 33"},
+        {t: "نَحْنُ نَعْلَمُ أَنَّ كُلَّ الأَشْيَاءِ تَعْمَلُ مَعًا لِلْخَيْرِ لِلَّذِينَ يُحِبُّونَ اللهَ.", r: "رومية 8: 28"},
+        {t: "قَرِيبٌ هُوَ الرَّبُّ مِنَ الْمُنْكَسِرِي الْقُلُوبِ.", r: "مزمور 34: 18"},
+        {t: "اِتَّكِلْ عَلَى الرَّبِّ بِكُلِّ قَلْبِكَ، وَعَلَى فَهْمِكَ لاَ تَعْتَمِدْ.", r: "أمثال 3: 5"},
+        {t: "هأَنَذَا قَدْ نَقَشْتُكَ عَلَى كَفَّيَّ. أَسْوَارُكَ أَمَامِي دَائِمًا.", r: "إشعياء 49: 16"},
+        {t: "سِرَاجٌ لِرِجْلِي كَلاَمُكَ وَنُورٌ لِسَبِيلِي.", r: "مزمور 119: 105"}
+    ];
 
-    let currentMood = "😌", pCount = 0, quizTimerInterval, allQuizQuestions = [], selectedQuizStudentName = "";
+    const prayers = [
+        "يارب يسوع المسيح.. ارحمني أنا الخاطئ",
+        "يا ربي يسوع المسيح.. أعنّي",
+        "يا ربي يسوع المسيح.. استر عليّ",
+        "يا ربي يسوع المسيح.. أنقذني",
+        "يا ربي يسوع المسيح.. املأ قلبي بحبك"
+    ];
+
+    let currentMood = "😌";
+    let pCount = 0;
+    let quizTimerInterval;
+    let allQuizQuestions = [];
+    let selectedQuizStudentName = "";
 
     function toggleTheme() {
         const body = document.body;
         const btn = document.getElementById('themeBtn');
-        if (body.getAttribute('data-theme') === 'light') { body.setAttribute('data-theme', 'dark'); btn.innerText = "☀️ الوضع الفاتح"; } 
-        else { body.setAttribute('data-theme', 'light'); btn.innerText = "🌙 الوضع الداكن"; }
+        if (body.getAttribute('data-theme') === 'light') {
+            body.setAttribute('data-theme', 'dark');
+            btn.innerText = "☀️ الوضع الفاتح";
+        } else {
+            body.setAttribute('data-theme', 'light');
+            btn.innerText = "🌙 الوضع الداكن";
+        }
     }
 
     function checkAccess() {
         if(document.getElementById('passInputUser').value === "jesus") {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
-            startApp(); showRandomVerse(); listenToAdminPrayers();
-            confetti({ particleCount: 150 });
+            startApp();
+            showRandomVerse();
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
         } else { alert("كلمة السر خطأ!"); }
     }
 
@@ -289,35 +359,69 @@
 
     function startApp() {
         if(localStorage.getItem('chat_user_name')) document.getElementById('userName').value = localStorage.getItem('chat_user_name');
+        
         db.ref("admin_announcement").on("value", snap => {
-            const text = snap.val(); document.getElementById('adminAlert').style.display = (text && text.trim() !== "") ? 'block' : 'none';
+            const text = snap.val();
+            document.getElementById('adminAlert').style.display = (text && text.trim() !== "") ? 'block' : 'none';
             document.getElementById('alertText').innerText = text;
         });
-        db.ref("settings/quizEnabled").on("value", snap => { document.getElementById('quizSection').style.display = snap.val() === true ? "block" : "none"; });
-        db.ref("media_library").on("value", snap => {
-            const d = snap.val(); if(d) { document.getElementById('hymnLink').href = d.hymn || "#"; document.getElementById('pdfLink').href = d.pdf || "#"; document.getElementById('videoLink').href = d.video || "#"; }
+
+        db.ref("settings/quizEnabled").on("value", snap => {
+            document.getElementById('quizSection').style.display = snap.val() === true ? "block" : "none";
         });
+
+        db.ref("settings/libVisible").on("value", snap => {
+            document.getElementById('librarySection').style.display = snap.val() !== false ? "block" : "none";
+        });
+
+        db.ref("media_library").on("value", snap => {
+            const d = snap.val();
+            if(d) {
+                document.getElementById('hymnLink').href = d.hymn || "#";
+                document.getElementById('pdfLink').href = d.pdf || "#";
+                document.getElementById('videoLink').href = d.video || "#";
+            }
+        });
+
+        // تشغيل مراقب تلميحات مذبح الصلاة
+        listenToAdminPrayers();
+
         db.ref("points_data").on("value", snap => {
-            const select = document.getElementById('userNameListQuiz'), list = document.getElementById('leaderboard');
-            select.innerHTML = '<option value="">-- اختر اسمك --</option>'; list.innerHTML = "";
-            snap.forEach(child => { 
-                const p = child.val(); select.innerHTML += `<option value="${p.name}">${p.name}</option>`;
+            const select = document.getElementById('userNameListQuiz');
+            const list = document.getElementById('leaderboard'); 
+            const currentSel = select.value;
+            select.innerHTML = '<option value="">-- اختر اسمك --</option>';
+            list.innerHTML = "";
+            const data = snap.val(); if(!data) return;
+            Object.values(data).forEach(p => { select.innerHTML += `<option value="${p.name}">${p.name}</option>`; });
+            if(currentSel) select.value = currentSel;
+            Object.values(data).sort((a,b) => b.score - a.score).forEach(p => {
                 let clr = p.score >= 70 ? 'bg-high' : (p.score >= 40 ? 'bg-mid' : 'bg-low');
-                list.innerHTML += `<div class="card"><div class="bar-wrap"><div class="bar ${clr}" style="height:${p.score}%"></div></div><b>${p.score}</b><br><small>${p.name}</small></div>`;
+                list.innerHTML += `<div class="card"><div class="bar-wrap"><div class="bar ${clr}" style="height:${Math.min(p.score, 100)}%"></div></div><div style="font-weight:bold; color:#fbbf24;">${p.score}</div><div style="font-size:11px;">${p.name}</div></div>`;
             });
         });
+
         db.ref("chat").limitToLast(15).on("value", snap => {
             const box = document.getElementById('chatBox'); box.innerHTML = "";
-            snap.forEach(c => { box.innerHTML += `<div class="chat-msg"><b>${c.val().sender}:</b> ${c.val().text}</div>`; });
+            snap.forEach(c => { 
+                const msg = c.val();
+                const style = (msg.sender.includes("أ/") || msg.sender.includes("أمين")) ? "background: #422006; border-right: 3px solid #fbbf24;" : "";
+                box.innerHTML += `<div class="chat-msg" style="${style}"><b>${msg.sender}:</b> ${msg.text}</div>`; 
+            });
             box.scrollTop = box.scrollHeight;
         });
+
         db.ref("psychology/private_chats/" + psySessionID).on("value", snap => {
             const box = document.getElementById('psyLocalChat'); box.innerHTML = "";
-            snap.forEach(m => { box.innerHTML += `<div style="color:${m.val().sender==='أنا'?'#ec4899':'#fbbf24'}"><b>${m.val().sender}:</b> ${m.val().text}</div>`; });
+            snap.forEach(m => {
+                const msg = m.val();
+                box.innerHTML += `<div style="margin-bottom:4px; color:${msg.sender === "أنا" ? "#ec4899" : "#fbbf24"};"><b>${msg.sender}:</b> ${msg.text}</div>`;
+            });
             box.scrollTop = box.scrollHeight;
         });
     }
 
+    // وظائف مذبح الصلاة اليومي
     function listenToAdminPrayers() {
         db.ref("admin_prayer_hints").on("value", (snapshot) => {
             const data = snapshot.val() || {};
@@ -333,70 +437,177 @@
     function sendMutualPrayer() {
         const name = document.getElementById('prayerUserName').value.trim();
         if(!name) return alert("اكتب اسمك الثلاثي ❤️");
-        const report = { makhdom: name, time: new Date().toLocaleString(), agpeya: document.getElementById('agpeyaText').value, thanks: document.getElementById('prayThank').value, forgive: document.getElementById('prayForgive').value, heart: document.getElementById('prayHeart').value, union: document.getElementById('prayUnion').value, verse: document.getElementById('bibleVerseText').value };
-        db.ref("prayer_reports").push(report).then(() => { alert("تم الإرسال بنجاح يا " + name); document.querySelectorAll('#mutualPrayerSection textarea, #mutualPrayerSection input').forEach(el => el.value = ""); });
+
+        const report = {
+            makhdom: name,
+            time: new Date().toLocaleString(),
+            agpeya: document.getElementById('agpeyaText').value,
+            thanks: document.getElementById('prayThank').value,
+            forgive: document.getElementById('prayForgive').value,
+            heart: document.getElementById('prayHeart').value,
+            union: document.getElementById('prayUnion').value,
+            verse: document.getElementById('bibleVerseText').value
+        };
+
+        db.ref("prayer_reports").push(report).then(() => {
+            alert("تم الإرسال بنجاح يا " + name);
+            document.querySelectorAll('#mutualPrayerSection textarea, #mutualPrayerSection input').forEach(el => el.value = "");
+            confetti({ particleCount: 100, spread: 50, origin: { y: 0.8 } });
+        });
     }
 
+    // وظائف المسابقات
     function startQuiz() {
         selectedQuizStudentName = document.getElementById('userNameListQuiz').value;
         if(!selectedQuizStudentName) return alert("اختر اسمك أولاً");
+        const boundName = localStorage.getItem('quiz_bound_name');
+        if (boundName && boundName !== selectedQuizStudentName) {
+            alert(`هذا الجهاز مسجل باسم (${boundName}). لا يمكنك الحل لزميل آخر!`);
+            return;
+        }
         db.ref("bible_quiz/submissions").orderByChild("userName").equalTo(selectedQuizStudentName).once("value", snap => {
-            if(snap.exists()) { alert("لقد قمت بحل المسابقة مسبقاً!"); showFinishedStatus(); } else { loadQuiz(); }
+            if(snap.exists()) {
+                alert("لقد قمت بحل المسابقة مسبقاً!");
+                localStorage.setItem('quiz_bound_name', selectedQuizStudentName);
+                showFinishedStatus();
+            } else {
+                localStorage.setItem('quiz_bound_name', selectedQuizStudentName);
+                loadQuiz();
+            }
         });
     }
 
     function loadQuiz() {
-        db.ref("bible_quiz/questions").once("value", snapQ => {
-            const container = document.getElementById('questionsContainer'); container.innerHTML = ""; allQuizQuestions = []; let i = 0;
-            snapQ.forEach(child => {
-                const q = child.val(); allQuizQuestions.push({...q, id: child.key});
-                let html = `<div class="question-card"><p><b>س${i+1}: ${q.text}</b></p>`;
-                if (q.type !== 'text') { (q.options || []).forEach(opt => { html += `<label class="option-label"><input type="radio" name="quiz_q_${i}" value="${opt}"> ${opt}</label>`; }); }
-                else { html += `<input type="text" id="quiz_ans_${i}">`; }
-                container.innerHTML += html + `</div>`; i++;
+        db.ref("settings/quizTimer").once("value", snapTime => {
+            let timerMinutes = snapTime.val() || 5;
+            let durationInSeconds = timerMinutes * 60;
+            db.ref("bible_quiz/questions").once("value", snapQ => {
+                const container = document.getElementById('questionsContainer');
+                container.innerHTML = ""; allQuizQuestions = []; let i = 0;
+                if(!snapQ.exists()) { alert("لا توجد أسئلة حالياً!"); return; }
+                snapQ.forEach(child => {
+                    const q = child.val(); allQuizQuestions.push({...q, id: child.key});
+                    let html = `<div class="question-card"><p><b>س${i+1}: ${q.text}</b> <small>(${q.points||1} درجة)</small></p>`;
+                    if (q.type === 'choice' || q.type === 'truefalse') {
+                        let opts = q.options || [];
+                        opts.forEach(opt => { if(opt) html += `<label class="option-label"><input type="radio" name="quiz_q_${i}" value="${opt}"> ${opt}</label>`; });
+                    } else { html += `<input type="text" id="quiz_ans_${i}" placeholder="اكتب الإجابة...">`; }
+                    container.innerHTML += html + `</div>`; i++;
+                });
+                document.getElementById('quizSetup').style.display = 'none';
+                document.getElementById('quizArea').style.display = 'block';
+                startCountdown(durationInSeconds);
             });
-            document.getElementById('quizSetup').style.display = 'none'; document.getElementById('quizArea').style.display = 'block'; startCountdown(300);
         });
     }
 
-    function startCountdown(s) {
+    function startCountdown(duration) {
+        let secondsLeft = duration;
         clearInterval(quizTimerInterval);
         quizTimerInterval = setInterval(() => {
-            let mins = Math.floor(s/60), secs = s%60;
+            let mins = Math.floor(secondsLeft / 60);
+            let secs = secondsLeft % 60;
             document.getElementById('timeLeft').innerText = (mins<10?"0":"")+mins+":"+(secs<10?"0":"")+secs;
-            if (s-- <= 0) { clearInterval(quizTimerInterval); submitQuiz(); }
+            if (secondsLeft <= 0) {
+                clearInterval(quizTimerInterval);
+                alert("انتهى وقت المسابقة! سيتم الإرسال تلقائياً.");
+                submitQuiz();
+            }
+            secondsLeft--;
         }, 1000);
     }
 
     async function submitQuiz() {
         clearInterval(quizTimerInterval);
-        let total = 0;
+        let total = 0; let max = 0;
         allQuizQuestions.forEach((q, idx) => {
-            let ans = q.type !== 'text' ? (document.querySelector(`input[name="quiz_q_${idx}"]:checked`)||{}).value : document.getElementById(`quiz_ans_${idx}`).value;
-            if (ans && ans.trim().toLowerCase() === q.correctAnswer.trim().toLowerCase()) total += (q.points || 1);
+            let ans = ""; max += parseInt(q.points || 1);
+            if (q.type === 'choice' || q.type === 'truefalse') {
+                const sel = document.querySelector(`input[name="quiz_q_${idx}"]:checked`);
+                ans = sel ? sel.value : "";
+            } else { ans = document.getElementById(`quiz_ans_${idx}`).value; }
+            if (ans.trim().toLowerCase() === q.correctAnswer.trim().toLowerCase()) total += parseInt(q.points || 1);
         });
-        await db.ref("bible_quiz/submissions").push({ userName: selectedQuizStudentName, score: total, time: new Date().toLocaleString() });
-        showFinishedStatus(total);
+        await db.ref("bible_quiz/submissions").push({ 
+            userName: selectedQuizStudentName, 
+            score: total, 
+            max: max, 
+            time: new Date().toLocaleString('ar-EG'),
+            deviceId: psySessionID 
+        });
+        db.ref("points_data").once("value", snap => {
+            snap.forEach(child => { if (child.val().name === selectedQuizStudentName) child.ref.update({ score: (child.val().score || 0) + total }); });
+        });
+        showFinishedStatus(total, max);
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
     }
 
-    function showFinishedStatus(s) {
-        document.getElementById('quizSetup').style.display = 'none'; document.getElementById('quizArea').style.display = 'none';
-        document.getElementById('quizDone').style.display = 'block'; if (s !== undefined) document.getElementById('finalQuizScore').innerText = `حصلت على ${s} درجة`;
+    function showFinishedStatus(score, max) {
+        document.getElementById('quizSetup').style.display = 'none';
+        document.getElementById('quizArea').style.display = 'none';
+        document.getElementById('quizDone').style.display = 'block';
+        if (score !== undefined) document.getElementById('finalQuizScore').innerText = `حصلت على ${score} من ${max}`;
     }
 
+    // وظائف الدردشة والمسانده والأسئلة
     function sendChat() {
-        const inp = document.getElementById('chatInput'), name = document.getElementById('userName').value || "مخدوم";
+        const inp = document.getElementById('chatInput'); const name = document.getElementById('userName').value || "مخدوم";
         if(inp.value.trim()) { db.ref("chat").push({sender: name, text: inp.value}); inp.value = ""; }
     }
 
-    function setMood(el, m) { document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active')); el.classList.add('active'); currentMood = m; }
-    function sendMoodOnly() { db.ref("psychology/confessions").push({ mood: currentMood, need: document.getElementById('psyNeed').value, time: new Date().toLocaleString() }); alert("تم التحديث ❤️"); }
-    function sendPsyChat() { const inp = document.getElementById('psyChatInput'); if(inp.value.trim()) { db.ref("psychology/private_chats/" + psySessionID).push({ sender: "أنا", text: inp.value }); inp.value = ""; } }
-    function clearPsyChat() { if(confirm("مسح؟")) db.ref("psychology/private_chats/" + psySessionID).remove(); }
-    function startPrayerSession() { document.getElementById('prayerTimer').style.display = 'block'; pCount = 0; updatePrayerDisplay(); }
-    function countPrayer() { pCount++; updatePrayerDisplay(); if(pCount >= 33) { alert("قبلاً!"); document.getElementById('prayerTimer').style.display = 'none'; } }
-    function updatePrayerDisplay() { document.getElementById('pCountText').innerText = pCount; document.getElementById('activePrayer').innerText = prayers[pCount % prayers.length]; }
-    function sendQuestion() { const txt = document.getElementById('quesMsg').value.trim(); if(txt) { db.ref("psychology/questions").push({ text: txt, time: new Date().toLocaleString() }); alert("تم!"); document.getElementById('quesMsg').value = ""; } }
+    function setMood(el, m) {
+        document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+        el.classList.add('active'); currentMood = m;
+    }
+
+    function sendMoodOnly() {
+        db.ref("psychology/confessions").push({
+            sender: document.getElementById('psyNameInput').value || "ابن الطاعة",
+            mood: currentMood, need: document.getElementById('psyNeed').value,
+            text: "تحديث حالة فقط", time: new Date().toLocaleString()
+        });
+        alert("تم تحديث حالتك بنجاح ❤️");
+    }
+
+    function sendPsyChat() {
+        const inp = document.getElementById('psyChatInput');
+        if(inp.value.trim()) {
+            db.ref("psychology/private_chats/" + psySessionID).push({ sender: "أنا", text: inp.value.trim() });
+            inp.value = "";
+        }
+    }
+
+    function clearPsyChat() {
+        if(confirm("هل أنت متأكد من مسح سجل محادثتك الخاصة بالكامل؟")) {
+            db.ref("psychology/private_chats/" + psySessionID).remove()
+            .then(() => { alert("تم مسح المحادثة بنجاح ✅"); })
+            .catch((error) => { console.error("خطأ في المسح: ", error); });
+        }
+    }
+
+    function startPrayerSession() {
+        document.getElementById('prayerTimer').style.display = 'block';
+        pCount = 0; updatePrayerDisplay();
+    }
+
+    function countPrayer() {
+        pCount++; updatePrayerDisplay();
+        if(window.navigator.vibrate) window.navigator.vibrate(40);
+        if(pCount >= 33) { alert("صلاة مقبولة! أتممت الـ 33 صلاة ✨"); document.getElementById('prayerTimer').style.display = 'none'; }
+    }
+
+    function updatePrayerDisplay() {
+        document.getElementById('pCountText').innerText = pCount;
+        document.getElementById('activePrayer').innerText = prayers[pCount % prayers.length];
+    }
+
+    function sendQuestion() {
+        const txt = document.getElementById('quesMsg').value.trim();
+        if(txt) {
+            db.ref("psychology/questions").push({ sender: "مخدوم", text: txt, time: new Date().toLocaleString() });
+            alert("تم الإرسال!"); document.getElementById('quesMsg').value = "";
+        }
+    }
 </script>
 </body>
 </html>
