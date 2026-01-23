@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -34,26 +35,7 @@
         #loginScreen { position: fixed; inset: 0; background: #0f172a; display: flex; justify-content: center; align-items: center; z-index: 9999; }
         .login-box { background: #1e293b; padding: 30px; border-radius: 20px; text-align: center; border: 2px solid #6366f1; width: 85%; max-width: 350px; }
         #mainContent { display: none; }
-        
-        /* التنبيه الثابت */
-        #adminAlert { display: none; background: #b91c1c; color: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 2px solid #ef4444; animation: flash 2s infinite; }
-        
-        /* الشريط المتحرك */
-        #marqueeContainer { display: none; background: #fbbf24; color: #0f172a; padding: 5px 0; font-weight: bold; font-size: 14px; border-radius: 8px; margin-bottom: 15px; overflow: hidden; }
-
-        /* ركن أبطال الأسبوع */
-        .heroes-section {
-            display: none;
-            background: linear-gradient(135deg, #1e293b 0%, #4338ca 100%);
-            border: 3px solid #fbbf24;
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 20px;
-            text-align: center;
-            box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
-        }
-        .hero-names { font-size: 20px; font-weight: bold; color: #fbbf24; margin-top: 10px; text-shadow: 1px 1px 2px #000; }
-
+        #adminAlert { display: none; background: #b91c1c; color: white; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 2px solid #ef4444; animation: flash 2s infinite; }
         @keyframes flash { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
         .main-title { text-align: center; color: #818cf8; margin-bottom: 20px; }
         .section { background: var(--bg-section); padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 1px solid var(--border-color); }
@@ -136,17 +118,6 @@
         <div id="adminAlert">
             <b style="display:block;">📢 تنبيه من الخدام:</b>
             <span id="alertText"></span>
-        </div>
-
-        <div id="marqueeContainer">
-            <marquee id="marqueeText" behavior="scroll" direction="right"></marquee>
-        </div>
-
-        <div id="heroesSection" class="heroes-section">
-            <div style="font-size: 30px;">👑</div>
-            <h3 style="margin:5px 0; color: #fff;">أبطال الأسبوع</h3>
-            <div id="heroesList" class="hero-names"></div>
-            <p style="font-size: 12px; color: #c7d2fe; margin-top: 10px;">عاش يا أبطال.. فخورين بيكم! ❤️</p>
         </div>
 
         <div id="quizSection" class="section quiz-card" style="display: none;">
@@ -321,7 +292,7 @@
     localStorage.setItem('psy_session_id', psySessionID);
 
     const bibleVerses = [
-        {t: "لاَ تَخَفْ لأَنِّي مَعَكَ. لاَ تَتَلَفَّتْ لأَنِّي إِلهُكَ. قَدْ أَيَّدْتُكَ وَأَيَّدْتُكَ وَعَضَدْتُكَ بِيَمِينِ بِرِّي.", r: "إشعياء 41: 10"},
+        {t: "لاَ تَخَفْ لأَنِّي مَعَكَ. لاَ تَتَلَفَّتْ لأَنِّي إِلهُكَ. قَدْ أَيَّدْتُكَ وَأَعَنْتُكَ وَعَضَدْتُكَ بِيَمِينِ بِرِّي.", r: "إشعياء 41: 10"},
         {t: "أَنَا مَعَكُمْ كُلَّ الأَيَّامِ إِلَى انْقِضَاءِ الدَّهْرِ.", r: "متى 28: 20"},
         {t: "اَلرَّبُّ رَاعِيَّ فَلاَ يُعْوِزُنِي شَيْءٌ.", r: "مزمور 23: 1"},
         {t: "تَعَالَوْا إِلَيَّ يَا جَمِيعَ الْمُتْعَبِينَ وَالثَّقِيلِي الأَحْمَالِ، وَأَنَا أُرِيحُكُمْ.", r: "متى 11: 28"},
@@ -388,28 +359,10 @@
     function startApp() {
         if(localStorage.getItem('chat_user_name')) document.getElementById('userName').value = localStorage.getItem('chat_user_name');
         
-        // مراقبة التنبيه الثابت (القديم)
-        db.ref("settings/alertsEnabled").on("value", snap => {
-            document.getElementById('adminAlert').style.display = snap.val() === true ? 'block' : 'none';
-        });
         db.ref("admin_announcement").on("value", snap => {
-            document.getElementById('alertText').innerText = snap.val() || "";
-        });
-
-        // مراقبة الشريط المتحرك (الجديد)
-        db.ref("settings/marqueeEnabled").on("value", snap => {
-            document.getElementById('marqueeContainer').style.display = snap.val() === true ? 'block' : 'none';
-        });
-        db.ref("settings/marqueeText").on("value", snap => {
-            document.getElementById('marqueeText').innerText = snap.val() || "";
-        });
-
-        // مراقبة أبطال الأسبوع (الجديد)
-        db.ref("settings/heroesVisible").on("value", snap => {
-            document.getElementById('heroesSection').style.display = snap.val() === true ? 'block' : 'none';
-        });
-        db.ref("settings/heroesNames").on("value", snap => {
-            document.getElementById('heroesList').innerText = snap.val() || "";
+            const text = snap.val();
+            document.getElementById('adminAlert').style.display = (text && text.trim() !== "") ? 'block' : 'none';
+            document.getElementById('alertText').innerText = text;
         });
 
         db.ref("settings/quizEnabled").on("value", snap => {
@@ -656,4 +609,5 @@
     }
 </script>
 </body>
-</html>
+</html> 
+اوصف
