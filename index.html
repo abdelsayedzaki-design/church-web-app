@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -90,6 +89,11 @@
 
         .prayer-altar-switch { border: 1px solid #fbbf24 !important; }
         .prayer-altar-switch input:checked + .slider { background-color: #fbbf24 !important; }
+
+        /* تنسيق خاص لبند الميطانية */
+        .metania-row { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 10px; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.1); }
+        .metania-row input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; }
+        .metania-row input[type="number"] { margin-bottom: 0; width: 80px; padding: 5px; text-align: center; }
     </style>
 </head>
 <body>
@@ -235,6 +239,13 @@
 
             <div style="margin-bottom: 20px;">
                 <label style="color: #fbbf24; font-weight: bold; display: block; margin-bottom: 12px;">🕊️ ٢. صلاتي الخاصة:</label>
+                
+                <div class="metania-row">
+                    <span style="color: #c7d2fe; font-size: 14px;">• ميطانية:</span>
+                    <input type="checkbox" id="metaniaDone"> <span style="font-size: 12px;">تم</span>
+                    <input type="number" id="metaniaCount" placeholder="العدد" min="0">
+                </div>
+
                 <div style="margin-bottom: 12px;">
                     <small style="color: #c7d2fe; display: block; margin-bottom: 3px;">• شكراً لربنا يسوع:</small>
                     <div id="admin_thanks_hint" style="color: #4ade80; font-size: 12px; margin-bottom: 5px;"></div>
@@ -340,8 +351,20 @@
         }
     }
 
+    function checkSavedAccess() {
+        const lastLogin = localStorage.getItem('lastLoginTime');
+        const dayInMs = 24 * 60 * 60 * 1000;
+        if (lastLogin && (Date.now() - lastLogin < dayInMs)) {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            startApp();
+            showRandomVerse();
+        }
+    }
+
     function checkAccess() {
         if(document.getElementById('passInputUser').value === "jesus") {
+            localStorage.setItem('lastLoginTime', Date.now());
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
             startApp();
@@ -442,6 +465,10 @@
             makhdom: name,
             time: new Date().toLocaleString(),
             duration: durationValue + " دقيقة",
+            metania: {
+                done: document.getElementById('metaniaDone').checked,
+                count: document.getElementById('metaniaCount').value || 0
+            },
             agpeya: document.getElementById('agpeyaText').value,
             thanks: document.getElementById('prayThank').value,
             forgive: document.getElementById('prayForgive').value,
@@ -452,7 +479,8 @@
 
         db.ref("prayer_reports").push(report).then(() => {
             alert("تم الإرسال بنجاح يا " + name);
-            document.querySelectorAll('#mutualPrayerSection textarea, #mutualPrayerSection input').forEach(el => el.value = "");
+            document.querySelectorAll('#mutualPrayerSection textarea, #mutualPrayerSection input:not([type="checkbox"])').forEach(el => el.value = "");
+            document.getElementById('metaniaDone').checked = false;
             confetti({ particleCount: 100, spread: 50, origin: { y: 0.8 } });
         });
     }
@@ -579,8 +607,7 @@
     function clearPsyChat() {
         if(confirm("هل أنت متأكد من مسح سجل محادثتك الخاصة بالكامل؟")) {
             db.ref("psychology/private_chats/" + psySessionID).remove()
-            .then(() => { alert("تم مسح المحادثة بنجاح ✅"); })
-            .catch((error) => { console.error("خطأ في المسح: ", error); });
+            .then(() => { alert("تم مسح المحادثة بنجاح ✅"); });
         }
     }
 
@@ -607,7 +634,8 @@
             alert("تم الإرسال!"); document.getElementById('quesMsg').value = "";
         }
     }
+
+    window.onload = checkSavedAccess;
 </script>
 </body>
-</html> 
-اوصف
+</html>
