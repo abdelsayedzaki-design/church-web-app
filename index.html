@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>خدمة إعدادي - الصفحة الرئيسية</title>
+    
+    <meta name="theme-color" content="#0f172a">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2904/2904979.png">
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -94,6 +100,10 @@
         .metania-row { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 10px; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.1); }
         .metania-row input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; }
         .metania-row input[type="number"] { margin-bottom: 0; width: 80px; padding: 5px; text-align: center; }
+
+        /* تنسيق لوحة التحكم Admin */
+        #adminPanel { display: none; background: #0f172a; padding: 20px; border-radius: 15px; border: 2px solid #10b981; margin-top: 20px; }
+        .admin-item { background: #1e293b; padding: 10px; border-radius: 10px; margin-bottom: 10px; border-right: 4px solid #10b981; }
     </style>
 </head>
 <body>
@@ -103,6 +113,7 @@
             <h3 style="margin:0 0 10px 0; color:#818cf8;">† دخول المخدومين †</h3>
             <input type="password" id="passInputUser" placeholder="كلمة السر">
             <button class="btn" onclick="checkAccess()">دخول</button>
+            <p onclick="openAdmin()" style="font-size: 10px; color: #334155; margin-top: 15px; cursor: pointer;">لوحة التحكم</p>
         </div>
     </div>
 
@@ -122,6 +133,20 @@
         <div id="adminAlert">
             <b style="display:block;">📢 تنبيه من الخدام:</b>
             <span id="alertText"></span>
+        </div>
+
+        <div id="adminPanel" class="section">
+            <h2 style="color: #10b981; text-align: center;">🛠️ لوحة الخدام</h2>
+            <div class="admin-item">
+                <label>تنبيه الخدام العام:</label>
+                <input type="text" id="newAdminAlert" placeholder="اكتب التنبيه هنا...">
+                <button class="btn" style="background: #10b981;" onclick="updateAdminAlert()">نشر التنبيه</button>
+            </div>
+            <div class="admin-item">
+                <h4 style="margin: 5px 0;">نتائج المذبح اليومي:</h4>
+                <div id="prayerResultsList" style="max-height: 200px; overflow-y: auto; font-size: 12px;"></div>
+            </div>
+            <button class="btn" style="background: #ef4444;" onclick="location.reload()">إغلاق اللوحة</button>
         </div>
 
         <div id="quizSection" class="section quiz-card" style="display: none;">
@@ -299,6 +324,23 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
+    // تسجيل الـ Service Worker للأوفلاين
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            const swCode = `
+                const CACHE_NAME = 'is-app-v1';
+                self.addEventListener('install', e => {
+                    e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./', 'index.html'])));
+                });
+                self.addEventListener('fetch', e => {
+                    e.respondWith(caches.match(e.request).then(res => res || fetch(e.request)));
+                });
+            `;
+            const blob = new Blob([swCode], {type: 'text/javascript'});
+            navigator.serviceWorker.register(URL.createObjectURL(blob));
+        });
+    }
+
     let psySessionID = localStorage.getItem('psy_session_id') || ("User_" + Date.now());
     localStorage.setItem('psy_session_id', psySessionID);
 
@@ -371,6 +413,34 @@
             showRandomVerse();
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
         } else { alert("كلمة السر خطأ!"); }
+    }
+
+    // وظائف لوحة التحكم
+    function openAdmin() {
+        const p = prompt("كلمة سر الخدام:");
+        if(p === "admin123") {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            document.getElementById('adminPanel').style.display = 'block';
+            loadAdminData();
+        }
+    }
+
+    function loadAdminData() {
+        db.ref("prayer_reports").limitToLast(10).on("value", snap => {
+            const list = document.getElementById('prayerResultsList');
+            list.innerHTML = "";
+            snap.forEach(child => {
+                const d = child.val();
+                list.innerHTML += `<div style="border-bottom:1px solid #334155; padding:5px;"><b>${d.makhdom}:</b> صلى ${d.duration} <br> <small>${d.time}</small></div>`;
+            });
+        });
+    }
+
+    function updateAdminAlert() {
+        const val = document.getElementById('newAdminAlert').value;
+        db.ref("admin_announcement").set(val);
+        alert("تم النشر!");
     }
 
     function showRandomVerse() {
