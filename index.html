@@ -477,20 +477,20 @@
 
         listenToAdminPrayers();
 
+        // 🟢 الجزء المطور لحفظ لوحة الشرف أوفلاين
         db.ref("points_data").on("value", snap => {
-            const select = document.getElementById('userNameListQuiz');
-            const list = document.getElementById('leaderboard'); 
-            const currentSel = select.value;
-            select.innerHTML = '<option value="">-- اختر اسمك --</option>';
-            list.innerHTML = "";
-            const data = snap.val(); if(!data) return;
-            Object.values(data).forEach(p => { select.innerHTML += `<option value="${p.name}">${p.name}</option>`; });
-            if(currentSel) select.value = currentSel;
-            Object.values(data).sort((a,b) => b.score - a.score).forEach(p => {
-                let clr = p.score >= 70 ? 'bg-high' : (p.score >= 40 ? 'bg-mid' : 'bg-low');
-                list.innerHTML += `<div class="card"><div class="bar-wrap"><div class="bar ${clr}" style="height:${Math.min(p.score, 100)}%"></div></div><div style="font-weight:bold; color:#fbbf24;">${p.score}</div><div style="font-size:11px;">${p.name}</div></div>`;
-            });
+            const data = snap.val();
+            if(data) {
+                localStorage.setItem('offline_points_data', JSON.stringify(data)); // حفظ نسخة في الذاكرة
+                updateLeaderboardUI(data); // تشغيل الوظيفة التي تعرض البيانات
+            }
         });
+
+        // تشغيل نسخة الأوفلاين فوراً إذا انقطع الاتصال
+        if (!navigator.onLine) {
+            const offlineData = localStorage.getItem('offline_points_data');
+            if (offlineData) updateLeaderboardUI(JSON.parse(offlineData));
+        }
 
         db.ref("chat").limitToLast(15).on("value", snap => {
             const box = document.getElementById('chatBox'); box.innerHTML = "";
@@ -509,6 +509,28 @@
                 box.innerHTML += `<div style="margin-bottom:4px; color:${msg.sender === "أنا" ? "#ec4899" : "#fbbf24"};"><b>${msg.sender}:</b> ${msg.text}</div>`;
             });
             box.scrollTop = box.scrollHeight;
+        });
+    }
+
+    // وظيفة عرض لوحة الشرف (مفصولة لتعمل أونلاين وأوفلاين)
+    function updateLeaderboardUI(data) {
+        const select = document.getElementById('userNameListQuiz');
+        const list = document.getElementById('leaderboard'); 
+        if(!select || !list) return;
+
+        const currentSel = select.value;
+        select.innerHTML = '<option value="">-- اختر اسمك --</option>';
+        list.innerHTML = "";
+        
+        Object.values(data).forEach(p => { 
+            select.innerHTML += `<option value="${p.name}">${p.name}</option>`; 
+        });
+        
+        if(currentSel) select.value = currentSel;
+        
+        Object.values(data).sort((a,b) => b.score - a.score).forEach(p => {
+            let clr = p.score >= 70 ? 'bg-high' : (p.score >= 40 ? 'bg-mid' : 'bg-low');
+            list.innerHTML += `<div class="card"><div class="bar-wrap"><div class="bar ${clr}" style="height:${Math.min(p.score, 100)}%"></div></div><div style="font-weight:bold; color:#fbbf24;">${p.score}</div><div style="font-size:11px;">${p.name}</div></div>`;
         });
     }
 
