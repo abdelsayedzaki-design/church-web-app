@@ -707,5 +707,16 @@
 
     window.onload = checkSavedAccess;
 </script>
+
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('تم تفعيل نظام الأوفلاين بنجاح'))
+                .catch(err => console.log('فشل تفعيل نظام الأوفلاين', err));
+        });
+    }
+</script>
+
 </body>
 </html>
