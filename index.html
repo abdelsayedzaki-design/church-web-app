@@ -665,24 +665,45 @@
         let submittedAnswers = [];
 
         allQuizQuestions.forEach((q, idx) => {
-            let ans = ""; max += parseInt(q.points || 1);
+            let ans = ""; 
+            let questionPoints = parseInt(q.points || 1);
+            max += questionPoints;
+
             if (q.type === 'choice' || q.type === 'truefalse') {
                 const sel = document.querySelector(`input[name="quiz_q_${idx}"]:checked`);
                 ans = sel ? sel.value : "";
-            } else { 
-                ans = document.getElementById(`quiz_ans_${idx}`).value; 
-            }
-
-            if (q.type !== 'essay') {
                 if (q.correctAnswer && ans.trim().toLowerCase() === q.correctAnswer.trim().toLowerCase()) {
-                    total += parseInt(q.points || 1);
+                    total += questionPoints;
+                }
+            } 
+            else if (q.type === 'essay') {
+                ans = document.getElementById(`quiz_ans_${idx}`).value.trim();
+                
+                // --- نظام تصحيح المقالي التلقائي ---
+                let essayScore = 0;
+                let textLength = ans.length;
+
+                if (textLength >= 50) {
+                    essayScore = questionPoints; // الدرجة كاملة
+                } else if (textLength >= 20) {
+                    essayScore = Math.ceil(questionPoints * 0.7); // 70% من الدرجة
+                } else if (textLength > 0) {
+                    essayScore = Math.ceil(questionPoints * 0.4); // 40% من الدرجة (حتى لو ضعيفة)
+                }
+                
+                total += essayScore;
+            }
+            else { 
+                ans = document.getElementById(`quiz_ans_${idx}`).value; 
+                if (q.correctAnswer && ans.trim().toLowerCase() === q.correctAnswer.trim().toLowerCase()) {
+                    total += questionPoints;
                 }
             }
             
             submittedAnswers.push({
                 question: q.text,
                 userAnswer: ans,
-                correctAnswer: q.correctAnswer || "مراجعة يدوية",
+                correctAnswer: q.correctAnswer || "تصحيح تلقائي/مقالي",
                 type: q.type
             });
         });
@@ -697,7 +718,11 @@
         });
 
         db.ref("points_data").once("value", snap => {
-            snap.forEach(child => { if (child.val().name === selectedQuizStudentName) child.ref.update({ score: (child.val().score || 0) + total }); });
+            snap.forEach(child => { 
+                if (child.val().name === selectedQuizStudentName) {
+                    child.ref.update({ score: (child.val().score || 0) + total }); 
+                }
+            });
         });
 
         showFinishedStatus(total, max);
@@ -708,7 +733,7 @@
         document.getElementById('quizSetup').style.display = 'none';
         document.getElementById('quizArea').style.display = 'none';
         document.getElementById('quizDone').style.display = 'block';
-        if (score !== undefined) document.getElementById('finalQuizScore').innerText = `حصلت على ${score} من ${max} (بانتظار تصحيح المقالي)`;
+        if (score !== undefined) document.getElementById('finalQuizScore').innerText = `حصلت على ${score} من ${max}`;
     }
 
     function sendChat() {
