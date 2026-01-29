@@ -619,8 +619,15 @@
                         opts.forEach(opt => { if(opt) html += `<label class="option-label"><input type="radio" name="quiz_q_${i}" value="${opt}"> ${opt}</label>`; });
                     } 
                     else if (q.type === 'essay') {
-                        // تعديل البند المقالي
-                        html += `<textarea id="quiz_ans_${i}" placeholder="اكتب إجابتك بالتفصيل هنا..." style="height:100px; background:var(--input-bg); color:white; border:1px solid var(--border-color); border-radius:10px; width:100%; padding:10px;"></textarea>`;
+                        html += `<textarea id="quiz_ans_${i}" 
+                            onpaste="alert('عفواً، يجب كتابة الإجابة بنفسك لمنع الغش 😇'); return false;" 
+                            oninput="updateCharCount(${i})"
+                            placeholder="اكتب إجابتك بالتفصيل هنا..." 
+                            style="height:100px; background:var(--input-bg); color:white; border:1px solid var(--border-color); border-radius:10px; width:100%; padding:10px;"></textarea>
+                        <div style="text-align: left; font-size: 12px; margin-top: -5px; margin-bottom: 10px;">
+                            <span id="charCount_${i}" style="color: #94a3b8;">عدد الحروف: 0</span>
+                            <span id="cheer_${i}" style="margin-right: 10px; font-weight: bold; color: #fbbf24;"></span>
+                        </div>`;
                     }
                     else { 
                         html += `<input type="text" id="quiz_ans_${i}" placeholder="اكتب الإجابة...">`; 
@@ -666,9 +673,8 @@
                 ans = document.getElementById(`quiz_ans_${idx}`).value; 
             }
 
-            // لا يتم التصحيح التلقائي للمقالي (essay)، فقط الأنواع الأخرى
             if (q.type !== 'essay') {
-                if (ans.trim().toLowerCase() === q.correctAnswer.trim().toLowerCase()) {
+                if (q.correctAnswer && ans.trim().toLowerCase() === q.correctAnswer.trim().toLowerCase()) {
                     total += parseInt(q.points || 1);
                 }
             }
@@ -761,6 +767,19 @@
             db.ref("psychology/questions").push({ sender: "مخدوم", text: txt, time: new Date().toLocaleString() });
             alert("تم الإرسال!"); document.getElementById('quesMsg').value = "";
         }
+    }
+
+    function updateCharCount(index) {
+        const textarea = document.getElementById(`quiz_ans_${index}`);
+        const countSpan = document.getElementById(`charCount_${index}`);
+        const cheerSpan = document.getElementById(`cheer_${index}`);
+        if (!textarea || !countSpan || !cheerSpan) return;
+        const length = textarea.value.length;
+        countSpan.innerText = `عدد الحروف: ${length}`;
+        if (length > 0 && length < 20) { countSpan.style.color = "#f87171"; cheerSpan.innerText = "اكتب أكتر شوية.. ✨"; }
+        else if (length >= 20 && length < 50) { countSpan.style.color = "#fbbf24"; cheerSpan.innerText = "برافو، كمل.. 💪"; }
+        else if (length >= 50) { countSpan.style.color = "#10b981"; cheerSpan.innerText = "إجابة رائعة وعميقة! 🌟"; }
+        else { cheerSpan.innerText = ""; }
     }
 
     window.onload = checkSavedAccess;
