@@ -96,12 +96,10 @@
         .prayer-altar-switch { border: 1px solid #fbbf24 !important; }
         .prayer-altar-switch input:checked + .slider { background-color: #fbbf24 !important; }
 
-        /* تنسيق خاص لبند الميطانية */
         .metania-row { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 10px; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.1); }
         .metania-row input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; }
         .metania-row input[type="number"] { margin-bottom: 0; width: 80px; padding: 5px; text-align: center; }
 
-        /* تنسيق لوحة التحكم Admin */
         #adminPanel { display: none; background: #0f172a; padding: 20px; border-radius: 15px; border: 2px solid #10b981; margin-top: 20px; }
         .admin-item { background: #1e293b; padding: 10px; border-radius: 10px; margin-bottom: 10px; border-right: 4px solid #10b981; }
     </style>
@@ -615,10 +613,19 @@
                 snapQ.forEach(child => {
                     const q = child.val(); allQuizQuestions.push({...q, id: child.key});
                     let html = `<div class="question-card"><p><b>س${i+1}: ${q.text}</b> <small>(${q.points||1} درجة)</small></p>`;
+                    
                     if (q.type === 'choice' || q.type === 'truefalse') {
                         let opts = q.options || [];
                         opts.forEach(opt => { if(opt) html += `<label class="option-label"><input type="radio" name="quiz_q_${i}" value="${opt}"> ${opt}</label>`; });
-                    } else { html += `<input type="text" id="quiz_ans_${i}" placeholder="اكتب الإجابة...">`; }
+                    } 
+                    else if (q.type === 'essay') {
+                        // تعديل البند المقالي
+                        html += `<textarea id="quiz_ans_${i}" placeholder="اكتب إجابتك بالتفصيل هنا..." style="height:100px; background:var(--input-bg); color:white; border:1px solid var(--border-color); border-radius:10px; width:100%; padding:10px;"></textarea>`;
+                    }
+                    else { 
+                        html += `<input type="text" id="quiz_ans_${i}" placeholder="اكتب الإجابة...">`; 
+                    }
+                    
                     container.innerHTML += html + `</div>`; i++;
                 });
                 document.getElementById('quizSetup').style.display = 'none';
@@ -648,24 +655,45 @@
     async function submitQuiz() {
         if(quizTimerInterval) clearInterval(quizTimerInterval);
         let total = 0; let max = 0;
+        let submittedAnswers = [];
+
         allQuizQuestions.forEach((q, idx) => {
             let ans = ""; max += parseInt(q.points || 1);
             if (q.type === 'choice' || q.type === 'truefalse') {
                 const sel = document.querySelector(`input[name="quiz_q_${idx}"]:checked`);
                 ans = sel ? sel.value : "";
-            } else { ans = document.getElementById(`quiz_ans_${idx}`).value; }
-            if (ans.trim().toLowerCase() === q.correctAnswer.trim().toLowerCase()) total += parseInt(q.points || 1);
+            } else { 
+                ans = document.getElementById(`quiz_ans_${idx}`).value; 
+            }
+
+            // لا يتم التصحيح التلقائي للمقالي (essay)، فقط الأنواع الأخرى
+            if (q.type !== 'essay') {
+                if (ans.trim().toLowerCase() === q.correctAnswer.trim().toLowerCase()) {
+                    total += parseInt(q.points || 1);
+                }
+            }
+            
+            submittedAnswers.push({
+                question: q.text,
+                userAnswer: ans,
+                correctAnswer: q.correctAnswer || "مراجعة يدوية",
+                type: q.type
+            });
         });
+
         await db.ref("bible_quiz/submissions").push({ 
             userName: selectedQuizStudentName, 
             score: total, 
             max: max, 
+            answers: submittedAnswers,
             time: new Date().toLocaleString('ar-EG'),
             deviceId: psySessionID 
         });
+
         db.ref("points_data").once("value", snap => {
             snap.forEach(child => { if (child.val().name === selectedQuizStudentName) child.ref.update({ score: (child.val().score || 0) + total }); });
         });
+
         showFinishedStatus(total, max);
         confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
     }
@@ -674,7 +702,7 @@
         document.getElementById('quizSetup').style.display = 'none';
         document.getElementById('quizArea').style.display = 'none';
         document.getElementById('quizDone').style.display = 'block';
-        if (score !== undefined) document.getElementById('finalQuizScore').innerText = `حصلت على ${score} من ${max}`;
+        if (score !== undefined) document.getElementById('finalQuizScore').innerText = `حصلت على ${score} من ${max} (بانتظار تصحيح المقالي)`;
     }
 
     function sendChat() {
