@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -102,6 +103,9 @@
 
         #adminPanel { display: none; background: #0f172a; padding: 20px; border-radius: 15px; border: 2px solid #10b981; margin-top: 20px; }
         .admin-item { background: #1e293b; padding: 10px; border-radius: 10px; margin-bottom: 10px; border-right: 4px solid #10b981; }
+
+        .jihad-switch { border: 1px solid var(--accent) !important; }
+        .jihad-switch input:checked + .slider { background-color: var(--accent) !important; }
     </style>
 </head>
 <body>
@@ -242,7 +246,7 @@
         </div>
 
         <div class="switch-container prayer-altar-switch" style="background: #334155; padding: 10px 15px; border-radius: 12px; margin-bottom: 15px; color: white;">
-            <span style="font-weight: bold; color: #fbbf24;">🙏 فتح مذبح الصلاة اليومي</span>
+            <span style="font-weight: bold; color: #fbbf24;">🙏 فتح مذبح الصلاة اليومي (٥ درجات 🎁)</span>
             <label class="switch">
                 <input type="checkbox" onchange="document.getElementById('mutualPrayerSection').style.display = this.checked ? 'block' : 'none'">
                 <span class="slider" style="border-color: #fbbf24;"></span>
@@ -317,6 +321,160 @@
             <textarea id="quesMsg" placeholder="اكتب سؤالك هنا..." style="height: 60px;"></textarea>
             <button class="btn" style="background:#818cf8;" onclick="sendQuestion()">إرسال</button>
         </div>
+
+        <div class="switch-container jihad-switch">
+            <span style="font-weight: bold; color: var(--accent);">🕊️ فتح ميزان الجهاد اليومي</span>
+            <label class="switch">
+                <input type="checkbox" id="jihadMasterToggle" onchange="toggleJihadSection(this.checked)">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div id="jihadArea" class="section" style="display: none; border: 2px solid var(--accent); background: var(--bg-section);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h3 style="color: var(--accent); margin: 0;">🕊️ ميزان الجهاد اليومي</h3>
+                <button style="background: none; border: 1px solid #475569; color: #94a3b8; font-size: 10px; padding: 4px 8px; border-radius: 5px; cursor: pointer;" onclick="changeJihadPin()">تغيير الرقم السري 🔑</button>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <div style="text-align: center; font-size: 13px; font-weight: bold; padding: 6px; border-radius: 8px; margin-bottom: 8px; background: rgba(16, 185, 129, 0.15); color: var(--success);">✨ ثمار النور</div>
+                    <div style="background: rgba(255,255,255,0.03); padding: 6px; border-radius: 10px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.05);"> 
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <span>🙏 صلاة</span>
+                            <button style="background: #334155; border: none; color: white; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 16px;" onclick="jihadCh('jp1',-1)">-</button>
+                            <span style="font-weight: bold; color: var(--accent); font-size: 15px;" class="jihad-p-score" id="jp1">0</span>
+                            <button style="background: #334155; border: none; color: white; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 16px;" onclick="jihadCh('jp1',1)">+</button>
+                        </div> 
+                        <input type="text" style="width: 90%; background: rgba(15, 23, 42, 0.6); border: 1px solid #334155; border-radius: 6px; color: #94a3b8; padding: 4px; font-size: 10px; outline: none; margin-top: 2px;" placeholder="ملاحظة صلاة.."> 
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); padding: 6px; border-radius: 10px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.05);"> 
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <span>📖 إنجيل</span>
+                            <button style="background: #334155; border: none; color: white; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 16px;" onclick="jihadCh('jp2',-1)">-</button>
+                            <span style="font-weight: bold; color: var(--accent); font-size: 15px;" class="jihad-p-score" id="jp2">0</span>
+                            <button style="background: #334155; border: none; color: white; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 16px;" onclick="jihadCh('jp2',1)">+</button>
+                        </div> 
+                        <input type="text" style="width: 90%; background: rgba(15, 23, 42, 0.6); border: 1px solid #334155; border-radius: 6px; color: #94a3b8; padding: 4px; font-size: 10px; outline: none; margin-top: 2px;" placeholder="آية اليوم.."> 
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); padding: 6px; border-radius: 10px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.05);"> 
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <span>🤝 عمل محبة</span>
+                            <button style="background: #334155; border: none; color: white; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 16px;" onclick="jihadCh('jp3',-1)">-</button>
+                            <span style="font-weight: bold; color: var(--accent); font-size: 15px;" class="jihad-p-score" id="jp3">0</span>
+                            <button style="background: #334155; border: none; color: white; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 16px;" onclick="jihadCh('jp3',1)">+</button>
+                        </div> 
+                        <input type="text" style="width: 90%; background: rgba(15, 23, 42, 0.6); border: 1px solid #334155; border-radius: 6px; color: #94a3b8; padding: 4px; font-size: 10px; outline: none; margin-top: 2px;" placeholder="موقف.."> 
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); padding: 6px; border-radius: 10px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.05);"> 
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <span>💬 تشجيع/شكر</span>
+                            <button style="background: #334155; border: none; color: white; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 16px;" onclick="jihadCh('jp4',-1)">-</button>
+                            <span style="font-weight: bold; color: var(--accent); font-size: 15px;" class="jihad-p-score" id="jp4">0</span>
+                            <button style="background: #334155; border: none; color: white; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 16px;" onclick="jihadCh('jp4',1)">+</button>
+                        </div> 
+                        <input type="text" style="width: 90%; background: rgba(15, 23, 42, 0.6); border: 1px solid #334155; border-radius: 6px; color: #94a3b8; padding: 4px; font-size: 10px; outline: none; margin-top: 2px;" placeholder="شكرت مين؟"> 
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); padding: 6px; border-radius: 10px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.05);"> 
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <span>💪 تغصب (خير)</span>
+                            <button style="background: #334155; border: none; color: white; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 16px;" onclick="jihadCh('jp5',-1)">-</button>
+                            <span style="font-weight: bold; color: var(--accent); font-size: 15px;" class="jihad-p-score" id="jp5">0</span>
+                            <button style="background: #334155; border: none; color: white; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 16px;" onclick="jihadCh('jp5',1)">+</button>
+                        </div> 
+                        <input type="text" style="width: 90%; background: rgba(15, 23, 42, 0.6); border: 1px solid #334155; border-radius: 6px; color: #94a3b8; padding: 4px; font-size: 10px; outline: none; margin-top: 2px;" placeholder="تغصبت في إيه؟"> 
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); padding: 6px; border-radius: 10px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.05);"> 
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <span>🏆 انتصار</span>
+                            <button style="background: #334155; border: none; color: white; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 16px;" onclick="jihadCh('jp6',-1)">-</button>
+                            <span style="font-weight: bold; color: var(--accent); font-size: 15px;" class="jihad-p-score" id="jp6">0</span>
+                            <button style="background: #334155; border: none; color: white; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 16px;" onclick="jihadCh('jp6',1)">+</button>
+                        </div> 
+                        <input type="text" style="width: 90%; background: rgba(15, 23, 42, 0.6); border: 1px solid #334155; border-radius: 6px; color: #94a3b8; padding: 4px; font-size: 10px; outline: none; margin-top: 2px;" placeholder="انتصار على.."> 
+                    </div>
+                </div>
+
+                <div>
+                    <div style="text-align: center; font-size: 13px; font-weight: bold; padding: 6px; border-radius: 8px; margin-bottom: 8px; background: rgba(239, 68, 68, 0.15); color: #ef4444;">🛡️ دروس الجهاد</div>
+                    <div style="background: rgba(255,255,255,0.03); padding: 6px; border-radius: 10px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.05);"> 
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <span>🙊 شتيمة</span>
+                            <button style="background: #334155; border: none; color: white; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 16px;" onclick="jihadCh('jn1',-1)">-</button>
+                            <span style="font-weight: bold; color: var(--accent); font-size: 15px;" class="jihad-n-score" id="jn1">0</span>
+                            <button style="background: #334155; border: none; color: white; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 16px;" onclick="jihadCh('jn1',1)">+</button>
+                        </div> 
+                        <input type="text" style="width: 90%; background: rgba(15, 23, 42, 0.6); border: 1px solid #334155; border-radius: 6px; color: #94a3b8; padding: 4px; font-size: 10px; outline: none; margin-top: 2px;" placeholder="سأتعلم.."> 
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); padding: 6px; border-radius: 10px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.05);"> 
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <span>🤥 كذب</span>
+                            <button style="background: #334155; border: none; color: white; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 16px;" onclick="jihadCh('jn2',-1)">-</button>
+                            <span style="font-weight: bold; color: var(--accent); font-size: 15px;" class="jihad-n-score" id="jn2">0</span>
+                            <button style="background: #334155; border: none; color: white; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 16px;" onclick="jihadCh('jn2',1)">+</button>
+                        </div> 
+                        <input type="text" style="width: 90%; background: rgba(15, 23, 42, 0.6); border: 1px solid #334155; border-radius: 6px; color: #94a3b8; padding: 4px; font-size: 10px; outline: none; margin-top: 2px;" placeholder="الصدق هو.."> 
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); padding: 6px; border-radius: 10px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.05);"> 
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <span>🤐 كلام رديء</span>
+                            <button style="background: #334155; border: none; color: white; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 16px;" onclick="jihadCh('jn3',-1)">-</button>
+                            <span style="font-weight: bold; color: var(--accent); font-size: 15px;" class="jihad-n-score" id="jn3">0</span>
+                            <button style="background: #334155; border: none; color: white; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 16px;" onclick="jihadCh('jn3',1)">+</button>
+                        </div> 
+                        <input type="text" style="width: 90%; background: rgba(15, 23, 42, 0.6); border: 1px solid #334155; border-radius: 6px; color: #94a3b8; padding: 4px; font-size: 10px; outline: none; margin-top: 2px;" placeholder="ضبط لسان.."> 
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); padding: 6px; border-radius: 10px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.05);"> 
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <span>🔥 غضب</span>
+                            <button style="background: #334155; border: none; color: white; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 16px;" onclick="jihadCh('jn4',-1)">-</button>
+                            <span style="font-weight: bold; color: var(--accent); font-size: 15px;" class="jihad-n-score" id="jn4">0</span>
+                            <button style="background: #334155; border: none; color: white; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 16px;" onclick="jihadCh('jn4',1)">+</button>
+                        </div> 
+                        <input type="text" style="width: 90%; background: rgba(15, 23, 42, 0.6); border: 1px solid #334155; border-radius: 6px; color: #94a3b8; padding: 4px; font-size: 10px; outline: none; margin-top: 2px;" placeholder="هدوئي في.."> 
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); padding: 6px; border-radius: 10px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.05);"> 
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <span>💭 فكر سلبي</span>
+                            <button style="background: #334155; border: none; color: white; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 16px;" onclick="jihadCh('jn5',-1)">-</button>
+                            <span style="font-weight: bold; color: var(--accent); font-size: 15px;" class="jihad-n-score" id="jn5">0</span>
+                            <button style="background: #334155; border: none; color: white; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 16px;" onclick="jihadCh('jn5',1)">+</button>
+                        </div> 
+                        <input type="text" style="width: 90%; background: rgba(15, 23, 42, 0.6); border: 1px solid #334155; border-radius: 6px; color: #94a3b8; padding: 4px; font-size: 10px; outline: none; margin-top: 2px;" placeholder="فكري مع المسيح.."> 
+                    </div>
+                </div>
+
+                <div style="grid-column: span 2; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px;">
+                    <button style="flex: 2; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer;" onclick="jihadSave()">حفظ اليوم 📖</button>
+                    <a href="#" id="jihadWaBtn" style="flex: 1; background: #25d366; color: white; text-decoration: none; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;" onclick="jihadPrepareLink(event, 'wa')">واتساب 💬</a>
+                    <button style="flex: 1; background: #64748b; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 12px;" onclick="jihadPrepareLink(event, 'copy')">نسخ 📋</button>
+                </div>
+            </div>
+
+            <div id="jihadHList" style="margin-top: 25px; border-top: 1px solid #334155; padding-top: 10px;"></div>
+        </div>
+
+        <div class="section church-commitment">
+            <h3 style="margin-top:0; color: var(--success);">⛪ ركن الالتزام الكنسي (🎁 ٥ درجات)</h3>
+            <p style="font-size: 12px; color: #94a3b8; margin-bottom: 15px;">اختر اسمك أولاً ثم سجل حضورك لمرة واحدة يومياً:</p>
+            
+            <select id="attendanceNameSelect">
+                <option value="">-- اختر اسمك --</option>
+            </select>
+
+            <div class="attendance-row">
+                <span style="font-size: 14px; min-width: 60px;">☦️ القداس:</span>
+                <input type="text" id="liturgyDay" placeholder="يوم إيه؟">
+                <button class="btn add-btn" onclick="submitAttendance('قداس', 'liturgyDay')">إرسال</button>
+            </div>
+
+            <div class="attendance-row">
+                <span style="font-size: 14px; min-width: 60px;">🤝 الخدمة:</span>
+                <input type="text" id="serviceDay" placeholder="يوم إيه؟">
+                <button class="btn add-btn" onclick="submitAttendance('خدمة', 'serviceDay')">إرسال</button>
+            </div>
+        </div>
+
     </div>
 
 <script>
@@ -363,7 +521,7 @@
         {t: "قَرِيبٌ هُوَ الرَّبُّ مِنَ الْمُنْكَسِرِي الْقُلُوبِ.", r: "مزمور 34: 18"},
         {t: "اِتَّكِلْ عَلَى الرَّبِّ بِكُلِّ قَلْبِكَ، وَعَلَى فَهْمِكَ لاَ تَعْتَمِدْ.", r: "أمثال 3: 5"},
         {t: "هأَنَذَا قَدْ نَقَشْتُكَ عَلَى كَفَّيَّ. أَسْوَارُكَ أَمَامِي دَائِمًا.", r: "إشعياء 49: 16"},
-        {t: "سِرَاجٌ لِرِجْلِي كَلاَمُكَ وَنُورٌ لِسَبِيلِي.", r: "مزمور 119: 105"}
+        {t: "سِرَاجٌ لِرِجْلِي كَلاَمُكَ وَنُورٌ لِسَبِِيلي.", r: "مزمور 119: 105"}
     ];
 
     const prayers = [
@@ -392,24 +550,17 @@
         }
     }
 
-    function checkSavedAccess() {
-        const lastLogin = localStorage.getItem('lastLoginTime');
-        const dayInMs = 24 * 60 * 60 * 1000;
-        if (lastLogin && (Date.now() - lastLogin < dayInMs)) {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('mainContent').style.display = 'block';
-            startApp();
-            showRandomVerse();
-        }
-    }
-
     function checkAccess() {
         if(document.getElementById('passInputUser').value === "jesus") {
-            localStorage.setItem('lastLoginTime', Date.now());
+            // حفظ وقت الدخول ونوعه
+            localStorage.setItem('session_login_time', Date.now());
+            localStorage.setItem('session_login_type', 'user');
+            
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
             startApp();
             showRandomVerse();
+            jihadDisplay();
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
         } else { alert("كلمة السر خطأ!"); }
     }
@@ -417,10 +568,15 @@
     function openAdmin() {
         const p = prompt("كلمة سر الخدام:");
         if(p === "admin123") {
+            // حفظ وقت الدخول ونوعه
+            localStorage.setItem('session_login_time', Date.now());
+            localStorage.setItem('session_login_type', 'admin');
+            
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
             document.getElementById('adminPanel').style.display = 'block';
             loadAdminData();
+            jihadDisplay();
         }
     }
 
@@ -483,11 +639,6 @@
             }
         });
 
-        if (!navigator.onLine) {
-            const offlineData = localStorage.getItem('offline_points_data');
-            if (offlineData) updateLeaderboardUI(JSON.parse(offlineData));
-        }
-
         db.ref("chat").limitToLast(15).on("value", snap => {
             const box = document.getElementById('chatBox'); box.innerHTML = "";
             snap.forEach(c => { 
@@ -511,26 +662,29 @@
     function updateLeaderboardUI(data) {
         const selectQuiz = document.getElementById('userNameListQuiz');
         const selectPrayer = document.getElementById('prayerUserName');
+        const selectAttendance = document.getElementById('attendanceNameSelect');
         const list = document.getElementById('leaderboard'); 
         if(!list) return;
 
         const currentSelQuiz = selectQuiz ? selectQuiz.value : "";
         const currentSelPrayer = selectPrayer ? selectPrayer.value : "";
+        const currentSelAttendance = selectAttendance ? selectAttendance.value : "";
 
         if(selectQuiz) selectQuiz.innerHTML = '<option value="">-- اختر اسمك --</option>';
         if(selectPrayer) selectPrayer.innerHTML = '<option value="">-- اختر اسمك الثلاثي --</option>';
+        if(selectAttendance) selectAttendance.innerHTML = '<option value="">-- اختر اسمك --</option>';
         
         list.innerHTML = "";
-        
         const sortedNames = Object.values(data).sort((a, b) => a.name.localeCompare(b.name));
-        
         sortedNames.forEach(p => { 
             if(selectQuiz) selectQuiz.innerHTML += `<option value="${p.name}">${p.name}</option>`; 
             if(selectPrayer) selectPrayer.innerHTML += `<option value="${p.name}">${p.name}</option>`; 
+            if(selectAttendance) selectAttendance.innerHTML += `<option value="${p.name}">${p.name}</option>`; 
         });
         
         if(selectQuiz) selectQuiz.value = currentSelQuiz;
         if(selectPrayer) selectPrayer.value = currentSelPrayer;
+        if(selectAttendance) selectAttendance.value = currentSelAttendance;
         
         Object.values(data).sort((a,b) => b.score - a.score).forEach(p => {
             let clr = p.score >= 70 ? 'bg-high' : (p.score >= 40 ? 'bg-mid' : 'bg-low');
@@ -550,6 +704,7 @@
         });
     }
 
+    // ==================== تعديل وظيفة إرسال المذبح (٥ درجات + مرة واحدة باليوم) ====================
     function sendMutualPrayer() {
         const nameSelect = document.getElementById('prayerUserName');
         const name = nameSelect.value;
@@ -557,6 +712,15 @@
         
         if(!name) return alert("اكتب اسمك الثلاثي ❤️");
         if(!durationValue) return alert("برجاء تحديد مدة الصلاة بالدقائق ⏱️");
+
+        // تحقق من الإرسال مرة واحدة يومياً
+        const lastPrayerDate = localStorage.getItem('last_prayer_submit_date');
+        const todayDate = new Date().toLocaleDateString();
+        
+        if (lastPrayerDate === todayDate) {
+            alert("لقد قمت بإرسال المذبح اليوم بالفعل! ننتظرك غداً بكل حب ❤️");
+            return;
+        }
 
         const report = {
             makhdom: name,
@@ -575,10 +739,24 @@
         };
 
         db.ref("prayer_reports").push(report).then(() => {
-            alert("تم الإرسال بنجاح يا " + name);
+            // إضافة 5 درجات تلقائياً
+            db.ref("points_data").once("value", snap => {
+                snap.forEach(child => { 
+                    if (child.val().name === name) {
+                        child.ref.update({ score: (child.val().score || 0) + 5 }); 
+                    }
+                });
+            });
+
+            // حفظ تاريخ الإرسال لمنع التكرار
+            localStorage.setItem('last_prayer_submit_date', todayDate);
+
+            alert("تم الإرسال بنجاح يا " + name + "! تم إضافة ٥ درجات لميزانك 🎁");
+            
+            // تفريغ الحقول
             document.querySelectorAll('#mutualPrayerSection textarea, #mutualPrayerSection input:not([type="checkbox"])').forEach(el => el.value = "");
             document.getElementById('metaniaDone').checked = false;
-            confetti({ particleCount: 100, spread: 50, origin: { y: 0.8 } });
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.8 } });
         });
     }
 
@@ -609,30 +787,17 @@
             db.ref("bible_quiz/questions").once("value", snapQ => {
                 const container = document.getElementById('questionsContainer');
                 container.innerHTML = ""; allQuizQuestions = []; let i = 0;
-                if(!snapQ.exists()) { alert("لا توجد أسئلة حالياً!"); return; }
                 snapQ.forEach(child => {
                     const q = child.val(); allQuizQuestions.push({...q, id: child.key});
                     let html = `<div class="question-card"><p><b>س${i+1}: ${q.text}</b> <small>(${q.points||1} درجة)</small></p>`;
-                    
                     if (q.type === 'choice' || q.type === 'truefalse') {
                         let opts = q.options || [];
                         opts.forEach(opt => { if(opt) html += `<label class="option-label"><input type="radio" name="quiz_q_${i}" value="${opt}"> ${opt}</label>`; });
-                    } 
-                    else if (q.type === 'essay') {
-                        html += `<textarea id="quiz_ans_${i}" 
-                            onpaste="alert('عفواً، يجب كتابة الإجابة بنفسك لمنع الغش 😇'); return false;" 
-                            oninput="updateCharCount(${i})"
-                            placeholder="اكتب إجابتك بالتفصيل هنا..." 
-                            style="height:100px; background:var(--input-bg); color:white; border:1px solid var(--border-color); border-radius:10px; width:100%; padding:10px;"></textarea>
-                        <div style="text-align: left; font-size: 12px; margin-top: -5px; margin-bottom: 10px;">
-                            <span id="charCount_${i}" style="color: #94a3b8;">عدد الحروف: 0</span>
-                            <span id="cheer_${i}" style="margin-right: 10px; font-weight: bold; color: #fbbf24;"></span>
-                        </div>`;
-                    }
-                    else { 
+                    } else if (q.type === 'essay') {
+                        html += `<textarea id="quiz_ans_${i}" onpaste="return false;" oninput="updateCharCount(${i})" placeholder="اكتب إجابتك بالتفصيل هنا..." style="height:100px; width:100%;"></textarea><div style="text-align: left; font-size: 12px;"><span id="charCount_${i}">0</span></div>`;
+                    } else { 
                         html += `<input type="text" id="quiz_ans_${i}" placeholder="اكتب الإجابة...">`; 
                     }
-                    
                     container.innerHTML += html + `</div>`; i++;
                 });
                 document.getElementById('quizSetup').style.display = 'none';
@@ -652,7 +817,6 @@
             if(display) display.innerText = (mins<10?"0":"")+mins+":"+(secs<10?"0":"")+secs;
             if (secondsLeft <= 0) {
                 clearInterval(quizTimerInterval);
-                alert("انتهى وقت المسابقة! سيتم الإرسال تلقائياً.");
                 submitQuiz();
             }
             secondsLeft--;
@@ -661,79 +825,67 @@
 
     async function submitQuiz() {
         if(quizTimerInterval) clearInterval(quizTimerInterval);
-        let total = 0; let max = 0;
+        let correctAnswers = 0; let totalQuestions = 0;
         let submittedAnswers = [];
-
         allQuizQuestions.forEach((q, idx) => {
-            let ans = ""; 
-            let questionPoints = parseInt(q.points || 1);
-            max += questionPoints;
-
+            let ans = ""; let isCorrect = false;
+            totalQuestions++;
             if (q.type === 'choice' || q.type === 'truefalse') {
                 const sel = document.querySelector(`input[name="quiz_q_${idx}"]:checked`);
                 ans = sel ? sel.value : "";
-                if (q.correctAnswer && ans.trim().toLowerCase() === q.correctAnswer.trim().toLowerCase()) {
-                    total += questionPoints;
+                if (q.correctAnswer && ans === q.correctAnswer) {
+                    correctAnswers++;
+                    isCorrect = true;
                 }
-            } 
-            else if (q.type === 'essay') {
+            } else if (q.type === 'essay') {
                 ans = document.getElementById(`quiz_ans_${idx}`).value.trim();
-                
-                // --- نظام تصحيح المقالي التلقائي ---
-                let essayScore = 0;
-                let textLength = ans.length;
-
-                if (textLength >= 50) {
-                    essayScore = questionPoints; // الدرجة كاملة
-                } else if (textLength >= 20) {
-                    essayScore = Math.ceil(questionPoints * 0.7); // 70% من الدرجة
-                } else if (textLength > 0) {
-                    essayScore = Math.ceil(questionPoints * 0.4); // 40% من الدرجة (حتى لو ضعيفة)
+                if (ans.length >= 50) {
+                    correctAnswers++;
+                    isCorrect = true;
+                } else if (ans.length >= 20) {
+                    correctAnswers += 0.7;
                 }
-                
-                total += essayScore;
-            }
-            else { 
-                ans = document.getElementById(`quiz_ans_${idx}`).value; 
+            } else {
+                ans = document.getElementById(`quiz_ans_${idx}`).value;
                 if (q.correctAnswer && ans.trim().toLowerCase() === q.correctAnswer.trim().toLowerCase()) {
-                    total += questionPoints;
+                    correctAnswers++;
+                    isCorrect = true;
                 }
             }
-            
-            submittedAnswers.push({
-                question: q.text,
-                userAnswer: ans,
-                correctAnswer: q.correctAnswer || "تصحيح تلقائي/مقالي",
-                type: q.type
-            });
+            submittedAnswers.push({question: q.text, userAnswer: ans});
         });
-
-        await db.ref("bible_quiz/submissions").push({ 
-            userName: selectedQuizStudentName, 
-            score: total, 
-            max: max, 
-            answers: submittedAnswers,
-            time: new Date().toLocaleString('ar-EG'),
-            deviceId: psySessionID 
-        });
-
+        
+        // حساب عدد الإجابات الخاطئة
+        const wrongAnswers = totalQuestions - Math.floor(correctAnswers);
+        
+        // نظام النقاط الجديد
+        let finalPoints = 3; // النقاط الأساسية للمشاركة
+        if (wrongAnswers === 0) {
+            finalPoints = 5; // كل الإجابات صح
+        } else if (wrongAnswers === 1) {
+            finalPoints = 4; // غلطة واحدة بس
+        }
+        
+        await db.ref("bible_quiz/submissions").push({ userName: selectedQuizStudentName, score: Math.floor(correctAnswers), max: totalQuestions, finalPoints: finalPoints, answers: submittedAnswers, time: new Date().toLocaleString() });
         db.ref("points_data").once("value", snap => {
-            snap.forEach(child => { 
-                if (child.val().name === selectedQuizStudentName) {
-                    child.ref.update({ score: (child.val().score || 0) + total }); 
-                }
-            });
+            snap.forEach(child => { if (child.val().name === selectedQuizStudentName) child.ref.update({ score: (child.val().score || 0) + finalPoints }); });
         });
-
-        showFinishedStatus(total, max);
-        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+        showFinishedStatus(Math.floor(correctAnswers), totalQuestions, finalPoints);
     }
 
-    function showFinishedStatus(score, max) {
+    function showFinishedStatus(score, max, finalPoints) {
         document.getElementById('quizSetup').style.display = 'none';
         document.getElementById('quizArea').style.display = 'none';
         document.getElementById('quizDone').style.display = 'block';
-        if (score !== undefined) document.getElementById('finalQuizScore').innerText = `حصلت على ${score} من ${max}`;
+        if (score !== undefined) {
+            const wrongCount = max - score;
+            let pointsMsg = "";
+            if (wrongCount === 0) pointsMsg = " - مبروك! حصلت على 5 نقاط 🎉";
+            else if (wrongCount === 1) pointsMsg = " - جيد! حصلت على 4 نقاط ✨";
+            else pointsMsg = " - شكراً للمشاركة! حصلت على 3 نقاط 👍";
+            
+            document.getElementById('finalQuizScore').innerText = `حصلت على ${score} من ${max}${pointsMsg}`;
+        }
     }
 
     function sendChat() {
@@ -764,10 +916,7 @@
     }
 
     function clearPsyChat() {
-        if(confirm("هل أنت متأكد من مسح سجل محادثتك الخاصة بالكامل؟")) {
-            db.ref("psychology/private_chats/" + psySessionID).remove()
-            .then(() => { alert("تم مسح المحادثة بنجاح ✅"); });
-        }
+        if(confirm("هل أنت متأكد؟")) db.ref("psychology/private_chats/" + psySessionID).remove();
     }
 
     function startPrayerSession() {
@@ -778,7 +927,7 @@
     function countPrayer() {
         pCount++; updatePrayerDisplay();
         if(window.navigator.vibrate) window.navigator.vibrate(40);
-        if(pCount >= 33) { alert("صلاة مقبولة! أتممت الـ 33 صلاة ✨"); document.getElementById('prayerTimer').style.display = 'none'; }
+        if(pCount >= 33) { alert("صلاة مقبولة!"); document.getElementById('prayerTimer').style.display = 'none'; }
     }
 
     function updatePrayerDisplay() {
@@ -794,20 +943,57 @@
         }
     }
 
-    function updateCharCount(index) {
-        const textarea = document.getElementById(`quiz_ans_${index}`);
-        const countSpan = document.getElementById(`charCount_${index}`);
-        const cheerSpan = document.getElementById(`cheer_${index}`);
-        if (!textarea || !countSpan || !cheerSpan) return;
-        const length = textarea.value.length;
-        countSpan.innerText = `عدد الحروف: ${length}`;
-        if (length > 0 && length < 20) { countSpan.style.color = "#f87171"; cheerSpan.innerText = "اكتب أكتر شوية.. ✨"; }
-        else if (length >= 20 && length < 50) { countSpan.style.color = "#fbbf24"; cheerSpan.innerText = "برافو، كمل.. 💪"; }
-        else if (length >= 50) { countSpan.style.color = "#10b981"; cheerSpan.innerText = "إجابة رائعة وعميقة! 🌟"; }
-        else { cheerSpan.innerText = ""; }
+    function toggleJihadSection(isChecked) {
+        const area = document.getElementById('jihadArea');
+        const toggle = document.getElementById('jihadMasterToggle');
+        if (isChecked) {
+            let savedPin = localStorage.getItem('jihad_pin');
+            if (!savedPin) {
+                let newPin = prompt("اكتب رقم سري جديد لميزان الجهاد:");
+                if (newPin && newPin.trim()) {
+                    localStorage.setItem('jihad_pin', newPin.trim());
+                    area.style.display = 'block';
+                } else toggle.checked = false;
+            } else {
+                if (prompt("أدخل الرقم السري:") === savedPin) area.style.display = 'block';
+                else { alert("خطأ!"); toggle.checked = false; }
+            }
+        } else area.style.display = 'none';
     }
 
-    window.onload = checkSavedAccess;
-</script>
-</body>
-</html>
+    function changeJihadPin() {
+        if (prompt("أدخل الرقم الحالي:") === localStorage.getItem('jihad_pin')) {
+            let n = prompt("الجديد:");
+            if(n) localStorage.setItem('jihad_pin', n);
+        }
+    }
+
+    function jihadCh(id, d) {
+        let s = document.getElementById(id);
+        let v = parseInt(s.innerText);
+        if (v + d >= 0) s.innerText = v + d;
+    }
+
+    function jihadSave() {
+        let ps = 0; document.querySelectorAll('.jihad-p-score').forEach(s => ps += parseInt(s.innerText));
+        let ns = 0; document.querySelectorAll('.jihad-n-score').forEach(s => ns += parseInt(s.innerText));
+        let total = ps + ns;
+        let pP = total === 0 ? 0 : Math.round((ps/total)*100);
+        let h = JSON.parse(localStorage.getItem('spiritual_vFullDetail') || "[]");
+        h.unshift({ id: Date.now(), date: new Date().toLocaleDateString('ar-EG'), p: pP, n: (100-pP) });
+        localStorage.setItem('spiritual_vFullDetail', JSON.stringify(h));
+        alert("تم الحفظ ✅"); location.reload();
+    }
+
+    function jihadPrepareLink(event, type) {
+        event.preventDefault();
+        let h = JSON.parse(localStorage.getItem('spiritual_vFullDetail') || "[]");
+        if(h.length === 0) return alert("سجل أولاً!");
+        let msg = "ملخص جهادي:\n" + h.slice(0,3).map(d => `${d.date}: ${d.p}% إيجابي`).join('\n');
+        if(type === 'wa') window.open("https://wa.me/?text=" + encodeURIComponent(msg));
+        else navigator.clipboard.writeText(msg).then(() => alert("نسخ!"));
+    }
+
+    function jihadDel(id) {
+        if(confirm("حذف؟")) {
+            let h = JSON.parse(localStorage.getItem('spiritual_vFullDetail') || "[]").filter(x =>
