@@ -177,7 +177,12 @@
             border: 1px solid rgba(255,255,255,0.08);
             transition: all 0.3s ease;
         }
-        .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+        .card:hover { 
+            transform: translateY(-3px); 
+            box-shadow: var(--shadow-md); 
+            border-color: var(--accent-1);
+            background: #1a2332;
+        }
         .bar-wrap {
             height: 62px;
             background: rgba(102,126,234,0.1);
@@ -816,12 +821,13 @@
                 </div>
                 <div class="jihad-actions">
                     <button class="btn-save" onclick="jihadSave()">حفظ اليوم 📖</button>
+                    <button class="btn-save" onclick="jihadShowResults()" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">عرض النتيجة 📊</button>
                     <a href="#" class="btn-wa" onclick="jihadPrepareLink(event,'wa')">واتساب 💬</a>
                     <button class="btn-copy" onclick="jihadPrepareLink(event,'copy')">نسخ 📋</button>
                 </div>
             </div>
 
-            <div id="jihadHList" style="margin-top:20px; border-top:1px solid rgba(102,126,234,0.15); padding-top:12px;"></div>
+            <div id="jihadHList" style="margin-top:20px; border-top:1px solid rgba(102,126,234,0.15); padding-top:12px; display:none;"></div>
         </div>
 
         <!-- Attendance -->
@@ -932,7 +938,6 @@ function checkAccess() {
         document.getElementById('mainContent').style.display = 'block';
         startApp();
         showRandomVerse();
-        jihadDisplay();
         confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
     } else { alert("كلمة السر خطأ ❌"); }
 }
@@ -946,7 +951,6 @@ function openAdmin() {
         document.getElementById('mainContent').style.display = 'block';
         document.getElementById('adminPanel').style.display = 'block';
         loadAdminData();
-        jihadDisplay();
     }
 }
 
@@ -1063,8 +1067,32 @@ function updateLeaderboardUI(data) {
 
     Object.values(data).sort((a,b) => b.score - a.score).forEach(p => {
         let clr = p.score >= 70 ? 'bg-high' : (p.score >= 40 ? 'bg-mid' : 'bg-low');
-        list.innerHTML += `<div class="card"><div class="bar-wrap"><div class="bar ${clr}" style="height:${Math.min(p.score,100)}%"></div></div><div style="font-weight:800; color:#fbbf24; font-size:15px;">${p.score}</div><div style="font-size:11px; color:#cbd5e0;">${p.name}</div></div>`;
+        list.innerHTML += `<div class="card" onclick="showPointsBreakdown('${p.name}')" style="cursor:pointer;">
+            <div class="bar-wrap"><div class="bar ${clr}" style="height:${Math.min(p.score,100)}%"></div></div>
+            <div style="font-weight:800; color:#fbbf24; font-size:15px;">${p.score}</div>
+            <div style="font-size:11px; color:#cbd5e0;">${p.name}</div>
+        </div>`;
     });
+}
+
+// ===== SHOW POINTS BREAKDOWN =====
+function showPointsBreakdown(name) {
+    // Get points data from localStorage or Firebase
+    const pointsData = JSON.parse(localStorage.getItem('points_breakdown_' + name) || '{}');
+    
+    const prayer = pointsData.prayer || 0;
+    const quiz = pointsData.quiz || 0;
+    const attendance = pointsData.attendance || 0;
+    const total = prayer + quiz + attendance;
+    
+    let message = `📊 تفاصيل نقاط: ${name}\n\n`;
+    message += `🙏 الصلاة (المذبح): ${prayer} نقطة\n`;
+    message += `📝 مسابقة الكتاب المقدس: ${quiz} نقطة\n`;
+    message += `⛪ حضور الخدمة: ${attendance} نقطة\n`;
+    message += `━━━━━━━━━━━━\n`;
+    message += `💎 الإجمالي: ${total} نقطة`;
+    
+    alert(message);
 }
 
 // ===== ADMIN PRAYER HINTS =====
@@ -1110,7 +1138,14 @@ function sendMutualPrayer() {
     db.ref("prayer_reports").push(report).then(() => {
         db.ref("points_data").once("value", snap => {
             snap.forEach(child => {
-                if (child.val().name === name) child.ref.update({ score: (child.val().score || 0) + 5 });
+                if (child.val().name === name) {
+                    child.ref.update({ score: (child.val().score || 0) + 5 });
+                    
+                    // Track points breakdown
+                    const breakdown = JSON.parse(localStorage.getItem('points_breakdown_' + name) || '{}');
+                    breakdown.prayer = (breakdown.prayer || 0) + 5;
+                    localStorage.setItem('points_breakdown_' + name, JSON.stringify(breakdown));
+                }
             });
         });
         localStorage.setItem('last_prayer_submit_date', todayDate);
@@ -1208,7 +1243,16 @@ async function submitQuiz() {
 
     await db.ref("bible_quiz/submissions").push({ userName: selectedQuizStudentName, score: Math.floor(correctAnswers), max: totalQuestions, finalPoints, answers: submittedAnswers, time: new Date().toLocaleString() });
     db.ref("points_data").once("value", snap => {
-        snap.forEach(child => { if (child.val().name === selectedQuizStudentName) child.ref.update({ score: (child.val().score || 0) + finalPoints }); });
+        snap.forEach(child => { 
+            if (child.val().name === selectedQuizStudentName) {
+                child.ref.update({ score: (child.val().score || 0) + finalPoints });
+                
+                // Track points breakdown
+                const breakdown = JSON.parse(localStorage.getItem('points_breakdown_' + selectedQuizStudentName) || '{}');
+                breakdown.quiz = (breakdown.quiz || 0) + finalPoints;
+                localStorage.setItem('points_breakdown_' + selectedQuizStudentName, JSON.stringify(breakdown));
+            }
+        });
     });
     showFinishedStatus(Math.floor(correctAnswers), totalQuestions, finalPoints);
 }
@@ -1326,14 +1370,93 @@ function jihadCh(id, d) {
 }
 
 function jihadSave() {
-    let ps = 0; document.querySelectorAll('.jihad-p-score').forEach(s => ps += parseInt(s.innerText));
-    let ns = 0; document.querySelectorAll('.jihad-n-score').forEach(s => ns += parseInt(s.innerText));
+    let ps = 0; 
+    let ns = 0;
+    
+    // Get individual negative scores for analysis
+    const negativeScores = {
+        'شتيمة': parseInt(document.getElementById('jn1').innerText),
+        'كذب': parseInt(document.getElementById('jn2').innerText),
+        'كلام رديء': parseInt(document.getElementById('jn3').innerText),
+        'غضب': parseInt(document.getElementById('jn4').innerText),
+        'فكر سلبي': parseInt(document.getElementById('jn5').innerText)
+    };
+    
+    document.querySelectorAll('.jihad-p-score').forEach(s => ps += parseInt(s.innerText));
+    document.querySelectorAll('.jihad-n-score').forEach(s => ns += parseInt(s.innerText));
+    
     let total = ps + ns;
     let pP = total === 0 ? 0 : Math.round((ps/total)*100);
+    
+    // Get history
     let h = JSON.parse(localStorage.getItem('spiritual_vFullDetail') || "[]");
-    h.unshift({ id: Date.now(), date: new Date().toLocaleDateString('ar-EG'), p: pP, n: (100-pP) });
+    
+    // Analyze improvement
+    let improvementMsg = "";
+    let encouragementMsg = "";
+    let focusArea = "";
+    
+    // Find highest negative area to focus on
+    let maxNegative = 0;
+    let maxNegativeName = "";
+    for (let key in negativeScores) {
+        if (negativeScores[key] > maxNegative) {
+            maxNegative = negativeScores[key];
+            maxNegativeName = key;
+        }
+    }
+    
+    // Check if improving from yesterday
+    if (h.length > 0) {
+        const lastScore = h[0].p;
+        const improvement = pP - lastScore;
+        
+        if (improvement > 0) {
+            improvementMsg = `\n🎉 رائع! تحسنت ${improvement}% عن آخر مرة!`;
+            encouragementMsg = "ماشي في الطريق الصح! ربنا معاك وفرحان بيك ❤️";
+        } else if (improvement === 0) {
+            improvementMsg = `\n📊 نفس المستوى كآخر مرة`;
+            encouragementMsg = "خلينا نحاول نبقى أحسن كل يوم شوية شوية 💪";
+        } else {
+            improvementMsg = `\n📉 انخفضت ${Math.abs(improvement)}% عن آخر مرة`;
+            encouragementMsg = "مش مشكلة! كلنا بنغلط.. المهم نقوم ونكمل 🌟";
+        }
+    }
+    
+    // Suggest focus area
+    if (maxNegative > 0) {
+        focusArea = `\n\n🎯 ركز على: ${maxNegativeName} (${maxNegative} مرة)\nحاول تقللها أكتر المرة الجاية!`;
+    }
+    
+    // Save new record
+    h.unshift({ 
+        id: Date.now(), 
+        date: new Date().toLocaleDateString('ar-EG'), 
+        p: pP, 
+        n: (100-pP),
+        negatives: negativeScores
+    });
+    
+    // Keep only last 7 days
+    if (h.length > 7) {
+        h = h.slice(0, 7);
+    }
+    
     localStorage.setItem('spiritual_vFullDetail', JSON.stringify(h));
-    alert("تم الحفظ ✅"); location.reload();
+    
+    // Show detailed message
+    alert(`✅ تم الحفظ!\n\n📊 النتيجة: ${pP}% إيجابي${improvementMsg}\n\n💬 ${encouragementMsg}${focusArea}`);
+    
+    // Update display without reloading
+    jihadDisplay();
+    
+    // Reset scores to zero
+    document.querySelectorAll('.jihad-p-score, .jihad-n-score').forEach(s => s.innerText = '0');
+    
+    // Show confetti
+    if (typeof confetti !== 'undefined') {
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    }
 }
 
 function jihadPrepareLink(event, type) {
@@ -1356,7 +1479,74 @@ function jihadDel(id) {
 function jihadDisplay() {
     let h = JSON.parse(localStorage.getItem('spiritual_vFullDetail') || "[]");
     const l = document.getElementById('jihadHList');
-    if (l) l.innerHTML = `<div style="font-weight:700; margin-bottom:8px; color:var(--text-secondary);">📜 السجل</div>` + h.map(x => `<div class="jihad-history-item">${x.date}: إيجابي ${x.p}% <button class="jihad-del-btn" onclick="jihadDel(${x.id})">🗑️</button></div>`).join('');
+    
+    if (!l) return;
+    
+    let html = `<div style="font-weight:700; margin-bottom:12px; color:var(--text-secondary); font-size:16px;">📜 سجل جهادك الروحي (آخر 7 أيام)</div>`;
+    
+    // Show improvement trend if there's data
+    if (h.length >= 2) {
+        const trend = h[0].p - h[1].p;
+        let trendIcon = trend > 0 ? "📈" : trend < 0 ? "📉" : "➡️";
+        let trendText = trend > 0 ? "بتتحسن!" : trend < 0 ? "محتاج تركيز أكتر" : "ثابت";
+        let trendColor = trend > 0 ? "var(--success)" : trend < 0 ? "var(--danger)" : "var(--warning)";
+        
+        html += `<div style="background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1)); padding:12px; border-radius:12px; margin-bottom:12px; text-align:center;">
+            <div style="font-size:24px; margin-bottom:6px;">${trendIcon}</div>
+            <div style="font-weight:700; color:${trendColor}; font-size:15px;">${trendText}</div>
+            <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">
+                ${trend > 0 ? `+${trend}` : trend}% عن آخر مرة
+            </div>
+        </div>`;
+    }
+    
+    // Show each record with details
+    h.forEach((x, index) => {
+        let improvementBadge = "";
+        if (index > 0 && h[index - 1]) {
+            const diff = x.p - h[index - 1].p;
+            if (diff > 0) improvementBadge = `<span style="color:var(--success); font-size:11px; margin-right:8px;">↑ +${diff}%</span>`;
+            else if (diff < 0) improvementBadge = `<span style="color:var(--danger); font-size:11px; margin-right:8px;">↓ ${diff}%</span>`;
+        }
+        
+        // Find focus area for this day
+        let focusNote = "";
+        if (x.negatives) {
+            let maxNeg = 0;
+            let maxNegName = "";
+            for (let key in x.negatives) {
+                if (x.negatives[key] > maxNeg) {
+                    maxNeg = x.negatives[key];
+                    maxNegName = key;
+                }
+            }
+            if (maxNeg > 0) {
+                focusNote = `<div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">🎯 ركز على: ${maxNegName}</div>`;
+            }
+        }
+        
+        html += `<div class="jihad-history-item" style="position:relative;">
+            <div>
+                <strong>${x.date}</strong>: 
+                <span style="color:var(--success); font-weight:700;">${x.p}% إيجابي</span>
+                ${improvementBadge}
+                ${focusNote}
+            </div>
+            <button class="jihad-del-btn" onclick="jihadDel(${x.id})">🗑️</button>
+        </div>`;
+    });
+    
+    l.innerHTML = html;
+}
+
+function jihadShowResults() {
+    const resultsDiv = document.getElementById('jihadHList');
+    if (resultsDiv.style.display === 'none') {
+        resultsDiv.style.display = 'block';
+        jihadDisplay();
+    } else {
+        resultsDiv.style.display = 'none';
+    }
 }
 
 // ===== ATTENDANCE =====
@@ -1373,7 +1563,14 @@ function submitAttendance(type, inputId) {
 
     db.ref("points_data").once("value", snap => {
         snap.forEach(child => {
-            if (child.val().name === name) child.ref.update({ score: (child.val().score || 0) + 5 });
+            if (child.val().name === name) {
+                child.ref.update({ score: (child.val().score || 0) + 5 });
+                
+                // Track points breakdown
+                const breakdown = JSON.parse(localStorage.getItem('points_breakdown_' + name) || '{}');
+                breakdown.attendance = (breakdown.attendance || 0) + 5;
+                localStorage.setItem('points_breakdown_' + name, JSON.stringify(breakdown));
+            }
         });
     });
 
@@ -1408,7 +1605,7 @@ window.addEventListener('DOMContentLoaded', function() {
             }
             startApp();
             showRandomVerse();
-            jihadDisplay();
+            // jihadDisplay removed - will show only when button clicked
         } else {
             localStorage.removeItem('session_login_time');
             localStorage.removeItem('session_login_type');
