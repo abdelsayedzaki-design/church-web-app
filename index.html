@@ -113,8 +113,134 @@
             color: white; font-size: 30px; font-weight: 800;
             margin-bottom: 6px; position: relative;
             text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            animation: titleGlow 3s ease-in-out infinite;
         }
-        .main-header small { color: rgba(255,255,255,0.88); font-size: 13px; position: relative; }
+        
+        @keyframes titleGlow {
+            0%, 100% {
+                text-shadow: 0 2px 10px rgba(0,0,0,0.2),
+                            0 0 20px rgba(255,255,255,0.3);
+                transform: scale(1);
+            }
+            50% {
+                text-shadow: 0 2px 10px rgba(0,0,0,0.2),
+                            0 0 30px rgba(255,255,255,0.6),
+                            0 0 40px rgba(255,255,255,0.4);
+                transform: scale(1.02);
+            }
+        }
+        
+        .animated-title {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .animated-title span {
+            display: inline-block;
+        }
+        
+        /* أيقونة الكنيسة - ثابتة مع توهج خفيف */
+        .animated-title .word-1 {
+            font-size: 36px;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));
+        }
+        
+        /* كلمة "خدمة" - موجة مع تغيير حجم */
+        .animated-title .word-2 {
+            animation: waveText 3s ease-in-out infinite;
+            transform-origin: center;
+        }
+        
+        @keyframes waveText {
+            0%, 100% {
+                transform: translateY(0) scale(1);
+                letter-spacing: 0px;
+            }
+            33% {
+                transform: translateY(-8px) scale(1.08);
+                letter-spacing: 2px;
+            }
+            66% {
+                transform: translateY(4px) scale(0.95);
+                letter-spacing: -1px;
+            }
+        }
+        
+        /* كلمة "إعدادي" - تأثير قوس قزح متحرك مع نبض */
+        .animated-title .word-3 {
+            background: linear-gradient(90deg, 
+                #fff 0%, 
+                #fbbf24 25%, 
+                #f093fb 50%, 
+                #4facfe 75%, 
+                #fff 100%
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 300% 100%;
+            animation: rainbowSlide 4s linear infinite, pulseBig 2s ease-in-out infinite;
+            font-weight: 900;
+        }
+        
+        @keyframes rainbowSlide {
+            0% {
+                background-position: 0% 50%;
+            }
+            100% {
+                background-position: 300% 50%;
+            }
+        }
+        
+        @keyframes pulseBig {
+            0%, 100% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 5px rgba(251,191,36,0.3));
+            }
+            50% {
+                transform: scale(1.12);
+                filter: drop-shadow(0 0 15px rgba(251,191,36,0.8));
+            }
+        }
+        
+        /* اسم الكنيسة - تأثير كتابة + تلاشي */
+        .main-header small { 
+            color: rgba(255,255,255,0.88); 
+            font-size: 13px; 
+            position: relative;
+            display: inline-block;
+            animation: typewriter 8s steps(40) infinite, fadeInOut 8s ease-in-out infinite;
+            overflow: hidden;
+            white-space: nowrap;
+            border-left: 2px solid rgba(255,255,255,0.7);
+            padding-left: 8px;
+        }
+        
+        @keyframes typewriter {
+            0%, 10% {
+                width: 0;
+            }
+            50%, 90% {
+                width: 100%;
+            }
+            100% {
+                width: 0;
+            }
+        }
+        
+        @keyframes fadeInOut {
+            0%, 10% {
+                opacity: 0;
+            }
+            20%, 80% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
 
         /* ===== VERSE ===== */
         .verse-container {
@@ -182,6 +308,67 @@
             box-shadow: var(--shadow-md); 
             border-color: var(--accent-1);
             background: #1a2332;
+        }
+        
+        /* ===== MINI BARS IN CARD ===== */
+        .card-default-view {
+            display: block;
+        }
+        .card-details-view {
+            display: none;
+        }
+        .card.expanded .card-default-view {
+            display: none;
+        }
+        .card.expanded .card-details-view {
+            display: block;
+        }
+        
+        .mini-bars-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 8px;
+            height: 70px;
+            margin: 8px 0;
+            padding: 0 8px;
+        }
+        .mini-bar-col {
+            flex: 1;
+            max-width: 25px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        .mini-bar {
+            width: 100%;
+            border-radius: 6px 6px 0 0;
+            transition: height 0.8s cubic-bezier(0.68,-0.55,0.265,1.55);
+            position: relative;
+            min-height: 3px;
+        }
+        .mini-bar.quiz {
+            background: linear-gradient(180deg, #f093fb 0%, #f5576c 100%);
+        }
+        .mini-bar.prayer {
+            background: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .mini-bar.attendance {
+            background: linear-gradient(180deg, #43e97b 0%, #38f9d7 100%);
+        }
+        .mini-bar-label {
+            font-size: 9px;
+            color: #cbd5e0;
+            margin-top: 3px;
+            white-space: nowrap;
+        }
+        .mini-bar-value {
+            font-size: 11px;
+            font-weight: 700;
+            color: #fbbf24;
+            margin-top: 2px;
         }
         .bar-wrap {
             height: 62px;
@@ -541,8 +728,12 @@
 
     <!-- Header -->
     <div class="main-header">
-        <h2>⛪ خدمة إعدادي</h2>
-        <small>كنيسة العذراء وأبوسيفين والشهيد أبسخيرون</small>
+        <h2 class="animated-title">
+            <span class="word-1">⛪</span>
+            <span class="word-2">خدمة</span>
+            <span class="word-3">إعدادي</span>
+        </h2>
+        <small class="animated-subtitle">كنيسة العذراء وأبوسيفين والشهيد أبسخيرون</small>
     </div>
 
     <div class="container">
@@ -974,9 +1165,33 @@ function updateAdminAlert() {
 
 // ===== VERSE =====
 function showRandomVerse() {
+    const now = Date.now();
+    const savedVerse = localStorage.getItem('daily_verse_data');
+    const twelveHours = 12 * 60 * 60 * 1000; // 12 ساعة بالميلي ثانية
+    
+    if (savedVerse) {
+        const verseData = JSON.parse(savedVerse);
+        const timePassed = now - verseData.timestamp;
+        
+        // لو مر أقل من 12 ساعة، استخدم الآية المحفوظة
+        if (timePassed < twelveHours) {
+            document.getElementById('dailyVerse').innerText = `"${verseData.text}"`;
+            document.getElementById('verseRef').innerText = `✝ ${verseData.ref}`;
+            return;
+        }
+    }
+    
+    // لو مفيش آية محفوظة أو عدى 12 ساعة، اختر آية جديدة
     const v = bibleVerses[Math.floor(Math.random() * bibleVerses.length)];
     document.getElementById('dailyVerse').innerText = `"${v.t}"`;
     document.getElementById('verseRef').innerText = `✝ ${v.r}`;
+    
+    // احفظ الآية الجديدة مع الوقت
+    localStorage.setItem('daily_verse_data', JSON.stringify({
+        text: v.t,
+        ref: v.r,
+        timestamp: now
+    }));
 }
 
 // ===== START APP =====
@@ -1066,34 +1281,96 @@ function updateLeaderboardUI(data) {
     if (selectAttendance) selectAttendance.value = curA;
 
     Object.values(data).sort((a,b) => b.score - a.score).forEach(p => {
+        // Get breakdown from localStorage
+        const breakdown = JSON.parse(localStorage.getItem('points_breakdown_' + p.name) || '{}');
+        const quizPoints = breakdown.quiz || 0;
+        const prayerPoints = breakdown.prayer || 0;
+        const attendancePoints = breakdown.attendance || 0;
+        
+        // Calculate max for scaling
+        const maxPoints = Math.max(quizPoints, prayerPoints, attendancePoints, 1);
+        const quizHeight = (quizPoints / maxPoints) * 100;
+        const prayerHeight = (prayerPoints / maxPoints) * 100;
+        const attendanceHeight = (attendancePoints / maxPoints) * 100;
+        
         let clr = p.score >= 70 ? 'bg-high' : (p.score >= 40 ? 'bg-mid' : 'bg-low');
-        list.innerHTML += `<div class="card" onclick="showPointsBreakdown('${p.name}')" style="cursor:pointer;">
-            <div class="bar-wrap"><div class="bar ${clr}" style="height:${Math.min(p.score,100)}%"></div></div>
-            <div style="font-weight:800; color:#fbbf24; font-size:15px;">${p.score}</div>
-            <div style="font-size:11px; color:#cbd5e0;">${p.name}</div>
+        
+        list.innerHTML += `<div class="card" onclick="toggleCardView(this)">
+            <div class="card-default-view">
+                <div class="bar-wrap"><div class="bar ${clr}" style="height:${Math.min(p.score,100)}%"></div></div>
+                <div style="font-weight:800; color:#fbbf24; font-size:15px;">${p.score}</div>
+                <div style="font-size:11px; color:#cbd5e0;">${p.name}</div>
+            </div>
+            
+            <div class="card-details-view">
+                <div class="mini-bars-container">
+                    <div class="mini-bar-col">
+                        <div class="mini-bar quiz" style="height:${quizHeight}%"></div>
+                        <div class="mini-bar-label">📖</div>
+                        <div class="mini-bar-value">${quizPoints}</div>
+                    </div>
+                    <div class="mini-bar-col">
+                        <div class="mini-bar prayer" style="height:${prayerHeight}%"></div>
+                        <div class="mini-bar-label">🙏</div>
+                        <div class="mini-bar-value">${prayerPoints}</div>
+                    </div>
+                    <div class="mini-bar-col">
+                        <div class="mini-bar attendance" style="height:${attendanceHeight}%"></div>
+                        <div class="mini-bar-label">⛪</div>
+                        <div class="mini-bar-value">${attendancePoints}</div>
+                    </div>
+                </div>
+                <div style="font-weight:800; color:#fbbf24; font-size:15px; margin-top:4px;">${p.score}</div>
+                <div style="font-size:11px; color:#cbd5e0;">${p.name}</div>
+            </div>
         </div>`;
     });
 }
 
 // ===== SHOW POINTS BREAKDOWN =====
-function showPointsBreakdown(name) {
-    // Get points data from localStorage or Firebase
-    const pointsData = JSON.parse(localStorage.getItem('points_breakdown_' + name) || '{}');
+function showPointsBreakdown(name, totalScore) {
+    const breakdown = JSON.parse(localStorage.getItem('points_breakdown_' + name) || '{}');
+    const quizPoints = breakdown.quiz || 0;
+    const prayerPoints = breakdown.prayer || 0;
+    const attendancePoints = breakdown.attendance || 0;
     
-    const prayer = pointsData.prayer || 0;
-    const quiz = pointsData.quiz || 0;
-    const attendance = pointsData.attendance || 0;
-    const total = prayer + quiz + attendance;
+    // Calculate max for scaling
+    const maxPoints = Math.max(quizPoints, prayerPoints, attendancePoints, 1);
     
-    let message = `📊 تفاصيل نقاط: ${name}\n\n`;
-    message += `🙏 الصلاة (المذبح): ${prayer} نقطة\n`;
-    message += `📝 مسابقة الكتاب المقدس: ${quiz} نقطة\n`;
-    message += `⛪ حضور الخدمة: ${attendance} نقطة\n`;
-    message += `━━━━━━━━━━━━\n`;
-    message += `💎 الإجمالي: ${total} نقطة`;
+    // Calculate heights as percentages
+    const quizHeight = (quizPoints / maxPoints) * 100;
+    const prayerHeight = (prayerPoints / maxPoints) * 100;
+    const attendanceHeight = (attendancePoints / maxPoints) * 100;
     
-    alert(message);
+    const modal = document.getElementById('pointsModal');
+    document.getElementById('modalName').textContent = name;
+    document.getElementById('modalTotalScore').textContent = totalScore;
+    
+    // Set bar heights with animation
+    setTimeout(() => {
+        document.getElementById('quizBar').style.height = quizHeight + '%';
+        document.getElementById('prayerBar').style.height = prayerHeight + '%';
+        document.getElementById('attendanceBar').style.height = attendanceHeight + '%';
+    }, 100);
+    
+    // Update values
+    document.getElementById('quizPoints').textContent = quizPoints;
+    document.getElementById('prayerPoints').textContent = prayerPoints;
+    document.getElementById('attendancePoints').textContent = attendancePoints;
+    
+    modal.style.display = 'flex';
 }
+
+function closePointsModal() {
+    const modal = document.getElementById('pointsModal');
+    modal.style.display = 'none';
+    
+    // Reset heights
+    document.getElementById('quizBar').style.height = '0%';
+    document.getElementById('prayerBar').style.height = '0%';
+    document.getElementById('attendanceBar').style.height = '0%';
+}
+
 
 // ===== ADMIN PRAYER HINTS =====
 function listenToAdminPrayers() {
@@ -1612,6 +1889,11 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
+// ===== TOGGLE CARD VIEW =====
+function toggleCardView(cardElement) {
+    cardElement.classList.toggle('expanded');
+}
 </script>
 </body>
 </html>
