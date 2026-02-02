@@ -695,10 +695,114 @@
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
         @keyframes slideUp { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
         @keyframes slideInRight { from { opacity:0; transform:translateX(16px); } to { opacity:1; transform:translateX(0); } }
+        @keyframes slideDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
         @keyframes bounce { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-8px); } }
         @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.8; } }
         @keyframes shake { 0%,100% { transform:translateX(0); } 25% { transform:translateX(-8px); } 75% { transform:translateX(8px); } }
         @keyframes float { from { transform:translateY(0); } to { transform:translateY(-100vh); } }
+        @keyframes wave { 
+            0%, 100% { transform: translateY(0) scale(1); } 
+            25% { transform: translateY(-3px) scale(1.05); } 
+            50% { transform: translateY(0) scale(1); } 
+            75% { transform: translateY(3px) scale(0.95); } 
+        }
+        @keyframes fadeOutUp { 
+            from { opacity: 1; transform: translateY(0); } 
+            to { opacity: 0; transform: translateY(-30px); } 
+        }
+
+        /* ===== رسائل التشجيع ===== */
+        .encouragement-popup {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            left: 20px;
+            max-width: 400px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            z-index: 10000;
+            animation: slideDown 0.5s ease;
+            border: 3px solid #fbbf24;
+        }
+        
+        @keyframes slideDown {
+            from { transform: translateY(-100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .encouragement-popup .close-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(255,255,255,0.3);
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .encouragement-popup .close-btn:hover {
+            background: rgba(255,255,255,0.5);
+            transform: scale(1.1);
+        }
+        
+        .encouragement-popup .message-content {
+            color: white;
+            font-size: 16px;
+            line-height: 1.8;
+            margin: 15px 0;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .encouragement-popup .from-tag {
+            color: rgba(255,255,255,0.85);
+            font-size: 13px;
+            margin-top: 12px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .encouragement-badge {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            background: #ef4444;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            z-index: 999;
+            animation: pulse 2s ease-in-out infinite;
+            box-shadow: 0 4px 15px rgba(239,68,68,0.6);
+            border: 2px solid white;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { 
+                transform: scale(1); 
+                box-shadow: 0 4px 15px rgba(239,68,68,0.6);
+            }
+            50% { 
+                transform: scale(1.08); 
+                box-shadow: 0 6px 25px rgba(239,68,68,0.9);
+            }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-50px); }
+        }
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 480px) {
@@ -728,11 +832,15 @@
 
     <!-- Header -->
     <div class="main-header">
-        <h2 class="animated-title">
-            <span class="word-1">⛪</span>
-            <span class="word-2">خدمة</span>
-            <span class="word-3">إعدادي</span>
-        </h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div id="userNameDisplay" style="font-size: 15px; font-weight: 800; color: #fbbf24; animation: wave 2s ease-in-out infinite; display: none; text-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>
+            <h2 class="animated-title" style="margin: 0; flex: 1; text-align: center;">
+                <span class="word-1">⛪</span>
+                <span class="word-2">خدمة</span>
+                <span class="word-3">إعدادي</span>
+            </h2>
+            <div style="width: 80px;"></div>
+        </div>
         <small class="animated-subtitle">كنيسة العذراء وأبوسيفين والشهيد أبسخيرون</small>
     </div>
 
@@ -741,6 +849,23 @@
         <div class="verse-container">
             <div id="dailyVerse" class="verse-text">✨ جاري تحميل آية تعزية...</div>
             <div id="verseRef" class="verse-ref"></div>
+        </div>
+
+        <!-- Name Selection for Encouragement Messages -->
+        <div class="section" id="nameSelectionSection" style="border: 2px solid #fbbf24; background: rgba(251,191,36,0.05); display: none;">
+            <div class="section-title"><span class="emoji">👤</span> اختر اسمك لبدء التطبيق</div>
+            <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">اختر اسمك الثلاثي عشان نقدر نتابعك ونشجعك! 💙</p>
+            <select id="nameSelect">
+                <option value="">-- اختر اسمك الثلاثي --</option>
+            </select>
+            <button class="btn btn-gold" onclick="confirmNameSelection()" style="margin-top: 10px;">تأكيد الاسم ✅</button>
+        </div>
+
+        <!-- Welcome Message (shown after name is selected) -->
+        <div id="welcomeMessageSection" style="display:none; margin-bottom: 20px; padding: 20px; background: linear-gradient(135deg, rgba(102,126,234,0.15), rgba(251,191,36,0.15)); border-radius: 20px; text-align: center; border: 2px solid #fbbf24; animation: slideDown 0.8s ease;">
+            <div style="font-size: 48px; margin-bottom: 10px;">👋</div>
+            <div id="welcomeText" style="font-size: 22px; font-weight: 800; color: var(--text-primary); margin-bottom: 8px;"></div>
+            <div style="font-size: 14px; color: var(--text-secondary);">ربنا يفرح قلبك ويقويك! 💙</div>
         </div>
 
         <!-- Admin Alert -->
@@ -1251,6 +1376,11 @@ function startApp() {
         });
         box.scrollTop = box.scrollHeight;
     });
+    
+    // التحقق من رسائل التشجيع
+    setTimeout(() => {
+        checkEncouragementMessages();
+    }, 2000);
 }
 
 // ===== LEADERBOARD =====
@@ -1258,27 +1388,32 @@ function updateLeaderboardUI(data) {
     const selectQuiz = document.getElementById('userNameListQuiz');
     const selectPrayer = document.getElementById('prayerUserName');
     const selectAttendance = document.getElementById('attendanceNameSelect');
+    const selectName = document.getElementById('nameSelect');
     const list = document.getElementById('leaderboard');
     if (!list) return;
 
     const curQ = selectQuiz ? selectQuiz.value : "";
     const curP = selectPrayer ? selectPrayer.value : "";
     const curA = selectAttendance ? selectAttendance.value : "";
+    const curN = selectName ? selectName.value : "";
 
     if (selectQuiz) selectQuiz.innerHTML = '<option value="">-- اختر اسمك --</option>';
     if (selectPrayer) selectPrayer.innerHTML = '<option value="">-- اختر اسمك الثلاثي --</option>';
     if (selectAttendance) selectAttendance.innerHTML = '<option value="">-- اختر اسمك --</option>';
+    if (selectName) selectName.innerHTML = '<option value="">-- اختر اسمك الثلاثي --</option>';
 
     list.innerHTML = "";
     Object.values(data).sort((a,b) => a.name.localeCompare(b.name)).forEach(p => {
         if (selectQuiz) selectQuiz.innerHTML += `<option value="${p.name}">${p.name}</option>`;
         if (selectPrayer) selectPrayer.innerHTML += `<option value="${p.name}">${p.name}</option>`;
         if (selectAttendance) selectAttendance.innerHTML += `<option value="${p.name}">${p.name}</option>`;
+        if (selectName) selectName.innerHTML += `<option value="${p.name}">${p.name}</option>`;
     });
 
     if (selectQuiz) selectQuiz.value = curQ;
     if (selectPrayer) selectPrayer.value = curP;
     if (selectAttendance) selectAttendance.value = curA;
+    if (selectName) selectName.value = curN;
 
     Object.values(data).sort((a,b) => b.score - a.score).forEach(p => {
         // Get breakdown from localStorage
@@ -1894,6 +2029,268 @@ window.addEventListener('DOMContentLoaded', function() {
 function toggleCardView(cardElement) {
     cardElement.classList.toggle('expanded');
 }
+
+// ===== نظام رسائل التشجيع =====
+
+function checkEncouragementMessages() {
+    const userName = document.getElementById('nameSelect')?.value;
+    if (!userName) return;
+    
+    db.ref("encouragement_messages").orderByChild("to").equalTo(userName)
+        .once("value", snap => {
+            const unreadMessages = [];
+            snap.forEach(child => {
+                const msg = child.val();
+                if (!msg.read) {
+                    unreadMessages.push({
+                        id: child.key,
+                        ...msg
+                    });
+                }
+            });
+            
+            if (unreadMessages.length > 0) {
+                showEncouragementBadge(unreadMessages.length);
+                // عرض أول رسالة فقط
+                showEncouragementPopup(unreadMessages[0]);
+            } else {
+                // إخفاء البادج لو مفيش رسائل
+                const badge = document.getElementById('encouragementBadge');
+                if (badge) badge.style.display = 'none';
+            }
+        });
+}
+
+// دالة جديدة لعرض الرسالة التالية
+function showNextEncouragementMessage() {
+    const userName = document.getElementById('nameSelect')?.value;
+    if (!userName) return;
+    
+    db.ref("encouragement_messages").orderByChild("to").equalTo(userName)
+        .once("value", snap => {
+            const unreadMessages = [];
+            snap.forEach(child => {
+                const msg = child.val();
+                if (!msg.read) {
+                    unreadMessages.push({
+                        id: child.key,
+                        ...msg
+                    });
+                }
+            });
+            
+            if (unreadMessages.length > 0) {
+                showEncouragementBadge(unreadMessages.length);
+                showEncouragementPopup(unreadMessages[0]);
+            } else {
+                // مفيش رسائل تانية - إخفاء البادج
+                const badge = document.getElementById('encouragementBadge');
+                if (badge) badge.style.display = 'none';
+            }
+        });
+}
+
+function showEncouragementBadge(count) {
+    let badge = document.getElementById('encouragementBadge');
+    if (!badge) {
+        badge = document.createElement('div');
+        badge.id = 'encouragementBadge';
+        badge.className = 'encouragement-badge';
+        badge.onclick = () => {
+            // عند الضغط على البادج، اعرض الرسائل المتبقية
+            showNextEncouragementMessage();
+        };
+        document.body.appendChild(badge);
+    }
+    badge.innerHTML = `<div style="font-size:20px; margin-bottom:2px;">💌</div><div style="font-size:12px;">${count} ${count === 1 ? 'رسالة' : 'رسائل'}</div>`;
+    badge.style.display = 'block';
+    badge.title = 'اضغط لقراءة الرسائل';
+}
+
+function showEncouragementPopup(message) {
+    // إزالة أي نافذة موجودة
+    const existingPopup = document.querySelector('.encouragement-popup');
+    if (existingPopup) existingPopup.remove();
+    
+    const popup = document.createElement('div');
+    popup.className = 'encouragement-popup';
+    popup.innerHTML = `
+        <button class="close-btn" onclick="closeEncouragementPopup('${message.id}')">✕</button>
+        <div style="font-size:48px; text-align:center; margin-bottom:10px;">💙</div>
+        <div style="font-size:22px; font-weight:900; color:white; text-align:center; margin-bottom:15px;">
+            رسالة من الخدام
+        </div>
+        <div class="message-content">${message.message.replace(/\n/g, '<br>')}</div>
+        <div class="from-tag">💝 من: ${message.from}</div>
+        <div style="text-align:center; margin-top:15px;">
+            <button onclick="closeEncouragementPopup('${message.id}')" style="background:rgba(255,255,255,0.25); color:white; border:none; padding:10px 25px; border-radius:25px; font-weight:700; cursor:pointer; font-family:'Cairo',sans-serif; font-size:14px; transition:0.3s;">
+                تمام، شكرًا! 🙏
+            </button>
+        </div>
+    `;
+    document.body.appendChild(popup);
+    
+    // تشغيل صوت تنبيه لطيف
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 800;
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+    } catch(e) {
+        // تجاهل الخطأ لو الصوت مش مدعوم
+    }
+    
+    // تشغيل كونفيتي
+    if (typeof confetti !== 'undefined') {
+        confetti({ particleCount: 80, spread: 60, origin: { y: 0.4 } });
+    }
+}
+
+function closeEncouragementPopup(messageId) {
+    const popup = document.querySelector('.encouragement-popup');
+    if (popup) {
+        popup.style.animation = 'fadeOut 0.3s ease';
+        setTimeout(() => {
+            popup.remove();
+            // علّم الرسالة كمقروءة
+            markMessageAsRead(messageId);
+            // استنى نص ثانية وبعدين اعرض الرسالة التالية لو موجودة
+            setTimeout(() => {
+                showNextEncouragementMessage();
+            }, 500);
+        }, 300);
+    }
+}
+
+function markMessageAsRead(messageId) {
+    db.ref(`encouragement_messages/${messageId}`).update({ read: true });
+    
+    // تحديث البادج
+    const userName = document.getElementById('nameSelect')?.value;
+    if (!userName) return;
+    
+    db.ref("encouragement_messages").orderByChild("to").equalTo(userName)
+        .once("value", snap => {
+            let unreadCount = 0;
+            snap.forEach(child => {
+                if (!child.val().read) unreadCount++;
+            });
+            
+            const badge = document.getElementById('encouragementBadge');
+            if (unreadCount === 0) {
+                if (badge) badge.style.display = 'none';
+            } else {
+                showEncouragementBadge(unreadCount);
+            }
+        });
+}
+
+// دالة لتأكيد اختيار الاسم
+function confirmNameSelection() {
+    const nameSelect = document.getElementById('nameSelect');
+    const selectedName = nameSelect?.value;
+    
+    if (!selectedName) {
+        alert('من فضلك اختر اسمك أولاً!');
+        return;
+    }
+    
+    // حفظ الاسم
+    localStorage.setItem('selected_user_name', selectedName);
+    
+    // إخفاء قسم اختيار الاسم
+    document.getElementById('nameSelectionSection').style.display = 'none';
+    
+    // عرض رسالة الترحيب
+    showWelcomeMessage(selectedName);
+    
+    // عرض الاسم في الهيدر
+    displayUserNameInHeader(selectedName);
+    
+    // كونفيتي احتفالي
+    if (typeof confetti !== 'undefined') {
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+    }
+    
+    // التحقق من رسائل التشجيع بعد 2 ثانية
+    setTimeout(checkEncouragementMessages, 2000);
+}
+
+// دالة لعرض رسالة الترحيب
+function showWelcomeMessage(name) {
+    const welcomeSection = document.getElementById('welcomeMessageSection');
+    const welcomeText = document.getElementById('welcomeText');
+    
+    if (welcomeSection && welcomeText) {
+        welcomeText.innerHTML = `أهلاً يا ${name}! 🎉`;
+        welcomeSection.style.display = 'block';
+        
+        // إخفاء الرسالة بعد 10 ثواني
+        setTimeout(() => {
+            welcomeSection.style.animation = 'fadeOutUp 0.8s ease';
+            setTimeout(() => {
+                welcomeSection.style.display = 'none';
+                welcomeSection.style.animation = 'slideDown 0.8s ease'; // إرجاع الأنيميشن الأصلي
+            }, 800);
+        }, 10000);
+    }
+}
+
+// دالة لعرض الاسم في الهيدر بشكل متحرك
+function displayUserNameInHeader(name) {
+    const userNameDisplay = document.getElementById('userNameDisplay');
+    if (userNameDisplay) {
+        userNameDisplay.innerHTML = `👤 ${name}`;
+        userNameDisplay.style.display = 'block';
+        // إضافة تأثير ظهور
+        userNameDisplay.style.animation = 'slideInRight 0.8s ease, wave 2s ease-in-out 0.8s infinite';
+    }
+}
+
+// دالة لتغيير اسم المستخدم (يحدث فقط عند مسح بيانات المتصفح)
+function changeUserName() {
+    // إخفاء رسالة الترحيب
+    document.getElementById('welcomeMessageSection').style.display = 'none';
+    
+    // إخفاء الاسم من الهيدر
+    document.getElementById('userNameDisplay').style.display = 'none';
+    
+    // إظهار قسم اختيار الاسم
+    document.getElementById('nameSelectionSection').style.display = 'block';
+    
+    // مسح الاسم المحفوظ
+    localStorage.removeItem('selected_user_name');
+}
+
+// التحقق من الرسائل عند اختيار الاسم
+const nameSelectElement = document.getElementById('nameSelect');
+if (nameSelectElement) {
+    // استرجاع الاسم المحفوظ عند تحميل الصفحة
+    const savedName = localStorage.getItem('selected_user_name');
+    if (savedName) {
+        // إذا كان الاسم محفوظ، عرض رسالة الترحيب مباشرة
+        setTimeout(() => {
+            showWelcomeMessage(savedName);
+            displayUserNameInHeader(savedName);
+            checkEncouragementMessages();
+        }, 1000);
+    } else {
+        // إذا لم يكن هناك اسم محفوظ، إظهار قسم الاختيار
+        document.getElementById('nameSelectionSection').style.display = 'block';
+    }
+}
+
 </script>
 </body>
 </html>
