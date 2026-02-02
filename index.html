@@ -2033,14 +2033,20 @@ function toggleCardView(cardElement) {
 // ===== نظام رسائل التشجيع =====
 
 function checkEncouragementMessages() {
-    const userName = document.getElementById('nameSelect')?.value;
-    if (!userName) return;
+    // استخدام الاسم المحفوظ بدلاً من القائمة المنسدلة
+    const userName = localStorage.getItem('selected_user_name');
+    console.log('🔍 Checking messages for:', userName);
+    if (!userName) {
+        console.log('❌ No user name found');
+        return;
+    }
     
     db.ref("encouragement_messages").orderByChild("to").equalTo(userName)
         .once("value", snap => {
             const unreadMessages = [];
             snap.forEach(child => {
                 const msg = child.val();
+                console.log('📨 Found message:', msg);
                 if (!msg.read) {
                     unreadMessages.push({
                         id: child.key,
@@ -2049,11 +2055,14 @@ function checkEncouragementMessages() {
                 }
             });
             
+            console.log('📬 Total unread messages:', unreadMessages.length);
+            
             if (unreadMessages.length > 0) {
                 showEncouragementBadge(unreadMessages.length);
                 // عرض أول رسالة فقط
                 showEncouragementPopup(unreadMessages[0]);
             } else {
+                console.log('✅ No unread messages');
                 // إخفاء البادج لو مفيش رسائل
                 const badge = document.getElementById('encouragementBadge');
                 if (badge) badge.style.display = 'none';
@@ -2063,7 +2072,8 @@ function checkEncouragementMessages() {
 
 // دالة جديدة لعرض الرسالة التالية
 function showNextEncouragementMessage() {
-    const userName = document.getElementById('nameSelect')?.value;
+    // استخدام الاسم المحفوظ بدلاً من القائمة المنسدلة
+    const userName = localStorage.getItem('selected_user_name');
     if (!userName) return;
     
     db.ref("encouragement_messages").orderByChild("to").equalTo(userName)
@@ -2177,7 +2187,7 @@ function markMessageAsRead(messageId) {
     db.ref(`encouragement_messages/${messageId}`).update({ read: true });
     
     // تحديث البادج
-    const userName = document.getElementById('nameSelect')?.value;
+    const userName = localStorage.getItem('selected_user_name');
     if (!userName) return;
     
     db.ref("encouragement_messages").orderByChild("to").equalTo(userName)
