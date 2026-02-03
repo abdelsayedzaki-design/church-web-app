@@ -1416,8 +1416,8 @@ function updateLeaderboardUI(data) {
     if (selectName) selectName.value = curN;
 
     Object.values(data).sort((a,b) => b.score - a.score).forEach(p => {
-        // Get breakdown from localStorage
-        const breakdown = JSON.parse(localStorage.getItem('points_breakdown_' + p.name) || '{}');
+        // Get breakdown from Firebase instead of localStorage
+        const breakdown = p.breakdown || {};
         const quizPoints = breakdown.quiz || 0;
         const prayerPoints = breakdown.prayer || 0;
         const attendancePoints = breakdown.attendance || 0;
@@ -1464,36 +1464,45 @@ function updateLeaderboardUI(data) {
 
 // ===== SHOW POINTS BREAKDOWN =====
 function showPointsBreakdown(name, totalScore) {
-    const breakdown = JSON.parse(localStorage.getItem('points_breakdown_' + name) || '{}');
-    const quizPoints = breakdown.quiz || 0;
-    const prayerPoints = breakdown.prayer || 0;
-    const attendancePoints = breakdown.attendance || 0;
-    
-    // Calculate max for scaling
-    const maxPoints = Math.max(quizPoints, prayerPoints, attendancePoints, 1);
-    
-    // Calculate heights as percentages
-    const quizHeight = (quizPoints / maxPoints) * 100;
-    const prayerHeight = (prayerPoints / maxPoints) * 100;
-    const attendanceHeight = (attendancePoints / maxPoints) * 100;
-    
-    const modal = document.getElementById('pointsModal');
-    document.getElementById('modalName').textContent = name;
-    document.getElementById('modalTotalScore').textContent = totalScore;
-    
-    // Set bar heights with animation
-    setTimeout(() => {
-        document.getElementById('quizBar').style.height = quizHeight + '%';
-        document.getElementById('prayerBar').style.height = prayerHeight + '%';
-        document.getElementById('attendanceBar').style.height = attendanceHeight + '%';
-    }, 100);
-    
-    // Update values
-    document.getElementById('quizPoints').textContent = quizPoints;
-    document.getElementById('prayerPoints').textContent = prayerPoints;
-    document.getElementById('attendancePoints').textContent = attendancePoints;
-    
-    modal.style.display = 'flex';
+    // Get breakdown from Firebase
+    db.ref("points_data").once("value", snap => {
+        let breakdown = {};
+        snap.forEach(child => {
+            if (child.val().name === name) {
+                breakdown = child.val().breakdown || {};
+            }
+        });
+        
+        const quizPoints = breakdown.quiz || 0;
+        const prayerPoints = breakdown.prayer || 0;
+        const attendancePoints = breakdown.attendance || 0;
+        
+        // Calculate max for scaling
+        const maxPoints = Math.max(quizPoints, prayerPoints, attendancePoints, 1);
+        
+        // Calculate heights as percentages
+        const quizHeight = (quizPoints / maxPoints) * 100;
+        const prayerHeight = (prayerPoints / maxPoints) * 100;
+        const attendanceHeight = (attendancePoints / maxPoints) * 100;
+        
+        const modal = document.getElementById('pointsModal');
+        document.getElementById('modalName').textContent = name;
+        document.getElementById('modalTotalScore').textContent = totalScore;
+        
+        // Set bar heights with animation
+        setTimeout(() => {
+            document.getElementById('quizBar').style.height = quizHeight + '%';
+            document.getElementById('prayerBar').style.height = prayerHeight + '%';
+            document.getElementById('attendanceBar').style.height = attendanceHeight + '%';
+        }, 100);
+        
+        // Update values
+        document.getElementById('quizPoints').textContent = quizPoints;
+        document.getElementById('prayerPoints').textContent = prayerPoints;
+        document.getElementById('attendancePoints').textContent = attendancePoints;
+        
+        modal.style.display = 'flex';
+    });
 }
 
 function closePointsModal() {
@@ -1551,12 +1560,20 @@ function sendMutualPrayer() {
         db.ref("points_data").once("value", snap => {
             snap.forEach(child => {
                 if (child.val().name === name) {
-                    child.ref.update({ score: (child.val().score || 0) + 5 });
+                    const currentScore = child.val().score || 0;
+                    const currentBreakdown = child.val().breakdown || {};
                     
-                    // Track points breakdown
-                    const breakdown = JSON.parse(localStorage.getItem('points_breakdown_' + name) || '{}');
-                    breakdown.prayer = (breakdown.prayer || 0) + 5;
-                    localStorage.setItem('points_breakdown_' + name, JSON.stringify(breakdown));
+                    // Update breakdown in Firebase
+                    const newBreakdown = {
+                        quiz: currentBreakdown.quiz || 0,
+                        prayer: (currentBreakdown.prayer || 0) + 5,
+                        attendance: currentBreakdown.attendance || 0
+                    };
+                    
+                    child.ref.update({ 
+                        score: currentScore + 5,
+                        breakdown: newBreakdown
+                    });
                 }
             });
         });
@@ -1657,12 +1674,20 @@ async function submitQuiz() {
     db.ref("points_data").once("value", snap => {
         snap.forEach(child => { 
             if (child.val().name === selectedQuizStudentName) {
-                child.ref.update({ score: (child.val().score || 0) + finalPoints });
+                const currentScore = child.val().score || 0;
+                const currentBreakdown = child.val().breakdown || {};
                 
-                // Track points breakdown
-                const breakdown = JSON.parse(localStorage.getItem('points_breakdown_' + selectedQuizStudentName) || '{}');
-                breakdown.quiz = (breakdown.quiz || 0) + finalPoints;
-                localStorage.setItem('points_breakdown_' + selectedQuizStudentName, JSON.stringify(breakdown));
+                // Update breakdown in Firebase
+                const newBreakdown = {
+                    quiz: (currentBreakdown.quiz || 0) + finalPoints,
+                    prayer: currentBreakdown.prayer || 0,
+                    attendance: currentBreakdown.attendance || 0
+                };
+                
+                child.ref.update({ 
+                    score: currentScore + finalPoints,
+                    breakdown: newBreakdown
+                });
             }
         });
     });
@@ -1976,12 +2001,20 @@ function submitAttendance(type, inputId) {
     db.ref("points_data").once("value", snap => {
         snap.forEach(child => {
             if (child.val().name === name) {
-                child.ref.update({ score: (child.val().score || 0) + 5 });
+                const currentScore = child.val().score || 0;
+                const currentBreakdown = child.val().breakdown || {};
                 
-                // Track points breakdown
-                const breakdown = JSON.parse(localStorage.getItem('points_breakdown_' + name) || '{}');
-                breakdown.attendance = (breakdown.attendance || 0) + 5;
-                localStorage.setItem('points_breakdown_' + name, JSON.stringify(breakdown));
+                // Update breakdown in Firebase
+                const newBreakdown = {
+                    quiz: currentBreakdown.quiz || 0,
+                    prayer: currentBreakdown.prayer || 0,
+                    attendance: (currentBreakdown.attendance || 0) + 5
+                };
+                
+                child.ref.update({ 
+                    score: currentScore + 5,
+                    breakdown: newBreakdown
+                });
             }
         });
     });
