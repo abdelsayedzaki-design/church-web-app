@@ -1337,14 +1337,21 @@
             <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">اختر اسمك أولاً ثم سجل حضورك لمرة واحدة يومياً:</p>
             <select id="attendanceNameSelect"><option value="">-- اختر اسمك --</option></select>
             <div class="attendance-row">
-                <span>☦️ القداس:</span>
-                <input type="text" id="liturgyDay" placeholder="يوم إيه؟">
-                <button class="btn btn-success" onclick="submitAttendance('قداس','liturgyDay')">إرسال</button>
+                <span>☦️ القداس النهارده:</span>
+                <input type="time" id="massTime" placeholder="الساعة كام؟" style="width:100px;">
+                <input type="text" id="priestName" placeholder="أبونا مين؟" style="width:120px;">
+                <button class="btn btn-success" onclick="submitAttendance('قداس','liturgyDay')">✅ سجل</button>
             </div>
             <div class="attendance-row">
                 <span>🤝 الخدمة:</span>
                 <input type="text" id="serviceDay" placeholder="يوم إيه؟">
                 <button class="btn btn-success" onclick="submitAttendance('خدمة','serviceDay')">إرسال</button>
+            </div>
+            <div id="serviceWarning" style="display:none; background:#fef3c7; color:#78350f; padding:10px; border-radius:8px; margin-top:10px; font-size:13px; font-weight:600;">
+                ⚠️ يمكن إضافة الخدمة يوم الجمعة فقط!
+            </div>
+            <div id="massWarning" style="display:none; background:#fee2e2; color:#7f1d1d; padding:10px; border-radius:8px; margin-top:10px; font-size:13px; font-weight:600;">
+                ❌ لازم تسجل القداس النهارده فقط!
             </div>
         </div>
 
@@ -2666,7 +2673,7 @@ async function checkDailyAttendanceLimit(type, name) {
                     // الاسم سجل اليوم
                     resolve({ 
                         blocked: true, 
-                        reason: `لقد سجلت حضور ${type} اليوم بالفعل باسم "${name}"!` 
+                        reason: `❌ الاسم "${name}" سجل حضور ${type} النهارده بالفعل!\nمينفعش تسجل مرتين حتى لو من جهاز تاني.` 
                     });
                 } else {
                     // التحقق من التسجيل بواسطة الجهاز
@@ -2682,7 +2689,7 @@ async function checkDailyAttendanceLimit(type, name) {
                                 });
                                 resolve({ 
                                     blocked: true, 
-                                    reason: `هذا الجهاز سجل اليوم بالفعل باسم "${registeredName}"!\nلا يمكن التسجيل لشخص آخر.` 
+                                    reason: `❌ الجهاز ده سجل النهارده باسم "${registeredName}"!\nمينفعش تسجل لشخص تاني من نفس الجهاز.` 
                                 });
                             } else {
                                 // لم يتم التسجيل - مسموح
@@ -2712,11 +2719,56 @@ async function recordDailyAttendance(type, name) {
 
 async function submitAttendance(type, inputId) {
     const name = document.getElementById('attendanceNameSelect').value;
-    const day = document.getElementById(inputId).value.trim();
     const today = new Date().toLocaleDateString();
+    const serviceWarning = document.getElementById('serviceWarning');
+    const massWarning = document.getElementById('massWarning');
 
     if (!name) return alert("من فضلك اختر اسمك أولاً!");
-    if (!day) return alert("من فضلك اكتب يوم إيه!");
+
+    // إخفاء رسائل التحذير
+    if (serviceWarning) serviceWarning.style.display = 'none';
+    if (massWarning) massWarning.style.display = 'none';
+
+    let day = '';
+    let massTime = '';
+    let priestName = '';
+
+    if (type === 'قداس') {
+        // القداس: نفس اليوم تلقائياً
+        const todayDate = new Date();
+        const days = ['الأحد', 'الاتنين', 'التلات', 'الأربع', 'الخميس', 'الجمعة', 'السبت'];
+        day = days[todayDate.getDay()];
+        
+        massTime = document.getElementById('massTime')?.value || '';
+        priestName = document.getElementById('priestName')?.value.trim() || '';
+        
+        if (!massTime) {
+            alert("من فضلك اكتب حضرت القداس الساعة كام؟ 🕐");
+            return;
+        }
+        if (!priestName) {
+            alert("من فضلك اكتب أبونا مين كان موجود؟ ⛪");
+            return;
+        }
+    } else if (type === 'خدمة') {
+        // الخدمة: التحقق من يوم الجمعة
+        const currentDay = new Date().getDay();
+        if (currentDay !== 5) { // 5 = الجمعة
+            if (serviceWarning) {
+                serviceWarning.style.display = 'block';
+                setTimeout(() => {
+                    serviceWarning.style.display = 'none';
+                }, 5000);
+            }
+            return;
+        }
+        
+        day = document.getElementById(inputId).value.trim();
+        if (!day) {
+            alert("من فضلك اكتب يوم إيه!");
+            return;
+        }
+    }
 
     // التحقق من الحد اليومي باستخدام Firebase
     const limitCheck = await checkDailyAttendanceLimit(type, name);
@@ -2748,14 +2800,34 @@ async function submitAttendance(type, inputId) {
         });
     });
 
-    db.ref("attendance_logs").push({ makhdom: name, type, day, submittedAt: new Date().toLocaleString() });
+    // حفظ البيانات مع الحقول الإضافية
+    const logData = { 
+        makhdom: name, 
+        type, 
+        day, 
+        submittedAt: new Date().toLocaleString() 
+    };
+    
+    if (type === 'قداس') {
+        logData.massTime = massTime;
+        logData.priestName = priestName;
+    }
+    
+    db.ref("attendance_logs").push(logData);
     
     // الـ localStorage للتوافق مع الكود القديم فقط
     const lockKey = `lock_${type}_${name}_${today}`;
     localStorage.setItem(lockKey, "true");
     
     alert(`تم إضافة ٥ درجات حضور ${type} بنجاح ✅`);
-    document.getElementById(inputId).value = "";
+    
+    if (type === 'قداس') {
+        document.getElementById('massTime').value = "";
+        document.getElementById('priestName').value = "";
+    } else {
+        document.getElementById(inputId).value = "";
+    }
+    
     confetti({ particleCount: 100, spread: 70, origin: { y: 0.8 } });
 }
 
