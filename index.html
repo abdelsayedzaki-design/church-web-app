@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -810,6 +811,155 @@
             .verse-text { font-size: 15px; }
             .section-title { font-size: 17px; }
         }
+
+        /* ========== مميزات جديدة: شارات الإنجازات (Badges) ========== */
+        .achievement-badge-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .achievement-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        @keyframes badgeAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.5) rotate(-10deg);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        .badge-gold {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #78350f;
+            box-shadow: 0 2px 8px rgba(251,191,36,0.3);
+        }
+
+        .badge-silver {
+            background: linear-gradient(135deg, #e5e7eb, #9ca3af);
+            color: #374151;
+            box-shadow: 0 2px 8px rgba(156,163,175,0.3);
+        }
+
+        .badge-bronze {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #78350f;
+            box-shadow: 0 2px 8px rgba(217,119,6,0.3);
+        }
+
+        .badge-blue {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            box-shadow: 0 2px 8px rgba(59,130,246,0.3);
+        }
+
+
+
+
+        /* ========== تنبيهات تفاعلية محسّنة ========== */
+        .interactive-notification {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            color: white;
+            padding: 18px 30px;
+            border-radius: 50px;
+            box-shadow: 0 8px 30px rgba(102,126,234,0.4);
+            z-index: 999;
+            font-weight: 700;
+            font-size: 16px;
+            animation: notificationSlide 0.5s ease, notificationBounce 2s ease-in-out infinite;
+            display: none;
+        }
+
+        @keyframes notificationSlide {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        @keyframes notificationBounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-8px); }
+        }
+
+        /* ========== تحسينات تصميم إضافية ========== */
+        
+        /* أنيميشن أحلى وأنعم */
+        .smooth-entrance {
+            animation: smoothEntrance 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes smoothEntrance {
+            from {
+                opacity: 0;
+                transform: scale(0.8) rotate(-5deg);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        /* ألوان أكثر جاذبية */
+        .gradient-text {
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2), var(--accent-3));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 900;
+        }
+
+        /* تجاوب أفضل مع الموبايل */
+        @media (max-width: 768px) {
+            .achievement-badge-container {
+                justify-content: center;
+            }
+
+            .level-number {
+                font-size: 56px;
+            }
+
+            .level-title {
+                font-size: 20px;
+            }
+
+            .progress-chart-container,
+            .weekly-goals-container,
+            .level-system-container {
+                padding: 15px;
+            }
+        }
+
+        /* وضع داكن محسّن */
+        [data-theme="dark"] .goal-item {
+            background: var(--bg-card);
+        }
+
+        [data-theme="dark"] .progress-chart-container {
+            background: var(--bg-card);
+            border: 1px solid rgba(102,126,234,0.2);
+        }
     </style>
 </head>
 <body>
@@ -868,6 +1018,24 @@
             <div style="font-size: 14px; color: var(--text-secondary);">ربنا يفرح قلبك ويقويك! 💙</div>
         </div>
 
+
+
+        <!-- ========== شارات الإنجازات - صغيرة على جنب ========== -->
+        <div id="badgesSection" style="display:none; margin-bottom: 15px;">
+            <div style="display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; background: rgba(102,126,234,0.05); border-radius: 12px;" id="userBadgesContainer">
+                <!-- سيتم ملؤها ديناميكياً -->
+            </div>
+        </div>
+
+
+
+
+
+        <!-- تنبيه تفاعلي -->
+        <div class="interactive-notification" id="interactiveNotification">
+            <span id="notificationText"></span>
+        </div>
+
         <!-- Admin Alert -->
         <div id="adminAlert">
             <b>📢 تنبيه من الخدام:</b>
@@ -881,6 +1049,11 @@
                 <label>📣 تنبيه الخدام العام:</label>
                 <input type="text" id="newAdminAlert" placeholder="اكتب التنبيه هنا...">
                 <button class="btn btn-success" onclick="updateAdminAlert()">نشر التنبيه 📤</button>
+            </div>
+            <div class="admin-item">
+                <label>🙏 كلمة تشجيع عن الصلاة:</label>
+                <textarea id="prayerEncouragementInput" placeholder="اكتب كلمة تشجيع جميلة عن الصلاة..." style="height: 80px;"></textarea>
+                <button class="btn btn-gold" onclick="updatePrayerEncouragement()">حفظ الكلمة 💝</button>
             </div>
             <div class="admin-item">
                 <label>📖 نتائج المذبح اليومي:</label>
@@ -1000,6 +1173,18 @@
         <!-- Prayer Altar -->
         <div id="mutualPrayerSection" class="section altar-section" style="display:none;">
             <div class="altar-header">✨ مَذْبَح الصَّلَاة اليَوْمِي ✨</div>
+
+            <!-- رسالة تشجيع من الخادم عن الصلاة -->
+            <div id="prayerEncouragementBox" style="background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(240,147,251,0.15)); 
+                border: 2px solid #fbbf24; border-radius: 15px; padding: 15px; margin-bottom: 15px; 
+                text-align: center; display: none;">
+                <div style="font-size: 28px; margin-bottom: 8px;">🙏</div>
+                <div id="prayerEncouragementText" style="color: var(--text-primary); font-weight: 700; 
+                    font-size: 15px; line-height: 1.6;"></div>
+                <div style="color: var(--text-secondary); font-size: 12px; margin-top: 8px; font-style: italic;">
+                    💝 من الخدام
+                </div>
+            </div>
 
             <div style="margin-bottom:16px;">
                 <label class="altar-label">📖 ١. صلاة من الأجبية:</label>
@@ -1192,6 +1377,14 @@ if ('serviceWorker' in navigator) {
 let psySessionID = localStorage.getItem('psy_session_id') || ("User_" + Date.now());
 localStorage.setItem('psy_session_id', psySessionID);
 
+// ===== نظام منع الحل المتكرر للمسابقة =====
+let currentUserId = null;
+let currentUserName = null;
+
+function getUserId(userName) {
+    return userName.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_\u0600-\u06FF]/g, '');
+}
+
 // ===== BIBLE VERSES =====
 const bibleVerses = [
     {t:"لاَ تَخَفْ لأَنِّي مَعَكَ. لاَ تَتَلَفَّتْ لأَنِّي إِلهُكَ. قَدْ أَيَّدْتُكَ وَأَعَنْتُكَ وَعَضَدْتُكَ بِيَمِينِ بِرِّي.",r:"إشعياء 41: 10"},
@@ -1280,12 +1473,27 @@ function loadAdminData() {
             list.innerHTML += `<div class="prayer-result-item"><b>${d.makhdom}:</b> صلى ${d.duration} <br><small>${d.time}</small></div>`;
         });
     });
+    
+    // تحميل كلمة التشجيع الحالية
+    db.ref("prayer_encouragement").once("value", snap => {
+        const encouragement = snap.val();
+        if (encouragement) {
+            document.getElementById('prayerEncouragementInput').value = encouragement;
+        }
+    });
 }
 
 function updateAdminAlert() {
     const val = document.getElementById('newAdminAlert').value;
     db.ref("admin_announcement").set(val);
     alert("تم النشر ✅");
+}
+
+function updatePrayerEncouragement() {
+    const val = document.getElementById('prayerEncouragementInput').value.trim();
+    if (!val) return alert("اكتب كلمة تشجيع!");
+    db.ref("prayer_encouragement").set(val);
+    alert("تم حفظ الكلمة بنجاح! 💝");
 }
 
 // ===== VERSE =====
@@ -1327,6 +1535,20 @@ function startApp() {
         const text = snap.val();
         document.getElementById('adminAlert').style.display = (text && text.trim() !== "") ? 'block' : 'none';
         document.getElementById('alertText').innerText = text;
+    });
+
+    // الاستماع لكلمة التشجيع عن الصلاة
+    db.ref("prayer_encouragement").on("value", snap => {
+        const encouragement = snap.val();
+        const box = document.getElementById('prayerEncouragementBox');
+        const text = document.getElementById('prayerEncouragementText');
+        
+        if (encouragement && encouragement.trim() !== "") {
+            text.innerText = encouragement;
+            box.style.display = 'block';
+        } else {
+            box.style.display = 'none';
+        }
     });
 
     db.ref("settings/quizEnabled").on("value", snap => {
@@ -1533,9 +1755,28 @@ function listenToAdminPrayers() {
 function sendMutualPrayer() {
     const name = document.getElementById('prayerUserName').value;
     const durationValue = document.getElementById('prayerDuration').value.trim();
+    const agpeya = document.getElementById('agpeyaText').value.trim();
+    const thanks = document.getElementById('prayThank').value.trim();
+    const forgive = document.getElementById('prayForgive').value.trim();
+    const verse = document.getElementById('bibleVerseText').value.trim();
 
+    // التحقق من الاسم
     if (!name) return alert("اكتب اسمك الثلاثي ❤️");
+    
+    // التحقق من المدة
     if (!durationValue) return alert("حدد مدة الصلاة بالدقائق ⏱️");
+    
+    // التحقق من صلاة الأجبية
+    if (!agpeya) return alert("اكتب صلاة من الأجبية 📖");
+    
+    // التحقق من صلاة الشكر
+    if (!thanks) return alert("اكتب شكرك لربنا 🙏");
+    
+    // التحقق من صلاة المغفرة
+    if (!forgive) return alert("اكتب طلب المغفرة والخضوع 💙");
+    
+    // التحقق من الآية
+    if (!verse) return alert("اكتب آية من الكتاب المقدس 📜");
 
     const lastPrayerDate = localStorage.getItem('last_prayer_submit_date');
     const todayDate = new Date().toLocaleDateString();
@@ -1548,12 +1789,12 @@ function sendMutualPrayer() {
         time: new Date().toLocaleString(),
         duration: durationValue + " دقيقة",
         metania: { done: document.getElementById('metaniaDone').checked, count: document.getElementById('metaniaCount').value || 0 },
-        agpeya: document.getElementById('agpeyaText').value,
-        thanks: document.getElementById('prayThank').value,
-        forgive: document.getElementById('prayForgive').value,
+        agpeya: agpeya,
+        thanks: thanks,
+        forgive: forgive,
         heart: document.getElementById('prayHeart').value,
         union: document.getElementById('prayUnion').value,
-        verse: document.getElementById('bibleVerseText').value
+        verse: verse
     };
 
     db.ref("prayer_reports").push(report).then(() => {
@@ -1577,6 +1818,10 @@ function sendMutualPrayer() {
                 }
             });
         });
+        
+        // ========== نظام تتبع الأيام المتتالية ==========
+        trackPrayerStreak(name);
+        
         localStorage.setItem('last_prayer_submit_date', todayDate);
         alert("تم الإرسال بنجاح يا " + name + "! تم إضافة ٥ درجات لميزانك 🎁");
         document.querySelectorAll('#mutualPrayerSection textarea, #mutualPrayerSection input:not([type="checkbox"])').forEach(el => el.value = "");
@@ -1585,10 +1830,214 @@ function sendMutualPrayer() {
     });
 }
 
+// ========== دالة تتبع الأيام المتتالية للصلاة ==========
+function trackPrayerStreak(userName) {
+    const userId = getUserId(userName);
+    const todayDate = new Date().toLocaleDateString();
+    const yesterdayDate = new Date(Date.now() - 86400000).toLocaleDateString();
+    
+    // جلب بيانات التتابع من Firebase
+    db.ref(`users/${userId}/prayer_streak`).once('value', snapshot => {
+        let streakData = snapshot.val() || { 
+            currentStreak: 0, 
+            longestStreak: 0, 
+            lastPrayerDate: null 
+        };
+        
+        // فحص إذا كانت الصلاة متتالية
+        if (streakData.lastPrayerDate === yesterdayDate) {
+            // يوم متتالي
+            streakData.currentStreak++;
+        } else if (streakData.lastPrayerDate !== todayDate) {
+            // بداية جديدة أو انقطاع
+            streakData.currentStreak = 1;
+        }
+        
+        // تحديث أطول سلسلة
+        if (streakData.currentStreak > streakData.longestStreak) {
+            streakData.longestStreak = streakData.currentStreak;
+        }
+        
+        streakData.lastPrayerDate = todayDate;
+        
+        // حفظ في Firebase
+        db.ref(`users/${userId}/prayer_streak`).set(streakData);
+        
+        // إعطاء شارات وتشجيع
+        checkPrayerBadges(userName, streakData.currentStreak);
+    });
+}
+
+// ========== فحص وإعطاء شارات الصلاة ==========
+function checkPrayerBadges(userName, streak) {
+    const userId = getUserId(userName);
+    
+    // شارات حسب عدد الأيام المتتالية
+    const badges = [
+        { days: 3, id: 'prayer-3days', title: 'مصلي 3 أيام', icon: '🙏', type: 'bronze', message: 'رائع! 3 أيام متتالية من الصلاة! 🙏' },
+        { days: 7, id: 'prayer-week', title: 'أسبوع كامل', icon: '⭐', type: 'silver', message: 'مبروك! أسبوع كامل من الصلاة! ⭐' },
+        { days: 14, id: 'prayer-2weeks', title: 'أسبوعين متواصلين', icon: '🌟', type: 'silver', message: 'ممتاز! أسبوعين من الصلاة المستمرة! 🌟' },
+        { days: 21, id: 'prayer-21days', title: 'محارب صلاة', icon: '💪', type: 'gold', message: 'أنت محارب حقيقي! 21 يوم صلاة! 💪' },
+        { days: 30, id: 'prayer-month', title: 'شهر كامل', icon: '🏆', type: 'gold', message: 'إنجاز عظيم! شهر كامل من الصلاة! 🏆' },
+        { days: 50, id: 'prayer-50days', title: 'الخمسين المقدسة', icon: '✨', type: 'gold', message: 'مذهل! 50 يوم متتالي! ✨' },
+        { days: 100, id: 'prayer-100days', title: 'قديس الصلاة', icon: '👑', type: 'gold', message: 'أنت قديس حقيقي! 100 يوم صلاة! 👑' }
+    ];
+    
+    badges.forEach(badge => {
+        if (streak === badge.days) {
+            // إضافة الشارة
+            addBadgeForUser(userId, badge.id, badge.title, badge.type, badge.icon);
+            
+            // إضافة XP مكافأة
+            const bonusXP = badge.days * 2;
+            addXPForUser(userId, bonusXP, `${badge.days} يوم صلاة متتالية`);
+            
+            // رسالة تشجيع مخصصة
+            showPrayerEncouragement(userName, badge.message, streak);
+            
+            // كونفيتي خاص
+            if (typeof confetti !== 'undefined') {
+                confetti({
+                    particleCount: 200,
+                    spread: 100,
+                    origin: { y: 0.6 },
+                    colors: ['#fbbf24', '#f59e0b', '#d97706']
+                });
+            }
+        }
+    });
+    
+    // رسائل تشجيع يومية
+    if (streak > 0 && streak < 3) {
+        setTimeout(() => {
+            showPrayerEncouragement(userName, `يوم ${streak} من الصلاة! استمر يا ${userName.split(' ')[0]}! 💪`, streak);
+        }, 2000);
+    }
+}
+
+// ========== عرض رسالة تشجيع للصلاة ==========
+function showPrayerEncouragement(userName, message, streak) {
+    const encouragementHTML = `
+        <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                    background: linear-gradient(135deg, #667eea, #764ba2); 
+                    padding: 35px; border-radius: 30px; 
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.4); 
+                    z-index: 10001; max-width: 90%; width: 400px;
+                    animation: popupAppear 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);"
+             id="prayerEncouragementPopup">
+            <div style="font-size: 64px; text-align: center; margin-bottom: 15px; animation: bounce 1s infinite;">🔥</div>
+            <div style="font-size: 24px; font-weight: 900; color: white; text-align: center; margin-bottom: 15px; text-shadow: 0 2px 10px rgba(0,0,0,0.3);">
+                ${streak} ${streak === 1 ? 'يوم' : streak === 2 ? 'يومان' : 'أيام'} متتالية! 🎉
+            </div>
+            <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); 
+                        padding: 20px; border-radius: 20px; color: white; 
+                        font-size: 16px; line-height: 1.8; margin: 15px 0; 
+                        border: 2px solid rgba(255,255,255,0.2); text-align: center;">
+                ${message}
+            </div>
+            <div style="color: rgba(255,255,255,0.9); font-size: 14px; text-align: center; margin-top: 15px;">
+                "صَلُّوا بِلاَ انْقِطَاعٍ" - 1 تسالونيكي 5: 17
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button onclick="closePrayerEncouragement()" 
+                        style="background: rgba(255,255,255,0.3); color: white; border: none; 
+                               padding: 12px 30px; border-radius: 30px; font-weight: 800; 
+                               cursor: pointer; font-family: 'Cairo', sans-serif; font-size: 15px; 
+                               transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                    الحمد لله! 🙏
+                </button>
+            </div>
+        </div>
+        <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.6); 
+                    backdrop-filter: blur(5px); z-index: 10000;" 
+             id="prayerEncouragementOverlay" 
+             onclick="closePrayerEncouragement()"></div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', encouragementHTML);
+}
+
+function closePrayerEncouragement() {
+    const popup = document.getElementById('prayerEncouragementPopup');
+    const overlay = document.getElementById('prayerEncouragementOverlay');
+    if (popup) popup.remove();
+    if (overlay) overlay.remove();
+}
+
 // ===== QUIZ =====
-function startQuiz() {
+
+// دوال التحقق والحفظ للمسابقة
+async function checkIfQuizSubmitted(quizId) {
+    if (!currentUserId) {
+        console.error('User ID not found');
+        return false;
+    }
+    
+    try {
+        const snapshot = await db.ref(`quiz_submissions/${quizId}/${currentUserId}`).once('value');
+        return snapshot.exists();
+    } catch (error) {
+        console.error('Error checking quiz submission:', error);
+        return false;
+    }
+}
+
+async function saveQuizSubmission(quizId, answers, score, max, finalPoints) {
+    if (!currentUserId || !currentUserName) {
+        alert('خطأ: لم يتم التعرف على المستخدم');
+        return false;
+    }
+    
+    try {
+        await db.ref(`quiz_submissions/${quizId}/${currentUserId}`).set({
+            userName: currentUserName,
+            userId: currentUserId,
+            answers: answers,
+            score: score,
+            max: max,
+            finalPoints: finalPoints,
+            timestamp: Date.now(),
+            submittedAt: new Date().toLocaleString()
+        });
+        return true;
+    } catch (error) {
+        console.error('Error saving quiz submission:', error);
+        alert('حدث خطأ أثناء حفظ الإجابة. حاول مرة أخرى.');
+        return false;
+    }
+}
+
+async function showAlreadySubmittedQuizMessage(quizId) {
+    try {
+        const snapshot = await db.ref(`quiz_submissions/${quizId}/${currentUserId}`).once('value');
+        if (snapshot.exists()) {
+            const data = snapshot.val();
+            alert(`⛔ لقد قمت بحل هذه المسابقة مسبقاً!\n\n📊 درجتك السابقة: ${data.score}/${data.max}\n🎯 النقاط: ${data.finalPoints}\n\n❌ لا يمكنك الحل مرة أخرى.`);
+        } else {
+            alert('⛔ لقد قمت بحل هذه المسابقة مسبقاً!\n\n❌ لا يمكنك الحل مرة أخرى.');
+        }
+    } catch (error) {
+        alert('⛔ لقد قمت بحل هذه المسابقة مسبقاً!\n\n❌ لا يمكنك الحل مرة أخرى.');
+    }
+}
+
+async function startQuiz() {
     selectedQuizStudentName = document.getElementById('userNameListQuiz').value;
     if (!selectedQuizStudentName) return alert("اختر اسمك أولاً");
+    
+    // تحديد معرف المسابقة
+    const currentQuizId = 'current_quiz_2026';
+    
+    // التحقق من الحل المسبق في Firebase
+    const alreadySubmitted = await checkIfQuizSubmitted(currentQuizId);
+    
+    if (alreadySubmitted) {
+        await showAlreadySubmittedQuizMessage(currentQuizId);
+        localStorage.setItem('quiz_bound_name', selectedQuizStudentName);
+        showFinishedStatus();
+        return;
+    }
+    
     const boundName = localStorage.getItem('quiz_bound_name');
     if (boundName && boundName !== selectedQuizStudentName) {
         return alert(`هذا الجهاز مسجل باسم (${boundName}). لا يمكنك الحل لزميل آخر!`);
@@ -1670,6 +2119,22 @@ async function submitQuiz() {
     if (wrongAnswers === 0) finalPoints = 5;
     else if (wrongAnswers === 1) finalPoints = 4;
 
+    const currentQuizId = 'current_quiz_2026';
+    
+    // حفظ في نظام منع التكرار
+    const saved = await saveQuizSubmission(
+        currentQuizId, 
+        submittedAnswers, 
+        Math.floor(correctAnswers), 
+        totalQuestions, 
+        finalPoints
+    );
+    
+    if (!saved) {
+        alert('حدث خطأ في حفظ إجابتك. لم يتم احتساب النقاط.');
+        return;
+    }
+
     await db.ref("bible_quiz/submissions").push({ userName: selectedQuizStudentName, score: Math.floor(correctAnswers), max: totalQuestions, finalPoints, answers: submittedAnswers, time: new Date().toLocaleString() });
     db.ref("points_data").once("value", snap => {
         snap.forEach(child => { 
@@ -1686,12 +2151,186 @@ async function submitQuiz() {
                 
                 child.ref.update({ 
                     score: currentScore + finalPoints,
-                    breakdown: newBreakdown
+                    breakdown: newBreakdown,
+                    lastUpdate: Date.now()
                 });
             }
         });
     });
+    
+    // ========== نظام شارات المسابقة ==========
+    checkQuizBadges(selectedQuizStudentName, Math.floor(correctAnswers), totalQuestions, wrongAnswers);
+    
     showFinishedStatus(Math.floor(correctAnswers), totalQuestions, finalPoints);
+}
+
+// ========== فحص وإعطاء شارات المسابقة ==========
+function checkQuizBadges(userName, score, total, wrong) {
+    const userId = getUserId(userName);
+    const percentage = (score / total) * 100;
+    
+    // شارات حسب الأداء
+    if (wrong === 0 && total >= 5) {
+        // مثالي!
+        addBadgeForUser(userId, 'quiz-perfect', 'إجابة مثالية', 'gold', '🏆');
+        addXPForUser(userId, 50, 'إجابة مثالية في المسابقة!');
+        showQuizEncouragement(userName, '🏆 إجابة مثالية! كل الإجابات صحيحة! أنت نجم! 🌟', 'perfect');
+    } else if (wrong === 1 && total >= 5) {
+        // ممتاز
+        addBadgeForUser(userId, 'quiz-excellent', 'ممتاز جداً', 'silver', '⭐');
+        addXPForUser(userId, 30, 'أداء ممتاز في المسابقة!');
+        showQuizEncouragement(userName, '⭐ ممتاز جداً! خطأ واحد فقط! أنت رائع! 💪', 'excellent');
+    } else if (percentage >= 70) {
+        // جيد جداً
+        addBadgeForUser(userId, 'quiz-good', 'أداء جيد', 'bronze', '👍');
+        addXPForUser(userId, 20, 'أداء جيد في المسابقة!');
+        showQuizEncouragement(userName, '👍 أداء جيد! استمر في التعلم! 📚', 'good');
+    } else {
+        // مشاركة
+        addBadgeForUser(userId, 'quiz-participant', 'مشارك نشط', 'blue', '💙');
+        addXPForUser(userId, 10, 'المشاركة في المسابقة');
+        showQuizEncouragement(userName, '💙 شكراً للمشاركة! استمر في القراءة والتعلم! 📖', 'participant');
+    }
+    
+    // تتبع عدد المسابقات
+    trackQuizParticipation(userId, userName);
+}
+
+// ========== تتبع عدد المسابقات ==========
+function trackQuizParticipation(userId, userName) {
+    db.ref(`users/${userId}/quiz_count`).once('value', snapshot => {
+        let quizCount = (snapshot.val() || 0) + 1;
+        db.ref(`users/${userId}/quiz_count`).set(quizCount);
+        
+        // شارات حسب عدد المسابقات
+        const milestones = [
+            { count: 5, id: 'quiz-5times', title: '5 مسابقات', icon: '📚', type: 'bronze', xp: 25 },
+            { count: 10, id: 'quiz-10times', title: '10 مسابقات', icon: '📖', type: 'silver', xp: 50 },
+            { count: 20, id: 'quiz-20times', title: '20 مسابقة', icon: '🎓', type: 'gold', xp: 100 },
+            { count: 50, id: 'quiz-50times', title: 'عالم الكتاب', icon: '👨‍🎓', type: 'gold', xp: 200 }
+        ];
+        
+        milestones.forEach(milestone => {
+            if (quizCount === milestone.count) {
+                addBadgeForUser(userId, milestone.id, milestone.title, milestone.type, milestone.icon);
+                addXPForUser(userId, milestone.xp, `${milestone.count} مسابقة!`);
+                
+                setTimeout(() => {
+                    showQuizEncouragement(
+                        userName, 
+                        `${milestone.icon} مبروك! أكملت ${milestone.count} مسابقة! أنت عالم حقيقي في الكتاب المقدس! 🎉`, 
+                        'milestone'
+                    );
+                }, 3000);
+                
+                if (typeof confetti !== 'undefined') {
+                    setTimeout(() => {
+                        confetti({
+                            particleCount: 150,
+                            spread: 80,
+                            origin: { y: 0.6 }
+                        });
+                    }, 3000);
+                }
+            }
+        });
+    });
+}
+
+// ========== عرض رسالة تشجيع للمسابقة ==========
+function showQuizEncouragement(userName, message, type) {
+    const icons = {
+        'perfect': '🏆',
+        'excellent': '⭐',
+        'good': '👍',
+        'participant': '💙',
+        'milestone': '🎉'
+    };
+    
+    const colors = {
+        'perfect': 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+        'excellent': 'linear-gradient(135deg, #e5e7eb, #9ca3af)',
+        'good': 'linear-gradient(135deg, #f59e0b, #d97706)',
+        'participant': 'linear-gradient(135deg, #3b82f6, #2563eb)',
+        'milestone': 'linear-gradient(135deg, #667eea, #764ba2)'
+    };
+    
+    const encouragementHTML = `
+        <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                    background: ${colors[type] || colors.participant}; 
+                    padding: 35px; border-radius: 30px; 
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.4); 
+                    z-index: 10001; max-width: 90%; width: 400px;
+                    animation: popupAppear 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);"
+             id="quizEncouragementPopup">
+            <div style="font-size: 64px; text-align: center; margin-bottom: 15px; animation: bounce 1s infinite;">
+                ${icons[type] || '💙'}
+            </div>
+            <div style="font-size: 24px; font-weight: 900; color: white; text-align: center; margin-bottom: 15px; text-shadow: 0 2px 10px rgba(0,0,0,0.3);">
+                ${userName.split(' ')[0]}، أحسنت! 🎉
+            </div>
+            <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); 
+                        padding: 20px; border-radius: 20px; color: white; 
+                        font-size: 16px; line-height: 1.8; margin: 15px 0; 
+                        border: 2px solid rgba(255,255,255,0.2); text-align: center;">
+                ${message}
+            </div>
+            <div style="color: rgba(255,255,255,0.9); font-size: 14px; text-align: center; margin-top: 15px;">
+                "اجْتَهِدْ أَنْ تُقِيمَ نَفْسَكَ للهِ مُزَكًّى" - 2 تيموثاوس 2: 15
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button onclick="closeQuizEncouragement()" 
+                        style="background: rgba(255,255,255,0.3); color: white; border: none; 
+                               padding: 12px 30px; border-radius: 30px; font-weight: 800; 
+                               cursor: pointer; font-family: 'Cairo', sans-serif; font-size: 15px; 
+                               transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                    شكراً! 🙏
+                </button>
+            </div>
+        </div>
+        <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.6); 
+                    backdrop-filter: blur(5px); z-index: 10000;" 
+             id="quizEncouragementOverlay" 
+             onclick="closeQuizEncouragement()"></div>
+    `;
+    
+    // عرض بعد ثانيتين من إرسال المسابقة
+    setTimeout(() => {
+        document.body.insertAdjacentHTML('beforeend', encouragementHTML);
+    }, 2000);
+}
+
+function closeQuizEncouragement() {
+    const popup = document.getElementById('quizEncouragementPopup');
+    const overlay = document.getElementById('quizEncouragementOverlay');
+    if (popup) popup.remove();
+    if (overlay) overlay.remove();
+}
+
+// ========== دوال مساعدة لإضافة الشارات و XP ==========
+function addBadgeForUser(userId, badgeId, title, type, icon) {
+    db.ref(`users/${userId}/badges/${badgeId}`).set({
+        title: title,
+        type: type,
+        icon: icon,
+        earnedAt: Date.now()
+    });
+}
+
+function addXPForUser(userId, amount, reason) {
+    db.ref(`users/${userId}/progress`).once('value', snapshot => {
+        const data = snapshot.val() || { xp: 0, level: 1, xpForNextLevel: 100 };
+        data.xp += amount;
+        
+        // فحص الارتقاء
+        while (data.xp >= data.xpForNextLevel) {
+            data.level++;
+            data.xp -= data.xpForNextLevel;
+            data.xpForNextLevel = Math.floor(data.xpForNextLevel * 1.5);
+        }
+        
+        db.ref(`users/${userId}/progress`).set(data);
+    });
 }
 
 function showFinishedStatus(score, max, finalPoints) {
@@ -1987,7 +2626,91 @@ function jihadShowResults() {
 }
 
 // ===== ATTENDANCE =====
-function submitAttendance(type, inputId) {
+// ========== نظام منع التسجيل المتكرر اليومي ==========
+// دالة لإنشاء بصمة فريدة للجهاز (لا تتغير حتى بعد مسح المتصفح)
+function getDeviceFingerprintForAttendance() {
+    const navigatorInfo = [
+        navigator.userAgent,
+        navigator.language,
+        navigator.platform,
+        screen.width,
+        screen.height,
+        screen.colorDepth,
+        new Date().getTimezoneOffset(),
+        navigator.hardwareConcurrency || 'unknown',
+        navigator.deviceMemory || 'unknown'
+    ].join('###');
+    
+    let hash = 0;
+    for (let i = 0; i < navigatorInfo.length; i++) {
+        const char = navigatorInfo.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+    }
+    
+    return 'device_' + Math.abs(hash).toString(36);
+}
+
+// دالة للتحقق من التسجيل اليومي في Firebase
+async function checkDailyAttendanceLimit(type, name) {
+    const deviceId = getDeviceFingerprintForAttendance();
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    
+    return new Promise((resolve) => {
+        // التحقق من التسجيل بواسطة الاسم واليوم
+        db.ref('daily_attendance_locks/' + type + '/' + today)
+            .orderByChild('name')
+            .equalTo(name)
+            .once('value', nameSnapshot => {
+                if (nameSnapshot.exists()) {
+                    // الاسم سجل اليوم
+                    resolve({ 
+                        blocked: true, 
+                        reason: `لقد سجلت حضور ${type} اليوم بالفعل باسم "${name}"!` 
+                    });
+                } else {
+                    // التحقق من التسجيل بواسطة الجهاز
+                    db.ref('daily_attendance_locks/' + type + '/' + today)
+                        .orderByChild('deviceId')
+                        .equalTo(deviceId)
+                        .once('value', deviceSnapshot => {
+                            if (deviceSnapshot.exists()) {
+                                // الجهاز سجل اليوم
+                                let registeredName = '';
+                                deviceSnapshot.forEach(child => {
+                                    registeredName = child.val().name;
+                                });
+                                resolve({ 
+                                    blocked: true, 
+                                    reason: `هذا الجهاز سجل اليوم بالفعل باسم "${registeredName}"!\nلا يمكن التسجيل لشخص آخر.` 
+                                });
+                            } else {
+                                // لم يتم التسجيل - مسموح
+                                resolve({ blocked: false });
+                            }
+                        });
+                }
+            });
+    });
+}
+
+// دالة لتسجيل الحضور في Firebase
+async function recordDailyAttendance(type, name) {
+    const deviceId = getDeviceFingerprintForAttendance();
+    const today = new Date().toISOString().split('T')[0];
+    const timestamp = Date.now();
+    
+    const recordData = {
+        name: name,
+        deviceId: deviceId,
+        timestamp: timestamp,
+        datetime: new Date().toISOString()
+    };
+    
+    return db.ref('daily_attendance_locks/' + type + '/' + today).push(recordData);
+}
+
+async function submitAttendance(type, inputId) {
     const name = document.getElementById('attendanceNameSelect').value;
     const day = document.getElementById(inputId).value.trim();
     const today = new Date().toLocaleDateString();
@@ -1995,8 +2718,14 @@ function submitAttendance(type, inputId) {
     if (!name) return alert("من فضلك اختر اسمك أولاً!");
     if (!day) return alert("من فضلك اكتب يوم إيه!");
 
-    const lockKey = `lock_${type}_${name}_${today}`;
-    if (localStorage.getItem(lockKey)) return alert(`لقد سجلت حضور ${type} اليوم بالفعل!`);
+    // التحقق من الحد اليومي باستخدام Firebase
+    const limitCheck = await checkDailyAttendanceLimit(type, name);
+    if (limitCheck.blocked) {
+        return alert(limitCheck.reason);
+    }
+
+    // التسجيل في Firebase أولاً (الحماية القوية)
+    await recordDailyAttendance(type, name);
 
     db.ref("points_data").once("value", snap => {
         snap.forEach(child => {
@@ -2020,7 +2749,11 @@ function submitAttendance(type, inputId) {
     });
 
     db.ref("attendance_logs").push({ makhdom: name, type, day, submittedAt: new Date().toLocaleString() });
+    
+    // الـ localStorage للتوافق مع الكود القديم فقط
+    const lockKey = `lock_${type}_${name}_${today}`;
     localStorage.setItem(lockKey, "true");
+    
     alert(`تم إضافة ٥ درجات حضور ${type} بنجاح ✅`);
     document.getElementById(inputId).value = "";
     confetti({ particleCount: 100, spread: 70, origin: { y: 0.8 } });
@@ -2249,8 +2982,13 @@ function confirmNameSelection() {
         return;
     }
     
+    // حفظ معرف المستخدم
+    currentUserName = selectedName;
+    currentUserId = getUserId(selectedName);
+    
     // حفظ الاسم
     localStorage.setItem('selected_user_name', selectedName);
+    localStorage.setItem('user_id', currentUserId);
     
     // إخفاء قسم اختيار الاسم
     document.getElementById('nameSelectionSection').style.display = 'none';
@@ -2321,18 +3059,120 @@ const nameSelectElement = document.getElementById('nameSelect');
 if (nameSelectElement) {
     // استرجاع الاسم المحفوظ عند تحميل الصفحة
     const savedName = localStorage.getItem('selected_user_name');
-    if (savedName) {
+    const savedId = localStorage.getItem('user_id');
+    
+    if (savedName && savedId) {
+        // تعيين المتغيرات العامة
+        currentUserName = savedName;
+        currentUserId = savedId;
+        
         // إذا كان الاسم محفوظ، عرض رسالة الترحيب مباشرة
         setTimeout(() => {
             showWelcomeMessage(savedName);
             displayUserNameInHeader(savedName);
             checkEncouragementMessages();
+            // عرض المميزات الجديدة
+            initializeNewFeatures();
         }, 1000);
     } else {
         // إذا لم يكن هناك اسم محفوظ، إظهار قسم الاختيار
         document.getElementById('nameSelectionSection').style.display = 'block';
     }
 }
+
+// ========== دوال المميزات الجديدة ==========
+
+// تهيئة المميزات الجديدة
+function initializeNewFeatures() {
+    // عرض الشارات فقط
+    setTimeout(() => {
+        document.getElementById('badgesSection').style.display = 'block';
+    }, 800);
+    
+    // تحميل البيانات المحفوظة
+    loadUserBadges();
+}
+
+// تحميل شارات المستخدم
+function loadUserBadges() {
+    const savedBadges = JSON.parse(localStorage.getItem('userBadges') || '[]');
+    const container = document.getElementById('userBadgesContainer');
+    const section = document.getElementById('badgesSection');
+    
+    if (savedBadges.length === 0) {
+        // إخفاء القسم بالكامل لو مفيش شارات
+        section.style.display = 'none';
+    } else {
+        section.style.display = 'block';
+        container.innerHTML = '';
+        savedBadges.forEach(badge => {
+            const badgeEl = document.createElement('div');
+            badgeEl.className = `achievement-badge badge-${badge.type}`;
+            badgeEl.innerHTML = `${badge.icon} ${badge.title}`;
+            badgeEl.title = badge.description || badge.title;
+            container.appendChild(badgeEl);
+        });
+    }
+}
+
+// إضافة شارة جديدة
+function addBadge(id, title, type, icon = '🏆', description = '') {
+    const savedBadges = JSON.parse(localStorage.getItem('userBadges') || '[]');
+    
+    // تحقق إذا كانت الشارة موجودة بالفعل
+    if (savedBadges.some(b => b.id === id)) {
+        return;
+    }
+    
+    const newBadge = { id, title, type, icon, description };
+    savedBadges.push(newBadge);
+    localStorage.setItem('userBadges', JSON.stringify(savedBadges));
+    
+    loadUserBadges();
+    showNotification(`${icon} حصلت على شارة جديدة: ${title}!`);
+}
+
+
+
+
+// عرض إشعار تفاعلي
+function showNotification(message) {
+    const notification = document.getElementById('interactiveNotification');
+    const notificationText = document.getElementById('notificationText');
+    
+    notificationText.textContent = message;
+    notification.style.display = 'block';
+    
+    setTimeout(() => {
+        notification.style.animation = 'fadeOut 0.5s ease';
+        setTimeout(() => {
+            notification.style.display = 'none';
+            notification.style.animation = 'notificationSlide 0.5s ease, notificationBounce 2s ease-in-out infinite';
+        }, 500);
+    }, 3000);
+}
+
+// إضافة شارات افتراضية عند أول استخدام
+function initializeDefaultBadges() {
+    const savedBadges = JSON.parse(localStorage.getItem('userBadges') || '[]');
+    
+    if (savedBadges.length === 0) {
+        // شارة الترحيب
+        addBadge('welcome', 'مرحباً بك', 'blue', '👋', 'انضممت لخدمة إعدادي');
+    }
+}
+
+// تحديث دالة confirmNameSelection لتشمل المميزات الجديدة
+const originalConfirmNameSelection = confirmNameSelection;
+confirmNameSelection = function() {
+    originalConfirmNameSelection();
+    
+    // تهيئة المميزات الجديدة
+    setTimeout(() => {
+        initializeNewFeatures();
+        initializeDefaultBadges();
+    }, 1500);
+};
 
 </script>
 </body>
