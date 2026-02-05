@@ -866,6 +866,254 @@
             box-shadow: 0 2px 8px rgba(59,130,246,0.3);
         }
 
+        /* ========== يوميات بركات ربنا ========== */
+        .filter-feeling-btn {
+            padding: 8px 16px;
+            border: 2px solid rgba(102,126,234,0.3);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-feeling-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .filter-feeling-btn.filter-active {
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            color: white;
+            border-color: var(--accent-1);
+        }
+        
+        .journal-entries-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .journal-entry-card {
+            background: var(--bg-card);
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: var(--shadow-md);
+            border: 2px solid rgba(102,126,234,0.15);
+            transition: all 0.3s ease;
+            animation: slideDown 0.5s ease;
+        }
+        
+        .journal-entry-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent-1);
+        }
+        
+        .journal-entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .journal-entry-feeling {
+            font-size: 28px;
+            padding: 8px 14px;
+            background: rgba(102,126,234,0.1);
+            border-radius: 12px;
+        }
+        
+        .journal-entry-date {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        
+        .journal-entry-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+        
+        .journal-entry-content {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 12px;
+            white-space: pre-wrap;
+        }
+        
+        .journal-entry-verse {
+            background: linear-gradient(135deg, rgba(251,191,36,0.1), rgba(240,147,251,0.1));
+            border-right: 4px solid var(--warning);
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            color: var(--text-primary);
+            font-style: italic;
+            margin-top: 10px;
+        }
+        
+        .journal-entry-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(102,126,234,0.1);
+        }
+        
+        .journal-action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .journal-delete-btn {
+            background: linear-gradient(135deg, #f56565, #e53e3e);
+            color: white;
+        }
+        
+        .journal-delete-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(245,101,101,0.4);
+        }
+        
+        .feeling-option {
+            padding: 12px 16px;
+            border: 3px solid rgba(102,126,234,0.2);
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 28px;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-width: 80px;
+        }
+        
+        .feeling-option:hover {
+            transform: scale(1.1);
+            border-color: var(--accent-1);
+        }
+        
+        .feeling-option.selected {
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            border-color: var(--accent-1);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        /* ========== المواقف المشتركة - تصميم رسائل ========== */
+        .shared-stories-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 10px 5px;
+        }
+        
+        .shared-story-message {
+            background: var(--bg-card);
+            border-right: 4px solid #10b981;
+            border-radius: 12px 12px 12px 4px;
+            padding: 12px 14px;
+            box-shadow: 0 2px 8px rgba(16,185,129,0.15);
+            animation: slideInRight 0.4s ease;
+            max-width: 95%;
+            align-self: flex-start;
+        }
+        
+        .shared-story-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(16,185,129,0.2);
+        }
+        
+        .shared-story-author {
+            font-size: 13px;
+            font-weight: 700;
+            color: #059669;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .shared-story-date {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .shared-story-feeling {
+            font-size: 20px;
+            margin-left: 6px;
+        }
+        
+        .shared-story-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+        
+        .shared-story-content {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            white-space: pre-wrap;
+            margin-bottom: 8px;
+        }
+        
+        .shared-story-verse {
+            background: linear-gradient(135deg, rgba(251,191,36,0.08), rgba(16,185,129,0.08));
+            border-right: 3px solid #fbbf24;
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--text-primary);
+            font-style: italic;
+            margin-top: 8px;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+            }
+        }
+
 
 
 
@@ -1027,6 +1275,68 @@
             </div>
         </div>
 
+        <!-- ========== سويتش يوميات بركات ربنا ========== -->
+        <div class="switch-container" style="background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(240,147,251,0.1)); border: 2px solid var(--accent-1); position: relative;">
+            <span style="font-weight:700;">📖 يوميات بركات ربنا معايا</span>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span id="journalNotificationBadge" style="display:none; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 20px; animation: pulse 1.5s infinite;">
+                    0 جديد
+                </span>
+                <label class="switch">
+                    <input type="checkbox" onchange="toggleJournalSection(this.checked)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- ========== قسم اليوميات الخاصة ========== -->
+        <div id="blessingsJournalSection" class="section" style="display:none; background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(240,147,251,0.05)); border: 2px solid var(--accent-1);">
+            <div class="section-title"><span class="emoji">📖</span> يومياتي الخاصة</div>
+            <p style="text-align:center; color:var(--text-secondary); font-size:13px; margin-bottom:16px; line-height:1.6;">
+                اكتب المواقف اللي ربنا وقف معاك فيها ومشاعرك ✨<br>
+                <span style="font-size:12px; opacity:0.8;">دي يومياتك الخاصة.. ممكن تشاركها مع المخدومين لو حبيت 💜</span>
+            </p>
+            
+            <!-- زر إضافة موقف جديد -->
+            <button class="btn" style="background:linear-gradient(135deg,var(--accent-1),var(--accent-2)); margin-bottom:16px; font-size:15px; font-weight:700;" onclick="openJournalEntryModal()">
+                ✍️ اكتب موقف جديد
+            </button>
+            
+            <!-- فلتر المشاعر -->
+            <div class="feelings-filter" style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-bottom:20px;">
+                <button class="filter-feeling-btn filter-active" data-feeling="all" onclick="filterJournalByFeeling('all')">الكل</button>
+                <button class="filter-feeling-btn" data-feeling="happy" onclick="filterJournalByFeeling('happy')">😊</button>
+                <button class="filter-feeling-btn" data-feeling="grateful" onclick="filterJournalByFeeling('grateful')">🙏</button>
+                <button class="filter-feeling-btn" data-feeling="sad" onclick="filterJournalByFeeling('sad')">😢</button>
+                <button class="filter-feeling-btn" data-feeling="worried" onclick="filterJournalByFeeling('worried')">😰</button>
+                <button class="filter-feeling-btn" data-feeling="peaceful" onclick="filterJournalByFeeling('peaceful')">😌</button>
+                <button class="filter-feeling-btn" data-feeling="excited" onclick="filterJournalByFeeling('excited')">🤩</button>
+            </div>
+            
+            <!-- عرض المواقف المسجلة -->
+            <div id="journalEntriesContainer" class="journal-entries-container">
+                <div class="empty-journal" style="text-align:center; padding:40px 20px; color:var(--text-secondary);">
+                    <div style="font-size:70px; margin-bottom:12px; animation: bounce 2s infinite;">📔</div>
+                    <p style="font-size:16px; font-weight:600; color:var(--text-primary); margin-bottom:6px;">لسه مكتبتش أي موقف</p>
+                    <p style="font-size:13px;">ابدأ دلوقتي واكتب أول موقف ربنا وقف معاك فيه 💝</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== مواقف المخدومين المشتركة ========== -->
+        <div id="sharedStoriesSection" class="section" style="display:none; border: 2px solid #10b981;">
+            <div class="section-title"><span class="emoji">💚</span> بركات ربنا مع المخدومين</div>
+            <p style="text-align:center; color:var(--text-secondary); font-size:13px; margin-bottom:16px;">
+                شوف إزاي ربنا بيشتغل في حياة أصحابك 🌟
+            </p>
+            <div id="sharedStoriesContainer" class="shared-stories-container">
+                <div class="empty-journal" style="text-align:center; padding:30px 20px; color:var(--text-secondary);">
+                    <div style="font-size:60px; margin-bottom:12px;">💬</div>
+                    <p style="font-size:15px; font-weight:600; color:var(--text-primary);">لسه محدش شارك مواقفه</p>
+                </div>
+            </div>
+        </div>
+
 
 
 
@@ -1034,6 +1344,99 @@
         <!-- تنبيه تفاعلي -->
         <div class="interactive-notification" id="interactiveNotification">
             <span id="notificationText"></span>
+        </div>
+
+        <!-- ========== نافذة كتابة موقف جديد ========== -->
+        <div id="journalEntryModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:10000; backdrop-filter:blur(5px); animation: fadeIn 0.3s ease;">
+
+        <!-- ========== إشعار موقف جديد ========== -->
+        <div id="newStoryNotification" style="display:none; position:fixed; top:100px; right:20px; background:linear-gradient(135deg, #10b981, #059669); color:white; padding:16px 20px; border-radius:15px; box-shadow:0 8px 30px rgba(16,185,129,0.4); z-index:9999; max-width:320px; animation: slideInRight 0.5s ease; cursor:pointer;" onclick="openJournalFromNotification()">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div style="font-size:36px; animation: bounce 1s infinite;">💚</div>
+                <div>
+                    <div style="font-weight:800; font-size:15px; margin-bottom:4px;">موقف جديد!</div>
+                    <div id="newStoryNotificationText" style="font-size:13px; opacity:0.95; line-height:1.4;"></div>
+                </div>
+            </div>
+            <button onclick="event.stopPropagation(); closeStoryNotification()" style="position:absolute; top:8px; left:8px; background:rgba(255,255,255,0.2); border:none; color:white; width:24px; height:24px; border-radius:50%; cursor:pointer; font-size:16px; line-height:1;">×</button>
+        </div>
+            <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:var(--bg-card); border-radius:25px; padding:25px; width:90%; max-width:500px; max-height:90vh; overflow-y:auto; box-shadow:var(--shadow-lg); animation: slideUp 0.4s ease;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <h3 style="margin:0; font-size:20px; color:var(--text-primary);">✍️ اكتب موقفك</h3>
+                    <button onclick="closeJournalEntryModal()" style="background:none; border:none; font-size:28px; cursor:pointer; color:var(--text-secondary); line-height:1;">×</button>
+                </div>
+                
+                <!-- اختيار المشاعر -->
+                <div style="margin-bottom:18px;">
+                    <label style="display:block; font-weight:600; margin-bottom:8px; color:var(--text-primary);">إزاي كنت حاسس؟ 💭</label>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+                        <button class="feeling-option" data-feeling="happy" onclick="selectFeeling('happy', '😊 فرحان')">😊<br><span style="font-size:11px;">فرحان</span></button>
+                        <button class="feeling-option" data-feeling="grateful" onclick="selectFeeling('grateful', '🙏 شاكر')">🙏<br><span style="font-size:11px;">شاكر</span></button>
+                        <button class="feeling-option" data-feeling="sad" onclick="selectFeeling('sad', '😢 حزين')">😢<br><span style="font-size:11px;">حزين</span></button>
+                        <button class="feeling-option" data-feeling="worried" onclick="selectFeeling('worried', '😰 قلقان')">😰<br><span style="font-size:11px;">قلقان</span></button>
+                        <button class="feeling-option" data-feeling="peaceful" onclick="selectFeeling('peaceful', '😌 مطمن')">😌<br><span style="font-size:11px;">مطمن</span></button>
+                        <button class="feeling-option" data-feeling="excited" onclick="selectFeeling('excited', '🤩 متحمس')">🤩<br><span style="font-size:11px;">متحمس</span></button>
+                    </div>
+                </div>
+                
+                <!-- عنوان الموقف -->
+                <div style="margin-bottom:18px;">
+                    <label style="display:block; font-weight:600; margin-bottom:8px; color:var(--text-primary);">عنوان الموقف 📌</label>
+                    <input type="text" id="journalTitle" placeholder="مثال: ربنا وقف معايا في الامتحان" style="width:100%; padding:12px; border:2px solid rgba(102,126,234,0.3); border-radius:12px; font-family:'Cairo',sans-serif; font-size:14px; background:var(--bg-secondary); color:var(--text-primary);">
+                </div>
+                
+                <!-- تفاصيل الموقف -->
+                <div style="margin-bottom:18px;">
+                    <label style="display:block; font-weight:600; margin-bottom:8px; color:var(--text-primary);">اكتب الموقف بالتفصيل ✨</label>
+                    <textarea id="journalContent" placeholder="اكتب هنا إيه اللي حصل، وإحساسك كان إيه، وربنا عمل إيه..." style="width:100%; min-height:150px; padding:12px; border:2px solid rgba(102,126,234,0.3); border-radius:12px; font-family:'Cairo',sans-serif; font-size:14px; resize:vertical; background:var(--bg-secondary); color:var(--text-primary); line-height:1.6;"></textarea>
+                </div>
+                
+                <!-- آية مقدسة اختيارية -->
+                <div style="margin-bottom:20px;">
+                    <label style="display:block; font-weight:600; margin-bottom:8px; color:var(--text-primary);">📖 آية مقدسة (اختياري)</label>
+                    <input type="text" id="journalVerse" placeholder="مثال: كل الأشياء تعمل معاً للخير - رومية 8:28" style="width:100%; padding:12px; border:2px solid rgba(102,126,234,0.3); border-radius:12px; font-family:'Cairo',sans-serif; font-size:13px; background:var(--bg-secondary); color:var(--text-primary);">
+                </div>
+                
+                <!-- خيارات المشاركة -->
+                <div style="background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(5,150,105,0.1)); border: 2px solid #10b981; border-radius:15px; padding:16px; margin-bottom:20px;">
+                    <label style="display:block; font-weight:700; margin-bottom:12px; color:#059669; font-size:15px;">🌟 مشاركة الموقف</label>
+                    <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px; line-height:1.5;">
+                        ممكن تشارك موقفك مع المخدومين عشان تشجعهم وتفرحهم بشغل ربنا في حياتك 💚
+                    </p>
+                    
+                    <div style="display:flex; flex-direction:column; gap:10px;">
+                        <label style="display:flex; align-items:center; gap:10px; cursor:pointer; padding:12px; background:var(--bg-card); border-radius:10px; border:2px solid rgba(16,185,129,0.3); transition:all 0.3s;" onclick="selectSharingOption('private')">
+                            <input type="radio" name="sharing" value="private" checked style="width:20px; height:20px; cursor:pointer;">
+                            <div>
+                                <div style="font-weight:600; color:var(--text-primary); font-size:14px;">🔒 خاص (لوحدي بس)</div>
+                                <div style="font-size:11px; color:var(--text-secondary);">الموقف هيبقى خاص بيك وحد مش هيشوفه</div>
+                            </div>
+                        </label>
+                        
+                        <label style="display:flex; align-items:center; gap:10px; cursor:pointer; padding:12px; background:var(--bg-card); border-radius:10px; border:2px solid rgba(16,185,129,0.3); transition:all 0.3s;" onclick="selectSharingOption('named')">
+                            <input type="radio" name="sharing" value="named" style="width:20px; height:20px; cursor:pointer;">
+                            <div>
+                                <div style="font-weight:600; color:var(--text-primary); font-size:14px;">👤 باسمي</div>
+                                <div style="font-size:11px; color:var(--text-secondary);">المخدومين هيشوفوا اسمك مع الموقف</div>
+                            </div>
+                        </label>
+                        
+                        <label style="display:flex; align-items:center; gap:10px; cursor:pointer; padding:12px; background:var(--bg-card); border-radius:10px; border:2px solid rgba(16,185,129,0.3); transition:all 0.3s;" onclick="selectSharingOption('anonymous')">
+                            <input type="radio" name="sharing" value="anonymous" style="width:20px; height:20px; cursor:pointer;">
+                            <div>
+                                <div style="font-weight:600; color:var(--text-primary); font-size:14px;">🎭 شخص معاكم</div>
+                                <div style="font-size:11px; color:var(--text-secondary);">المخدومين هيشوفوا الموقف من غير اسمك</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- أزرار الحفظ -->
+                <div style="display:flex; gap:10px;">
+                    <button onclick="saveJournalEntry()" style="flex:1; padding:14px; background:linear-gradient(135deg,var(--accent-1),var(--accent-2)); color:white; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; font-family:'Cairo',sans-serif;">💾 احفظ الموقف</button>
+                    <button onclick="closeJournalEntryModal()" style="padding:14px 20px; background:var(--bg-secondary); color:var(--text-secondary); border:2px solid rgba(102,126,234,0.2); border-radius:12px; font-size:14px; font-weight:600; cursor:pointer; font-family:'Cairo',sans-serif;">إلغاء</button>
+                </div>
+            </div>
         </div>
 
         <!-- Admin Alert -->
@@ -3145,6 +3548,9 @@ if (nameSelectElement) {
             checkEncouragementMessages();
             // عرض المميزات الجديدة
             initializeNewFeatures();
+            
+            // بدء التحقق من المواقف الجديدة
+            startCheckingForNewStories();
         }, 1000);
     } else {
         // إذا لم يكن هناك اسم محفوظ، إظهار قسم الاختيار
@@ -3243,8 +3649,513 @@ confirmNameSelection = function() {
     setTimeout(() => {
         initializeNewFeatures();
         initializeDefaultBadges();
+        loadJournalEntries(); // تحميل يوميات البركات
+        
+        // بدء التحقق من المواقف الجديدة
+        startCheckingForNewStories();
     }, 1500);
 };
+
+// ========== دوال يوميات بركات ربنا معايا ==========
+
+let selectedFeeling = '';
+let selectedFeelingText = '';
+let sharingOption = 'private'; // القيمة الافتراضية
+let lastCheckedStoryTimestamp = 0;
+let notificationCheckInterval = null;
+
+// تبديل عرض قسم اليوميات
+function toggleJournalSection(isChecked) {
+    const section = document.getElementById('blessingsJournalSection');
+    const sharedSection = document.getElementById('sharedStoriesSection');
+    
+    if (isChecked) {
+        section.style.display = 'block';
+        sharedSection.style.display = 'block';
+        loadJournalEntries();
+        loadSharedStories();
+        
+        // علّم كل المواقف كمقروءة
+        markAllStoriesAsRead();
+        
+        // إخفاء الإشعار
+        updateJournalNotificationBadge(0);
+    } else {
+        section.style.display = 'none';
+        sharedSection.style.display = 'none';
+    }
+}
+
+// بدء التحقق من المواقف الجديدة
+function startCheckingForNewStories() {
+    // تحميل آخر وقت تحقق
+    lastCheckedStoryTimestamp = parseInt(localStorage.getItem('lastCheckedStoryTime') || '0');
+    
+    // التحقق كل 10 ثواني
+    notificationCheckInterval = setInterval(() => {
+        checkForNewStories();
+    }, 10000);
+    
+    // تحقق فوري عند البداية
+    setTimeout(() => checkForNewStories(), 3000);
+}
+
+// التحقق من المواقف الجديدة
+function checkForNewStories() {
+    const userName = localStorage.getItem('selected_user_name');
+    if (!userName) return;
+    
+    db.ref('shared_stories').orderByChild('timestamp').startAt(lastCheckedStoryTimestamp + 1).once('value', snapshot => {
+        if (!snapshot.exists()) return;
+        
+        let newStoriesCount = 0;
+        let latestStory = null;
+        
+        snapshot.forEach(child => {
+            const story = child.val();
+            // تجاهل المواقف الخاصة بالمستخدم نفسه
+            if (story.author !== userName) {
+                newStoriesCount++;
+                if (!latestStory || story.timestamp > latestStory.timestamp) {
+                    latestStory = story;
+                }
+            }
+        });
+        
+        if (newStoriesCount > 0) {
+            // تحديث البادج
+            updateJournalNotificationBadge(newStoriesCount);
+            
+            // عرض إشعار منبثق للموقف الأحدث
+            if (latestStory) {
+                showNewStoryNotification(latestStory, newStoriesCount);
+            }
+        }
+    });
+}
+
+// تحديث badge الإشعارات
+function updateJournalNotificationBadge(count) {
+    const badge = document.getElementById('journalNotificationBadge');
+    if (!badge) return;
+    
+    if (count > 0) {
+        badge.textContent = count === 1 ? '1 جديد' : `${count} جدد`;
+        badge.style.display = 'inline-block';
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+// عرض إشعار موقف جديد
+function showNewStoryNotification(story, count) {
+    const notification = document.getElementById('newStoryNotification');
+    const notificationText = document.getElementById('newStoryNotificationText');
+    
+    if (!notification || !notificationText) return;
+    
+    const authorName = story.displayName || 'شخص معاكم';
+    const countText = count > 1 ? ` و ${count - 1} موقف آخر` : '';
+    
+    notificationText.innerHTML = `
+        <strong>${authorName}</strong> شارك موقف جديد${countText}!
+        <div style="font-size:12px; margin-top:4px; opacity:0.9;">"${story.title}"</div>
+    `;
+    
+    notification.style.display = 'block';
+    
+    // كونفيتي خفيف
+    if (typeof confetti !== 'undefined') {
+        confetti({ 
+            particleCount: 50, 
+            spread: 50, 
+            origin: { x: 0.9, y: 0.2 },
+            colors: ['#10b981', '#059669', '#34d399']
+        });
+    }
+    
+    // إخفاء تلقائي بعد 8 ثواني
+    setTimeout(() => {
+        closeStoryNotification();
+    }, 8000);
+}
+
+// إغلاق إشعار الموقف
+function closeStoryNotification() {
+    const notification = document.getElementById('newStoryNotification');
+    if (notification) {
+        notification.style.animation = 'fadeOut 0.3s ease';
+        setTimeout(() => {
+            notification.style.display = 'none';
+            notification.style.animation = 'slideInRight 0.5s ease';
+        }, 300);
+    }
+}
+
+// فتح قسم اليوميات من الإشعار
+function openJournalFromNotification() {
+    closeStoryNotification();
+    
+    // فتح السويتش
+    const switchInput = document.querySelector('.switch-container input[type="checkbox"]');
+    if (switchInput && !switchInput.checked) {
+        switchInput.checked = true;
+        toggleJournalSection(true);
+    }
+    
+    // التمرير لقسم المواقف المشتركة
+    setTimeout(() => {
+        const sharedSection = document.getElementById('sharedStoriesSection');
+        if (sharedSection) {
+            sharedSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }, 300);
+}
+
+// تعليم كل المواقف كمقروءة
+function markAllStoriesAsRead() {
+    db.ref('shared_stories').orderByChild('timestamp').limitToLast(1).once('value', snapshot => {
+        if (snapshot.exists()) {
+            let latestTimestamp = 0;
+            snapshot.forEach(child => {
+                latestTimestamp = child.val().timestamp;
+            });
+            
+            lastCheckedStoryTimestamp = latestTimestamp;
+            localStorage.setItem('lastCheckedStoryTime', latestTimestamp.toString());
+        }
+    });
+}
+
+// اختيار نوع المشاركة
+function selectSharingOption(option) {
+    sharingOption = option;
+}
+
+// فتح نافذة كتابة موقف جديد
+function openJournalEntryModal() {
+    document.getElementById('journalEntryModal').style.display = 'block';
+    // إعادة تعيين الحقول
+    document.getElementById('journalTitle').value = '';
+    document.getElementById('journalContent').value = '';
+    document.getElementById('journalVerse').value = '';
+    selectedFeeling = '';
+    selectedFeelingText = '';
+    sharingOption = 'private';
+    
+    // إعادة تحديد الخيار الافتراضي
+    document.querySelectorAll('input[name="sharing"]').forEach(radio => {
+        radio.checked = (radio.value === 'private');
+    });
+    
+    // إزالة التحديد من جميع المشاعر
+    document.querySelectorAll('.feeling-option').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+}
+
+// إغلاق نافذة كتابة موقف
+function closeJournalEntryModal() {
+    document.getElementById('journalEntryModal').style.display = 'none';
+}
+
+// اختيار المشاعر
+function selectFeeling(feeling, feelingText) {
+    selectedFeeling = feeling;
+    selectedFeelingText = feelingText;
+    
+    // إزالة التحديد من جميع الأزرار
+    document.querySelectorAll('.feeling-option').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    
+    // تحديد الزر المختار
+    event.target.closest('.feeling-option').classList.add('selected');
+}
+
+// حفظ الموقف
+function saveJournalEntry() {
+    const title = document.getElementById('journalTitle').value.trim();
+    const content = document.getElementById('journalContent').value.trim();
+    const verse = document.getElementById('journalVerse').value.trim();
+    
+    // التحقق من البيانات
+    if (!selectedFeeling) {
+        alert('اختار إحساسك الأول 💭');
+        return;
+    }
+    
+    if (!title) {
+        alert('اكتب عنوان للموقف 📌');
+        return;
+    }
+    
+    if (!content) {
+        alert('اكتب تفاصيل الموقف ✍️');
+        return;
+    }
+    
+    const userName = localStorage.getItem('selected_user_name') || 'مجهول';
+    
+    // إنشاء كائن الموقف
+    const entry = {
+        id: Date.now(),
+        feeling: selectedFeeling,
+        feelingText: selectedFeelingText,
+        title: title,
+        content: content,
+        verse: verse,
+        sharing: sharingOption,
+        author: userName,
+        date: new Date().toLocaleDateString('ar-EG', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        }),
+        timestamp: Date.now()
+    };
+    
+    // حفظ في LocalStorage الخاص
+    let entries = JSON.parse(localStorage.getItem('journalEntries') || '[]');
+    entries.unshift(entry);
+    localStorage.setItem('journalEntries', JSON.stringify(entries));
+    
+    // إذا كان مشترك، حفظه في Firebase
+    if (sharingOption === 'named' || sharingOption === 'anonymous') {
+        const sharedEntry = {
+            ...entry,
+            displayName: sharingOption === 'named' ? userName : 'شخص معاكم'
+        };
+        
+        // حفظ في Firebase
+        db.ref('shared_stories').push(sharedEntry);
+    }
+    
+    // إغلاق النافذة
+    closeJournalEntryModal();
+    
+    // تحديث العرض
+    loadJournalEntries();
+    if (sharingOption !== 'private') {
+        setTimeout(() => loadSharedStories(), 500);
+    }
+    
+    // كونفيتي احتفالي
+    if (typeof confetti !== 'undefined') {
+        confetti({ particleCount: 100, spread: 60, origin: { y: 0.6 } });
+    }
+    
+    // إشعار
+    const shareMsg = sharingOption === 'private' ? '' : ' وتم مشاركته مع المخدومين 💚';
+    showNotification('تم حفظ الموقف بنجاح!' + shareMsg);
+    
+    // إضافة شارة عند أول موقف
+    if (entries.length === 1) {
+        addBadge('first_journal', 'أول يومية', 'gold', '📔', 'كتبت أول موقف في يومياتك');
+    }
+    
+    // شارة عند أول مشاركة
+    if (sharingOption !== 'private') {
+        const sharedCount = entries.filter(e => e.sharing !== 'private').length;
+        if (sharedCount === 1) {
+            addBadge('first_share', 'مشارك مبارك', 'blue', '💚', 'شاركت موقف مع المخدومين');
+        }
+    }
+    
+    // شارة عند 5 مواقف
+    if (entries.length === 5) {
+        addBadge('five_journals', 'كاتب نشيط', 'silver', '✍️', 'كتبت 5 مواقف');
+    }
+    
+    // شارة عند 10 مواقف
+    if (entries.length === 10) {
+        addBadge('ten_journals', 'مؤلف يوميات', 'gold', '📖', 'كتبت 10 مواقف');
+    }
+}
+
+// تحميل وعرض المواقف
+function loadJournalEntries(filterFeeling = 'all') {
+    const entries = JSON.parse(localStorage.getItem('journalEntries') || '[]');
+    const container = document.getElementById('journalEntriesContainer');
+    
+    if (entries.length === 0) {
+        container.innerHTML = `
+            <div class="empty-journal" style="text-align:center; padding:40px 20px; color:var(--text-secondary);">
+                <div style="font-size:70px; margin-bottom:12px; animation: bounce 2s infinite;">📔</div>
+                <p style="font-size:16px; font-weight:600; color:var(--text-primary); margin-bottom:6px;">لسه مكتبتش أي موقف</p>
+                <p style="font-size:13px;">ابدأ دلوقتي واكتب أول موقف ربنا وقف معاك فيه 💝</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // تصفية المواقف حسب المشاعر
+    const filteredEntries = filterFeeling === 'all' 
+        ? entries 
+        : entries.filter(e => e.feeling === filterFeeling);
+    
+    if (filteredEntries.length === 0) {
+        container.innerHTML = `
+            <div class="empty-journal" style="text-align:center; padding:40px 20px; color:var(--text-secondary);">
+                <div style="font-size:50px; margin-bottom:12px;">🔍</div>
+                <p style="font-size:15px; font-weight:600; color:var(--text-primary);">مفيش مواقف بالمشاعر دي</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = '';
+    
+    filteredEntries.forEach(entry => {
+        // تحديد أيقونة ولون المشاركة
+        let sharingIcon = '';
+        let sharingText = '';
+        let sharingColor = '';
+        
+        if (entry.sharing === 'named') {
+            sharingIcon = '👤';
+            sharingText = 'مشارك باسمك';
+            sharingColor = '#10b981';
+        } else if (entry.sharing === 'anonymous') {
+            sharingIcon = '🎭';
+            sharingText = 'مشارك كـ "شخص معاكم"';
+            sharingColor = '#3b82f6';
+        } else {
+            sharingIcon = '🔒';
+            sharingText = 'خاص';
+            sharingColor = '#718096';
+        }
+        
+        const card = document.createElement('div');
+        card.className = 'journal-entry-card';
+        card.innerHTML = `
+            <div class="journal-entry-header">
+                <div class="journal-entry-feeling">${entry.feelingText.split(' ')[0]}</div>
+                <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                    <div class="journal-entry-date">${entry.date}</div>
+                    <div style="font-size:11px; font-weight:600; color:${sharingColor};">
+                        ${sharingIcon} ${sharingText}
+                    </div>
+                </div>
+            </div>
+            <div class="journal-entry-title">${entry.title}</div>
+            <div class="journal-entry-content">${entry.content}</div>
+            ${entry.verse ? `<div class="journal-entry-verse">📖 ${entry.verse}</div>` : ''}
+            <div class="journal-entry-actions">
+                <button class="journal-action-btn journal-delete-btn" onclick="deleteJournalEntry(${entry.id})">
+                    🗑️ احذف
+                </button>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// حذف موقف
+function deleteJournalEntry(entryId) {
+    if (!confirm('متأكد إنك عاوز تحذف الموقف ده؟')) {
+        return;
+    }
+    
+    let entries = JSON.parse(localStorage.getItem('journalEntries') || '[]');
+    entries = entries.filter(e => e.id !== entryId);
+    localStorage.setItem('journalEntries', JSON.stringify(entries));
+    
+    loadJournalEntries();
+    showNotification('تم حذف الموقف 🗑️');
+}
+
+// فلترة المواقف حسب المشاعر
+function filterJournalByFeeling(feeling) {
+    // تحديث الأزرار
+    document.querySelectorAll('.filter-feeling-btn').forEach(btn => {
+        btn.classList.remove('filter-active');
+    });
+    event.target.classList.add('filter-active');
+    
+    // تحميل المواقف المفلترة
+    loadJournalEntries(feeling);
+}
+
+// تحميل المواقف المشتركة من Firebase
+function loadSharedStories() {
+    const container = document.getElementById('sharedStoriesContainer');
+    
+    db.ref('shared_stories').orderByChild('timestamp').limitToLast(20).once('value', snapshot => {
+        if (!snapshot.exists()) {
+            container.innerHTML = `
+                <div class="empty-journal" style="text-align:center; padding:30px 20px; color:var(--text-secondary);">
+                    <div style="font-size:60px; margin-bottom:12px;">💬</div>
+                    <p style="font-size:15px; font-weight:600; color:var(--text-primary);">لسه محدش شارك مواقفه</p>
+                    <p style="font-size:12px; margin-top:6px;">كن أول واحد يشارك موقف ربنا معاه 🌟</p>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = '';
+        const stories = [];
+        
+        snapshot.forEach(child => {
+            stories.push({
+                key: child.key,
+                ...child.val()
+            });
+        });
+        
+        // ترتيب من الأحدث للأقدم
+        stories.reverse();
+        
+        stories.forEach(story => {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'shared-story-message';
+            messageDiv.innerHTML = `
+                <div class="shared-story-header">
+                    <div class="shared-story-author">
+                        <span class="shared-story-feeling">${story.feelingText.split(' ')[0]}</span>
+                        ${story.displayName}
+                    </div>
+                    <div class="shared-story-date">${formatRelativeTime(story.timestamp)}</div>
+                </div>
+                <div class="shared-story-title">${story.title}</div>
+                <div class="shared-story-content">${story.content}</div>
+                ${story.verse ? `<div class="shared-story-verse">📖 ${story.verse}</div>` : ''}
+            `;
+            container.appendChild(messageDiv);
+        });
+        
+        // التمرير للأسفل (أحدث رسالة)
+        container.scrollTop = container.scrollHeight;
+    });
+}
+
+// تنسيق الوقت النسبي
+function formatRelativeTime(timestamp) {
+    const now = Date.now();
+    const diff = now - timestamp;
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+    
+    if (minutes < 1) return 'الآن';
+    if (minutes < 60) return `منذ ${minutes} دقيقة`;
+    if (hours < 24) return `منذ ${hours} ساعة`;
+    if (days < 7) return `منذ ${days} يوم`;
+    
+    return new Date(timestamp).toLocaleDateString('ar-EG', {
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+// تحميل اليوميات عند تحميل الصفحة
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        loadJournalEntries();
+    }, 2000);
+});
 
 </script>
 </body>
