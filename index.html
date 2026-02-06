@@ -1,4 +1,39 @@
 
+<!--
+╔═══════════════════════════════════════════════════════════════════╗
+║  🔒 نظام حماية محدّث ضد التكرار من أجهزة متعددة 🔒              ║
+╠═══════════════════════════════════════════════════════════════════╣
+║                                                                   ║
+║  ✅ تم إصلاح المشاكل التالية:                                    ║
+║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+║                                                                   ║
+║  1️⃣  مذبح الصلاة (sendMutualPrayer):                            ║
+║     • التحقق من Firebase قبل الإرسال                            ║
+║     • حفظ آخر تاريخ إرسال في users/{userId}/last_prayer_submit_date ║
+║     • إضافة submitDate و userId لكل تقرير                       ║
+║     • منع الإرسال المتكرر من أجهزة مختلفة ✓                     ║
+║                                                                   ║
+║  2️⃣  حضور الخدمة والقداس (submitAttendance):                    ║
+║     • النظام كان يستخدم Firebase بالفعل ✓                       ║
+║     • تم إضافة userId و submitDate للتوثيق                      ║
+║     • الحماية موجودة من خلال checkDailyAttendanceLimit ✓         ║
+║                                                                   ║
+║  3️⃣  مسابقة الكتاب المقدس (saveQuizSubmission):                 ║
+║     • النظام كان يستخدم Firebase بالفعل ✓                       ║
+║     • تم إضافة submitDate للتوثيق                               ║
+║     • الحماية موجودة من خلال quiz_submissions/{quizId}/{userId} ✓  ║
+║                                                                   ║
+║  📌 الآن كل الأنظمة محمية من التكرار عبر:                       ║
+║     • Firebase (الحماية الرئيسية)                               ║
+║     • localStorage (نسخة احتياطية)                              ║
+║     • معرفات فريدة لكل مستخدم (userId)                          ║
+║     • تواريخ إرسال واضحة (submitDate)                           ║
+║                                                                   ║
+║  🎯 النتيجة: لا يمكن إرسال نفس الشيء أكثر من مرة في اليوم       ║
+║             حتى من أجهزة أو متصفحات مختلفة! 🛡️                   ║
+║                                                                   ║
+╚═══════════════════════════════════════════════════════════════════╝
+-->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -82,6 +117,390 @@
         }
         .login-icon { font-size: 56px; margin-bottom: 16px; animation: bounce 2s infinite; }
         .login-box p { color: #718096; font-size: 14px; margin-bottom: 22px; }
+
+        /* ===== قسم اختيار الزملاء للتأكيد ===== */
+        .peer-confirmation-section {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border: 2px solid var(--accent-1);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 20px 0;
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(102, 126, 234, 0.6);
+            }
+        }
+
+        .peer-confirmation-header {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .peer-confirmation-header h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent-1);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .peer-confirmation-header p {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .peers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .peer-card {
+            background: var(--bg-card);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .peer-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .peer-card.selected {
+            border-color: var(--success);
+            background: linear-gradient(135deg, #48bb7815 0%, #48bb7825 100%);
+        }
+
+        .peer-card .peer-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--bg-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin: 0 auto 8px;
+        }
+
+        .peer-card.selected .peer-avatar {
+            animation: bounceAvatar 0.5s ease;
+        }
+
+        @keyframes bounceAvatar {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .peer-card .peer-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .peer-card .peer-status {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .peer-card .check-icon {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 24px;
+            height: 24px;
+            background: var(--success);
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            animation: popIn 0.3s ease;
+        }
+
+        .peer-card.selected .check-icon {
+            display: flex;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .confirm-peers-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--bg-primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: all 0.3s ease;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .confirm-peers-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .confirm-peers-btn:not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* قسم طلبات التأكيد الواردة */
+        .pending-confirmations-section {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        /* ===== إشعار الطلبات المعلقة الثابت ===== */
+        #persistentNotificationsContainer {
+            position: fixed;
+            top: 70px;
+            left: 10px;
+            right: 10px;
+            max-width: 400px;
+            margin: 0 auto;
+            z-index: 9998;
+            pointer-events: none;
+        }
+
+        .persistent-notification-card {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+            padding: 16px;
+            border-radius: 16px;
+            margin-bottom: 10px;
+            box-shadow: 0 8px 24px rgba(255, 107, 107, 0.4);
+            animation: slideInBounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            pointer-events: all;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .persistent-notification-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(255, 107, 107, 0.5);
+        }
+
+        @keyframes slideInBounce {
+            0% {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+            60% {
+                transform: translateY(10px);
+                opacity: 1;
+            }
+            80% {
+                transform: translateY(-5px);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        .persistent-notification-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .persistent-notification-title {
+            font-size: 15px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .pulse-icon {
+            animation: pulseIcon 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulseIcon {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+        }
+
+        .persistent-notification-body {
+            font-size: 13px;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .persistent-notification-sender {
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .persistent-notification-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .persistent-notif-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .persistent-notif-accept {
+            background: white;
+            color: #48bb78;
+        }
+
+        .persistent-notif-accept:hover {
+            background: #f0fdf4;
+            transform: scale(1.05);
+        }
+
+        .persistent-notif-reject {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .persistent-notif-reject:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .pending-confirmations-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .pending-confirmations-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .pending-count {
+            background: var(--danger);
+            color: white;
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .confirmation-request-card {
+            background: linear-gradient(135deg, #f093fb15 0%, #4facfe15 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .confirmation-request-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .requester-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--bg-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .requester-info {
+            flex: 1;
+        }
+
+        .requester-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .request-time {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .confirmation-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .confirm-btn, .reject-btn {
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .confirm-btn {
+            background: var(--success);
+            color: white;
+        }
+
+        .reject-btn {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .confirm-btn:hover, .reject-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
 
         /* ===== MAIN ===== */
         #mainContent { display: none; animation: fadeIn 0.5s ease; padding-bottom: 30px; }
@@ -694,6 +1113,16 @@
 
         /* ===== ANIMATIONS ===== */
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
         @keyframes slideUp { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
         @keyframes slideInRight { from { opacity:0; transform:translateX(16px); } to { opacity:1; transform:translateX(0); } }
         @keyframes slideDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
@@ -803,6 +1232,180 @@
         @keyframes fadeOut {
             from { opacity: 1; transform: translateY(0); }
             to { opacity: 0; transform: translateY(-50px); }
+        }
+
+        /* ===== PEER CONFIRMATION MODAL ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background-color: var(--bg-card);
+            margin: 10% auto;
+            padding: 25px 20px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.3s ease;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--bg-secondary);
+        }
+
+        .modal-header h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        .modal-header p {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .peers-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .peer-item {
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .peer-item:hover {
+            transform: translateX(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .peer-item.confirmed {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            cursor: default;
+        }
+
+        .peer-item.pending {
+            background: linear-gradient(135deg, #ecc94b 0%, #d69e2e 100%);
+            color: white;
+        }
+
+        .peer-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .peer-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--accent-1);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .peer-item.confirmed .peer-avatar,
+        .peer-item.pending .peer-avatar {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .peer-details h4 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .peer-details p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .peer-action {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .close-modal-btn {
+            background: var(--accent-1);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .close-modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .confirmation-badge {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .pending-badge {
+            background: linear-gradient(135deg, #ecc94b 0%, #d69e2e 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 8px;
+            animation: pulseBadge 2s infinite;
+        }
+
+        @keyframes pulseBadge {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
         }
 
         /* ===== RESPONSIVE ===== */
@@ -1211,6 +1814,9 @@
     </style>
 </head>
 <body>
+
+<!-- منطقة الإشعارات الثابتة -->
+<div id="persistentNotificationsContainer"></div>
 
 <!-- ===================== LOGIN ===================== -->
 <div id="loginScreen">
@@ -1736,14 +2342,21 @@
 
         <!-- Attendance -->
         <div class="section" style="border: 2px solid var(--success);">
-            <div class="section-title"><span class="emoji">⛪</span> ركن الالتزام الكنسي <span class="badge">٥ درجات 🎁</span></div>
-            <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">اختر اسمك أولاً ثم سجل حضورك لمرة واحدة يومياً:</p>
+            <div class="section-title"><span class="emoji">⛪</span> ركن الالتزام الكنسي <span class="badge">حتى ٦ نقاط 🎁</span></div>
+            <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">
+                اختر اسمك أولاً ثم سجل حضورك:<br>
+                <span style="font-size:11px; color:#10b981; font-weight:600;">
+                    ⛪ القداس: 3 نقاط + 3 بعد تأكيد زميلك = 6 نقاط • 🤝 الخدمة: 5 نقاط
+                </span>
+            </p>
             <select id="attendanceNameSelect"><option value="">-- اختر اسمك --</option></select>
             <div class="attendance-row">
                 <span>☦️ القداس النهارده:</span>
                 <input type="time" id="massTime" placeholder="الساعة كام؟" style="width:100px;">
                 <input type="text" id="priestName" placeholder="أبونا مين؟" style="width:120px;">
                 <button class="btn btn-success" onclick="submitAttendance('قداس','liturgyDay')">✅ سجل</button>
+            </div>
+            <div id="confirmationStatus" style="display:none; background:linear-gradient(135deg, #fbbf24, #f59e0b); color:white; padding:12px; border-radius:12px; margin-top:10px; font-size:13px; font-weight:600; text-align:center;">
             </div>
             <div class="attendance-row">
                 <span>🤝 الخدمة:</span>
@@ -1760,6 +2373,20 @@
 
     </div><!-- end container -->
 </div><!-- end mainContent -->
+
+<!-- Peer Confirmation Modal -->
+<div id="peerConfirmationModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>🤝 اختر زميل لتأكيد حضورك</h3>
+            <p>اختر واحد من زمايلك عشان يأكد إنك كنت معاهم في القداس</p>
+        </div>
+        <div id="peersList" class="peers-list">
+            <!-- سيتم ملؤها بالأسماء من JavaScript -->
+        </div>
+        <button class="close-modal-btn" onclick="closePeerModal()">إغلاق</button>
+    </div>
+</div>
 
 <!-- ===================== SCRIPT ===================== -->
 <script>
@@ -1858,6 +2485,15 @@ function checkAccess() {
         startApp();
         showRandomVerse();
         confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+        
+        // تشغيل الإشعارات تلقائياً بناءً على آخر اسم محفوظ
+        setTimeout(() => {
+            const savedUserName = localStorage.getItem('selected_user_name');
+            if (savedUserName) {
+                console.log('🔔 بدء الاستماع للإشعارات للمستخدم:', savedUserName);
+                startPendingConfirmationsListener(savedUserName);
+            }
+        }, 1000);
     } else { alert("كلمة السر خطأ ❌"); }
 }
 
@@ -2044,7 +2680,25 @@ function updateLeaderboardUI(data) {
 
     if (selectQuiz) selectQuiz.value = curQ;
     if (selectPrayer) selectPrayer.value = curP;
-    if (selectAttendance) selectAttendance.value = curA;
+    if (selectAttendance) {
+        selectAttendance.value = curA;
+        // إضافة event listener للتحقق من طلبات التأكيد
+        selectAttendance.addEventListener('change', function() {
+            if (this.value) {
+                setTimeout(() => checkPendingConfirmations(), 500);
+                // بدء المراقبة المستمرة
+                startPendingConfirmationsListener(this.value);
+            }
+        });
+        
+        // التحقق الفوري عند تحميل الصفحة إذا كان الاسم محفوظ
+        if (curA) {
+            setTimeout(() => {
+                checkPendingConfirmations();
+                startPendingConfirmationsListener(curA);
+            }, 1000);
+        }
+    }
     if (selectName) selectName.value = curN;
 
     Object.values(data).sort((a,b) => b.score - a.score).forEach(p => {
@@ -2162,7 +2816,7 @@ function listenToAdminPrayers() {
 }
 
 // ===== MUTUAL PRAYER (ALTAR) =====
-function sendMutualPrayer() {
+async function sendMutualPrayer() {
     const name = document.getElementById('prayerUserName').value;
     const durationValue = document.getElementById('prayerDuration').value.trim();
     const agpeya = document.getElementById('agpeyaText').value.trim();
@@ -2188,63 +2842,109 @@ function sendMutualPrayer() {
     // التحقق من الآية
     if (!verse) return alert("اكتب آية من الكتاب المقدس 📜");
 
-    const lastPrayerDate = localStorage.getItem('last_prayer_submit_date');
-    const todayDate = new Date().toLocaleDateString();
-    if (lastPrayerDate === todayDate) {
-        return alert("لقد قمت بإرسال المذبح اليوم بالفعل! ننتظرك غداً بكل حب ❤️");
-    }
+    const todayDate = new Date().toISOString().split('T')[0]; // فورمات موحد YYYY-MM-DD
+    const userId = getUserId(name);
 
-    const report = {
-        makhdom: name,
-        time: new Date().toLocaleString(),
-        duration: durationValue + " دقيقة",
-        metania: { done: document.getElementById('metaniaDone').checked, count: document.getElementById('metaniaCount').value || 0 },
-        agpeya: agpeya,
-        thanks: thanks,
-        forgive: forgive,
-        heart: document.getElementById('prayHeart').value,
-        union: document.getElementById('prayUnion').value,
-        verse: verse
-    };
+    // ========== الحماية من الأجهزة المتعددة: التحقق من Firebase أولاً ==========
+    try {
+        // التحقق من آخر تاريخ إرسال في Firebase
+        const userLastSubmitRef = db.ref(`users/${userId}/last_prayer_submit_date`);
+        const lastSubmitSnapshot = await userLastSubmitRef.once('value');
+        const lastSubmitDate = lastSubmitSnapshot.val();
+        
+        if (lastSubmitDate === todayDate) {
+            return alert("لقد قمت بإرسال المذبح اليوم بالفعل من جهاز آخر! ننتظرك غداً بكل حب ❤️");
+        }
 
-    db.ref("prayer_reports").push(report).then(() => {
-        db.ref("points_data").once("value", snap => {
-            snap.forEach(child => {
-                if (child.val().name === name) {
-                    const currentScore = child.val().score || 0;
-                    const currentBreakdown = child.val().breakdown || {};
-                    
-                    // Update breakdown in Firebase
-                    const newBreakdown = {
-                        quiz: currentBreakdown.quiz || 0,
-                        prayer: (currentBreakdown.prayer || 0) + 5,
-                        attendance: currentBreakdown.attendance || 0
-                    };
-                    
-                    child.ref.update({ 
-                        score: currentScore + 5,
-                        breakdown: newBreakdown
-                    });
+        // التحقق المزدوج: البحث في تقارير الصلاة اليوم
+        const todayReportsSnapshot = await db.ref("prayer_reports")
+            .orderByChild('makhdom')
+            .equalTo(name)
+            .once('value');
+        
+        if (todayReportsSnapshot.exists()) {
+            let alreadySubmittedToday = false;
+            todayReportsSnapshot.forEach(child => {
+                const reportData = child.val();
+                if (reportData.submitDate === todayDate) {
+                    alreadySubmittedToday = true;
                 }
             });
+            
+            if (alreadySubmittedToday) {
+                return alert("لقد قمت بإرسال المذبح اليوم بالفعل! ننتظرك غداً بكل حب ❤️");
+            }
+        }
+
+        // ========== كل حاجة تمام، نبدأ الإرسال ==========
+        const report = {
+            makhdom: name,
+            userId: userId,
+            submitDate: todayDate,
+            time: new Date().toLocaleString(),
+            duration: durationValue + " دقيقة",
+            metania: { done: document.getElementById('metaniaDone').checked, count: document.getElementById('metaniaCount').value || 0 },
+            agpeya: agpeya,
+            thanks: thanks,
+            forgive: forgive,
+            heart: document.getElementById('prayHeart').value,
+            union: document.getElementById('prayUnion').value,
+            verse: verse
+        };
+
+        // حفظ التقرير
+        await db.ref("prayer_reports").push(report);
+        
+        // تحديث تاريخ آخر إرسال في Firebase (الحماية الأساسية)
+        await userLastSubmitRef.set(todayDate);
+        
+        // تحديث النقاط
+        const pointsSnapshot = await db.ref("points_data").once("value");
+        pointsSnapshot.forEach(child => {
+            if (child.val().name === name) {
+                const currentScore = child.val().score || 0;
+                const currentBreakdown = child.val().breakdown || {};
+                
+                const newBreakdown = {
+                    quiz: currentBreakdown.quiz || 0,
+                    prayer: (currentBreakdown.prayer || 0) + 5,
+                    attendance: currentBreakdown.attendance || 0
+                };
+                
+                child.ref.update({ 
+                    score: currentScore + 5,
+                    breakdown: newBreakdown
+                });
+            }
         });
         
-        // ========== نظام تتبع الأيام المتتالية ==========
+        // تتبع الأيام المتتالية
         trackPrayerStreak(name);
         
+        // حفظ في localStorage كنسخة احتياطية
         localStorage.setItem('last_prayer_submit_date', todayDate);
+        
+        // رسالة النجاح
         alert("تم الإرسال بنجاح يا " + name + "! تم إضافة ٥ درجات لميزانك 🎁");
+        
+        // تنظيف الحقول
         document.querySelectorAll('#mutualPrayerSection textarea, #mutualPrayerSection input:not([type="checkbox"])').forEach(el => el.value = "");
         document.getElementById('metaniaDone').checked = false;
+        
+        // احتفال
         confetti({ particleCount: 150, spread: 70, origin: { y: 0.8 } });
-    });
+        
+    } catch (error) {
+        console.error("خطأ في إرسال المذبح:", error);
+        alert("حصل خطأ في الإرسال. حاول تاني من فضلك! 🙏");
+    }
 }
 
 // ========== دالة تتبع الأيام المتتالية للصلاة ==========
 function trackPrayerStreak(userName) {
     const userId = getUserId(userName);
-    const todayDate = new Date().toLocaleDateString();
-    const yesterdayDate = new Date(Date.now() - 86400000).toLocaleDateString();
+    const todayDate = new Date().toISOString().split('T')[0]; // فورمات موحد
+    const yesterdayDate = new Date(Date.now() - 86400000).toISOString().split('T')[0]; // فورمات موحد
     
     // جلب بيانات التتابع من Firebase
     db.ref(`users/${userId}/prayer_streak`).once('value', snapshot => {
@@ -2399,9 +3099,11 @@ async function saveQuizSubmission(quizId, answers, score, max, finalPoints) {
     }
     
     try {
+        const todayDate = new Date().toISOString().split('T')[0];
         await db.ref(`quiz_submissions/${quizId}/${currentUserId}`).set({
             userName: currentUserName,
             userId: currentUserId,
+            submitDate: todayDate,
             answers: answers,
             score: score,
             max: max,
@@ -3122,7 +3824,7 @@ async function recordDailyAttendance(type, name) {
 
 async function submitAttendance(type, inputId) {
     const name = document.getElementById('attendanceNameSelect').value;
-    const today = new Date().toLocaleDateString();
+    const today = new Date().toISOString().split('T')[0]; // استخدام نفس الفورمات
     const serviceWarning = document.getElementById('serviceWarning');
     const massWarning = document.getElementById('massWarning');
 
@@ -3182,30 +3884,37 @@ async function submitAttendance(type, inputId) {
     // التسجيل في Firebase أولاً (الحماية القوية)
     await recordDailyAttendance(type, name);
 
-    db.ref("points_data").once("value", snap => {
-        snap.forEach(child => {
-            if (child.val().name === name) {
-                const currentScore = child.val().score || 0;
-                const currentBreakdown = child.val().breakdown || {};
-                
-                // Update breakdown in Firebase
-                const newBreakdown = {
-                    quiz: currentBreakdown.quiz || 0,
-                    prayer: currentBreakdown.prayer || 0,
-                    attendance: (currentBreakdown.attendance || 0) + 5
-                };
-                
-                child.ref.update({ 
-                    score: currentScore + 5,
-                    breakdown: newBreakdown
-                });
-            }
+    // إضافة النقاط حسب النوع
+    // القداس: لا نضيف نقاط هنا، سيتم إضافتها عند اختيار الزميل والتأكيد
+    // الخدمة: نضيف 5 نقاط مباشرة
+    if (type !== 'قداس') {
+        db.ref("points_data").once("value", snap => {
+            snap.forEach(child => {
+                if (child.val().name === name) {
+                    const currentScore = child.val().score || 0;
+                    const currentBreakdown = child.val().breakdown || {};
+                    
+                    // Update breakdown in Firebase
+                    const newBreakdown = {
+                        quiz: currentBreakdown.quiz || 0,
+                        prayer: currentBreakdown.prayer || 0,
+                        attendance: (currentBreakdown.attendance || 0) + 5
+                    };
+                    
+                    child.ref.update({ 
+                        score: currentScore + 5,
+                        breakdown: newBreakdown
+                    });
+                }
+            });
         });
-    });
+    }
 
     // حفظ البيانات مع الحقول الإضافية
     const logData = { 
-        makhdom: name, 
+        makhdom: name,
+        userId: getUserId(name),
+        submitDate: today,
         type, 
         day, 
         submittedAt: new Date().toLocaleString() 
@@ -3222,16 +3931,465 @@ async function submitAttendance(type, inputId) {
     const lockKey = `lock_${type}_${name}_${today}`;
     localStorage.setItem(lockKey, "true");
     
-    alert(`تم إضافة ٥ درجات حضور ${type} بنجاح ✅`);
-    
+    // إذا كان قداس، افتح مودال اختيار الزميل
     if (type === 'قداس') {
+        showPeerConfirmationModal(name);
         document.getElementById('massTime').value = "";
         document.getElementById('priestName').value = "";
     } else {
+        alert(`تم إضافة ٥ درجات حضور ${type} بنجاح ✅`);
         document.getElementById(inputId).value = "";
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.8 } });
+    }
+}
+
+// ===== نظام تأكيد الحضور بواسطة الزملاء =====
+
+let currentUser = '';
+let currentConfirmationId = '';
+
+// عرض مودال اختيار الزميل
+function showPeerConfirmationModal(userName) {
+    currentUser = userName;
+    const modal = document.getElementById('peerConfirmationModal');
+    const peersList = document.getElementById('peersList');
+    
+    // توليد معرف فريد لطلب التأكيد
+    currentConfirmationId = `confirm_${userName}_${Date.now()}`;
+    
+    // الحصول على جميع الأسماء
+    db.ref("points_data").once("value", snap => {
+        const allNames = [];
+        snap.forEach(child => {
+            const name = child.val().name;
+            if (name && name !== userName) {
+                allNames.push(name);
+            }
+        });
+        
+        // عرض الأسماء
+        peersList.innerHTML = '';
+        
+        if (allNames.length === 0) {
+            peersList.innerHTML = `
+                <div style="text-align:center; padding:20px; color:var(--text-secondary);">
+                    <p>لا يوجد زملاء متاحين حالياً</p>
+                </div>
+            `;
+        } else {
+            allNames.forEach(peerName => {
+                const peerItem = document.createElement('div');
+                peerItem.className = 'peer-item';
+                peerItem.innerHTML = `
+                    <div class="peer-info">
+                        <div class="peer-avatar">${peerName.charAt(0)}</div>
+                        <div class="peer-details">
+                            <h4>${peerName}</h4>
+                            <p>اضغط للاختيار</p>
+                        </div>
+                    </div>
+                    <div class="peer-action">
+                        <span>اختيار</span>
+                        <span>👆</span>
+                    </div>
+                `;
+                peerItem.onclick = () => selectPeerForConfirmation(peerName);
+                peersList.appendChild(peerItem);
+            });
+        }
+        
+        modal.style.display = 'block';
+    });
+    
+    // إضافة 3 نقاط فوراً للمستخدم الذي سجل الحضور
+    db.ref("points_data").once("value", snap => {
+        snap.forEach(child => {
+            if (child.val().name === userName) {
+                const currentScore = child.val().score || 0;
+                const currentBreakdown = child.val().breakdown || {};
+                
+                const newBreakdown = {
+                    quiz: currentBreakdown.quiz || 0,
+                    prayer: currentBreakdown.prayer || 0,
+                    attendance: (currentBreakdown.attendance || 0) + 3
+                };
+                
+                child.ref.update({ 
+                    score: currentScore + 3,
+                    breakdown: newBreakdown
+                });
+            }
+        });
+    });
+    
+    showNotification(`تم إضافة 3 نقاط! 🎉 اختر زميل لتأكيد حضورك`);
+}
+
+// اختيار زميل لتأكيد الحضور
+function selectPeerForConfirmation(peerName) {
+    // حفظ طلب التأكيد في Firebase
+    const confirmationRequest = {
+        requester: currentUser,
+        confirmer: peerName,
+        requestId: currentConfirmationId,
+        timestamp: Date.now(),
+        status: 'pending',
+        date: new Date().toISOString().split('T')[0] // فورمات موحد
+    };
+    
+    db.ref("confirmation_requests").push(confirmationRequest);
+    
+    // تحديث الواجهة لإظهار الحالة
+    showNotification(`تم إرسال طلب تأكيد إلى ${peerName} 📨`);
+    
+    // تحديث العرض في المودال
+    updatePeersListWithPending(peerName);
+    
+    // مراقبة حالة التأكيد
+    watchConfirmationStatus();
+}
+
+// تحديث قائمة الزملاء لإظهار حالة الانتظار
+function updatePeersListWithPending(peerName) {
+    const peersList = document.getElementById('peersList');
+    const items = peersList.querySelectorAll('.peer-item');
+    
+    items.forEach(item => {
+        const nameInItem = item.querySelector('.peer-details h4').textContent;
+        
+        if (nameInItem === peerName) {
+            item.className = 'peer-item pending';
+            item.onclick = null;
+            item.innerHTML = `
+                <div class="peer-info">
+                    <div class="peer-avatar">${peerName.charAt(0)}</div>
+                    <div class="peer-details">
+                        <h4>${peerName}</h4>
+                        <p>في انتظار التأكيد...</p>
+                    </div>
+                </div>
+                <div class="peer-action">
+                    <span>⏳</span>
+                </div>
+            `;
+        } else {
+            item.style.opacity = '0.5';
+            item.style.pointerEvents = 'none';
+        }
+    });
+}
+
+// مراقبة حالة التأكيد
+function watchConfirmationStatus() {
+    db.ref("confirmation_requests").on('value', snap => {
+        snap.forEach(child => {
+            const req = child.val();
+            
+            if (req.requestId === currentConfirmationId && req.status === 'confirmed') {
+                // إضافة 3 نقاط إضافية عند التأكيد
+                db.ref("points_data").once("value", pointsSnap => {
+                    pointsSnap.forEach(pointsChild => {
+                        if (pointsChild.val().name === currentUser) {
+                            const currentScore = pointsChild.val().score || 0;
+                            const currentBreakdown = pointsChild.val().breakdown || {};
+                            
+                            const newBreakdown = {
+                                quiz: currentBreakdown.quiz || 0,
+                                prayer: currentBreakdown.prayer || 0,
+                                attendance: (currentBreakdown.attendance || 0) + 3
+                            };
+                            
+                            pointsChild.ref.update({ 
+                                score: currentScore + 3,
+                                breakdown: newBreakdown
+                            });
+                        }
+                    });
+                });
+                
+                // تحديث المودال
+                const peersList = document.getElementById('peersList');
+                const items = peersList.querySelectorAll('.peer-item');
+                
+                items.forEach(item => {
+                    const nameInItem = item.querySelector('.peer-details h4').textContent;
+                    
+                    if (nameInItem === req.confirmer) {
+                        item.className = 'peer-item confirmed';
+                        item.innerHTML = `
+                            <div class="peer-info">
+                                <div class="peer-avatar">✓</div>
+                                <div class="peer-details">
+                                    <h4>${req.confirmer}</h4>
+                                    <p>تم التأكيد! +3 نقاط 🎉</p>
+                                </div>
+                            </div>
+                            <div class="peer-action">
+                                <span>✅</span>
+                            </div>
+                        `;
+                    }
+                });
+                
+                showNotification('تم تأكيد حضورك! +3 نقاط إضافية 🎊');
+                confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+                
+                // إيقاف المراقبة
+                db.ref("confirmation_requests").off('value');
+                
+                // إغلاق المودال بعد 3 ثواني
+                setTimeout(() => {
+                    closePeerModal();
+                }, 3000);
+            }
+        });
+    });
+}
+
+// إغلاق المودال
+function closePeerModal() {
+    const modal = document.getElementById('peerConfirmationModal');
+    modal.style.display = 'none';
+    db.ref("confirmation_requests").off('value');
+}
+
+// عرض طلبات التأكيد المعلقة للمستخدم الحالي
+function checkPendingConfirmations() {
+    const currentName = document.getElementById('attendanceNameSelect').value;
+    if (!currentName) return;
+    
+    db.ref("confirmation_requests").once('value', snap => {
+        const pendingRequests = [];
+        
+        snap.forEach(child => {
+            const req = child.val();
+            if (req.confirmer === currentName && req.status === 'pending') {
+                pendingRequests.push({
+                    key: child.key,
+                    ...req
+                });
+            }
+        });
+        
+        if (pendingRequests.length > 0) {
+            showPendingConfirmationsNotification(pendingRequests);
+        }
+    });
+}
+
+// مراقبة مستمرة للطلبات الواردة (Real-time)
+let confirmationListener = null;
+
+function startPendingConfirmationsListener(userName) {
+    if (!userName) return;
+    
+    // إيقاف المراقبة السابقة إن وجدت
+    if (confirmationListener) {
+        db.ref("confirmation_requests").off('value', confirmationListener);
     }
     
-    confetti({ particleCount: 100, spread: 70, origin: { y: 0.8 } });
+    // بدء مراقبة جديدة
+    confirmationListener = db.ref("confirmation_requests").on('value', snap => {
+        const pendingRequests = [];
+        
+        snap.forEach(child => {
+            const req = child.val();
+            if (req.confirmer === userName && req.status === 'pending') {
+                pendingRequests.push({
+                    key: child.key,
+                    ...req
+                });
+            }
+        });
+        
+        // عرض الإشعارات الثابتة
+        displayPersistentNotifications(pendingRequests);
+    });
+}
+
+// عرض الإشعارات الثابتة
+function displayPersistentNotifications(requests) {
+    const container = document.getElementById('persistentNotificationsContainer');
+    container.innerHTML = '';
+    
+    requests.forEach(req => {
+        const notifCard = document.createElement('div');
+        notifCard.className = 'persistent-notification-card';
+        notifCard.id = 'persistent-notif-' + req.key;
+        
+        notifCard.innerHTML = `
+            <div class="persistent-notification-header-row">
+                <div class="persistent-notification-title">
+                    <span class="pulse-icon">📩</span>
+                    طلب تأكيد حضور قداس
+                </div>
+            </div>
+            <div class="persistent-notification-body">
+                <div class="persistent-notification-sender">${req.requester}</div>
+                عاوزك تأكدله إنه كان حاضر القداس معاك
+            </div>
+            <div class="persistent-notification-actions">
+                <button class="persistent-notif-btn persistent-notif-accept" onclick="respondToPersistentRequest('${req.key}', '${req.requester}', 'confirmed')">
+                    ✅ أأكد حضوره
+                </button>
+                <button class="persistent-notif-btn persistent-notif-reject" onclick="respondToPersistentRequest('${req.key}', '${req.requester}', 'rejected')">
+                    ❌ مكنش موجود
+                </button>
+            </div>
+        `;
+        
+        container.appendChild(notifCard);
+    });
+    
+    // تشغيل صوت إشعار إذا كان هناك طلبات جديدة
+    if (requests.length > 0) {
+        playNotificationSound();
+    }
+}
+
+// الرد على طلب من الإشعار الثابت
+function respondToPersistentRequest(requestKey, requesterName, status) {
+    // تحديث حالة الطلب
+    db.ref(`confirmation_requests/${requestKey}`).update({
+        status: status,
+        respondedAt: Date.now()
+    });
+    
+    if (status === 'confirmed') {
+        showNotification(`تم تأكيد حضور ${requesterName} في القداس! ✅`);
+        if (typeof confetti !== 'undefined') {
+            confetti({ particleCount: 100, spread: 60, origin: { y: 0.7 } });
+        }
+    } else {
+        showNotification('تم رفض الطلب');
+    }
+    
+    // إزالة الإشعار من الشاشة مع أنيميشن
+    const notifCard = document.getElementById('persistent-notif-' + requestKey);
+    if (notifCard) {
+        notifCard.style.animation = 'slideOutUp 0.3s ease';
+        setTimeout(() => notifCard.remove(), 300);
+    }
+}
+
+// تشغيل صوت إشعار
+function playNotificationSound() {
+    try {
+        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZUA0PVK3n77BdGAg+ltryxnMpBSh+zPLaizsIGGS57OihUhELTKXh8bllHAU2jdXzzn0vBSqBzvDYijcIGWm98OScTgwNU6vk8bdlHQU5k9jyz3swBSl/zvPaizwIGGa88OOdUQ4OVrLn77RgGgg9m9vwv3ElBTGHzO/TgjgHHW/C7+CWTw0NVrPp67RgGgdBndvywHInBTOHzO/Rgj');
+        audio.volume = 0.3;
+        audio.play().catch(() => {});
+    } catch(e) {}
+}
+
+// عرض إشعار بطلبات التأكيد المعلقة
+function showPendingConfirmationsNotification(requests) {
+    const count = requests.length;
+    const message = `لديك ${count} طلب${count > 1 ? 'ات' : ''} تأكيد حضور معلق${count > 1 ? 'ة' : ''}`;
+    
+    // إنشاء إشعار قابل للنقر
+    const notification = document.createElement('div');
+    notification.className = 'pending-confirmation-notification';
+    notification.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(251,191,36,0.4);
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        z-index: 9999;
+        animation: slideInRight 0.5s ease;
+        max-width: 300px;
+    `;
+    notification.innerHTML = `
+        <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:24px;">🔔</span>
+            <div>
+                <div>${message}</div>
+                <div style="font-size:11px; opacity:0.9; margin-top:3px;">اضغط للمراجعة</div>
+            </div>
+        </div>
+    `;
+    
+    notification.onclick = () => {
+        showConfirmationRequestsModal(requests);
+        notification.remove();
+    };
+    
+    document.body.appendChild(notification);
+    
+    // صوت تنبيه (اختياري)
+    try {
+        const audio = new Audio('data:audio/wav;base64,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');
+        audio.volume = 0.3;
+        audio.play().catch(() => {}); // تجاهل الأخطاء إذا كان الصوت ممنوع
+    } catch(e) {}
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 10000);
+}
+
+// عرض مودال طلبات التأكيد
+function showConfirmationRequestsModal(requests) {
+    const modal = document.getElementById('peerConfirmationModal');
+    const peersList = document.getElementById('peersList');
+    const modalHeader = modal.querySelector('.modal-header');
+    
+    modalHeader.innerHTML = `
+        <h3>📋 طلبات تأكيد الحضور</h3>
+        <p>اضغط لتأكيد حضور زملائك معك في القداس</p>
+    `;
+    
+    peersList.innerHTML = '';
+    
+    requests.forEach(req => {
+        const peerItem = document.createElement('div');
+        peerItem.className = 'peer-item';
+        peerItem.innerHTML = `
+            <div class="peer-info">
+                <div class="peer-avatar">${req.requester.charAt(0)}</div>
+                <div class="peer-details">
+                    <h4>${req.requester}</h4>
+                    <p>يريد تأكيد حضوره في القداس</p>
+                    <div style="font-size:11px; opacity:0.8; margin-top:4px;">
+                        ${new Date(req.timestamp).toLocaleTimeString('ar-EG', {hour: '2-digit', minute: '2-digit'})}
+                    </div>
+                </div>
+            </div>
+            <div class="peer-action">
+                <span>تأكيد</span>
+                <span>✅</span>
+            </div>
+        `;
+        peerItem.onclick = () => confirmPeerAttendance(req.key, req.requester);
+        peersList.appendChild(peerItem);
+    });
+    
+    modal.style.display = 'block';
+}
+
+// تأكيد حضور زميل
+function confirmPeerAttendance(requestKey, requesterName) {
+    // تحديث حالة الطلب
+    db.ref(`confirmation_requests/${requestKey}`).update({
+        status: 'confirmed',
+        confirmedAt: Date.now()
+    });
+    
+    // ❌ المؤكِّد لا يحصل على نقاط (منعاً للتبادل)
+    // الهدف من التأكيد هو التحقق من الصدق فقط، وليس المكافأة
+    
+    const confirmerName = document.getElementById('attendanceNameSelect').value;
+    
+    showNotification(`تم تأكيد حضور ${requesterName}! شكراً لمساعدتك 🙏`);
+    confetti({ particleCount: 100, spread: 60, origin: { y: 0.7 } });
+    
+    closePeerModal();
 }
 
 // ===== SESSION CHECK ON LOAD =====
@@ -3258,6 +4416,13 @@ window.addEventListener('DOMContentLoaded', function() {
             }
             startApp();
             showRandomVerse();
+            
+            // تشغيل الإشعارات تلقائياً بناءً على آخر اسم محفوظ
+            const savedUserName = localStorage.getItem('selected_user_name');
+            if (savedUserName) {
+                console.log('🔔 بدء الاستماع للإشعارات للمستخدم:', savedUserName);
+                startPendingConfirmationsListener(savedUserName);
+            }
             // jihadDisplay removed - will show only when button clicked
         } else {
             localStorage.removeItem('session_login_time');
@@ -3481,6 +4646,9 @@ function confirmNameSelection() {
     
     // التحقق من رسائل التشجيع بعد 2 ثانية
     setTimeout(checkEncouragementMessages, 2000);
+    
+    // بدء الاستماع لطلبات التأكيد فوراً
+    startPendingConfirmationsListener(selectedName);
 }
 
 // دالة لعرض رسالة الترحيب
