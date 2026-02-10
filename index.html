@@ -5325,6 +5325,76 @@ window.addEventListener('load', () => {
     }, 2000);
 });
 
+// ═════════════════════════════════════════════════
+// 🔄 نظام التحديث الإجباري من الخادم
+// ═════════════════════════════════════════════════
+
+// المراقبة المستمرة لأمر التحديث من الخادم
+db.ref('force_update_trigger').on('value', snapshot => {
+    const trigger = snapshot.val();
+    const lastUpdate = localStorage.getItem('last_force_update');
+    
+    if (trigger && trigger.timestamp && trigger.timestamp !== lastUpdate) {
+        // أمر تحديث جديد من الخادم!
+        
+        // عرض رسالة للمستخدم
+        const updateMsg = document.createElement('div');
+        updateMsg.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            padding: 30px 40px;
+            border-radius: 20px;
+            text-align: center;
+            z-index: 999999;
+            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.5);
+            font-family: 'Cairo', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            animation: fadeInScale 0.3s ease;
+        `;
+        updateMsg.innerHTML = `
+            🔄 جاري تحديث الموقع...<br>
+            <small style="font-size:13px; opacity:0.9; font-weight:500;">من فضلك انتظر...</small>
+        `;
+        document.body.appendChild(updateMsg);
+        
+        // مسح الـ Cache
+        if ('caches' in window) {
+            caches.keys().then(names => {
+                names.forEach(name => caches.delete(name));
+            });
+        }
+        
+        // حفظ timestamp التحديث
+        localStorage.setItem('last_force_update', trigger.timestamp);
+        
+        // إعادة التحميل بعد ثانية
+        setTimeout(() => {
+            location.reload(true);
+        }, 1000);
+    }
+});
+
+// CSS Animation
+const updateStyle = document.createElement('style');
+updateStyle.textContent = `
+    @keyframes fadeInScale {
+        from {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.8);
+        }
+        to {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+    }
+`;
+document.head.appendChild(updateStyle);
+
 </script>
 </body>
 </html>
