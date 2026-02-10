@@ -5334,7 +5334,7 @@ db.ref('force_update_trigger').on('value', snapshot => {
     const trigger = snapshot.val();
     const lastUpdate = localStorage.getItem('last_force_update');
     
-    if (trigger && trigger.timestamp && trigger.timestamp !== lastUpdate) {
+    if (trigger && trigger.timestamp && String(trigger.timestamp) !== lastUpdate) {
         // أمر تحديث جديد من الخادم!
         
         // عرض رسالة للمستخدم
@@ -5370,7 +5370,7 @@ db.ref('force_update_trigger').on('value', snapshot => {
         }
         
         // حفظ timestamp التحديث
-        localStorage.setItem('last_force_update', trigger.timestamp);
+        localStorage.setItem('last_force_update', String(trigger.timestamp));
         
         // إعادة التحميل بعد ثانية
         setTimeout(() => {
