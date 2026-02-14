@@ -1,6 +1,6 @@
 
 <!--
-╔═══════════════════════════════════════════════════════════════════╗
+{<form></form>}╔═══════════════════════════════════════════════════════════════════╗
 ║  🔒 نظام حماية محدّث ضد التكرار من أجهزة متعددة 🔒              ║
 ╠═══════════════════════════════════════════════════════════════════╣
 ║                                                                   ║
@@ -77,7 +77,7 @@
             --text-secondary: #cbd5e0;
             --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
             --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
-            --shadow-lg: 0 8px 32px rgba(0,0,0,0.5);
+            --shadow-lg: 0 8px 32px@:: rgba(0,0,0,0.5);
         }
 
         * { margin:0; padding:0; box-sizing:border-box; }
@@ -2974,7 +2974,7 @@
             <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">
                 اختر اسمك أولاً ثم سجل حضورك:<br>
                 <span style="font-size:11px; color:#10b981; font-weight:600;">
-                    ⛪ القداس: 3 نقاط + 3 بعد تأكيد زميلك = 6 نقاط • 🤝 الخدمة: 5 نقاط
+                    ⛪ القداس: 0 نقاط بدون تأكيد • 6 نقاط مع تأكيد زميلك ✅ • 🤝 الخدمة: 5 نقاط
                 </span>
             </p>
             <select id="attendanceNameSelect"><option value="">-- اختر اسمك --</option></select>
@@ -4637,28 +4637,10 @@ function showPeerConfirmationModal(userName) {
         modal.style.display = 'block';
     });
     
-    // إضافة 3 نقاط فوراً للمستخدم الذي سجل الحضور
-    db.ref("points_data").once("value", snap => {
-        snap.forEach(child => {
-            if (child.val().name === userName) {
-                const currentScore = child.val().score || 0;
-                const currentBreakdown = child.val().breakdown || {};
-                
-                const newBreakdown = {
-                    quiz: currentBreakdown.quiz || 0,
-                    prayer: currentBreakdown.prayer || 0,
-                    attendance: (currentBreakdown.attendance || 0) + 3
-                };
-                
-                child.ref.update({ 
-                    score: currentScore + 3,
-                    breakdown: newBreakdown
-                });
-            }
-        });
-    });
+    // ===== لن نضيف نقاط فوراً =====
+    // سيحصل المستخدم على نقاط فقط عند تأكيد زميله
     
-    showNotification(`تم إضافة 3 نقاط! 🎉 اختر زميل لتأكيد حضورك`);
+    showNotification(`تم تسجيل حضورك! 📝 اختر زميل لتأكيد حضورك وتحصل على نقاط`);
 }
 
 // اختيار زميل لتأكيد الحضور
@@ -4722,7 +4704,7 @@ function watchConfirmationStatus() {
             const req = child.val();
             
             if (req.requestId === currentConfirmationId && req.status === 'confirmed') {
-                // إضافة 3 نقاط إضافية عند التأكيد
+                // إضافة 6 نقاط عند التأكيد
                 db.ref("points_data").once("value", pointsSnap => {
                     pointsSnap.forEach(pointsChild => {
                         if (pointsChild.val().name === currentUser) {
@@ -4732,11 +4714,11 @@ function watchConfirmationStatus() {
                             const newBreakdown = {
                                 quiz: currentBreakdown.quiz || 0,
                                 prayer: currentBreakdown.prayer || 0,
-                                attendance: (currentBreakdown.attendance || 0) + 3
+                                attendance: (currentBreakdown.attendance || 0) + 6
                             };
                             
                             pointsChild.ref.update({ 
-                                score: currentScore + 3,
+                                score: currentScore + 6,
                                 breakdown: newBreakdown
                             });
                         }
@@ -4767,7 +4749,7 @@ function watchConfirmationStatus() {
                     }
                 });
                 
-                showNotification('تم تأكيد حضورك! +3 نقاط إضافية 🎊');
+                showNotification('تم تأكيد حضورك! حصلت على 6 نقاط 🎊');
                 confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
                 
                 // إيقاف المراقبة
